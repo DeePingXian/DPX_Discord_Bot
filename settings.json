@@ -1,0 +1,51 @@
+{
+    "command_prefix": "!!",
+
+    "log_channel_id": 123456789012345678,
+
+    "MySQLSettings": {
+        "host": "192.168.1.999",
+        "port": 3306,
+        "user": "user",
+        "password": "1234"
+    },
+
+    "ytdlopts":{
+        "format": "bestaudio/best",
+        "outtmpl": "downloads/%(extractor)s-%(id)s-%(title)s.%(ext)s",
+        "restrictfilenames": true,
+        "noplaylist": true,
+        "nocheckcertificate": true,
+        "ignoreerrors": false,
+        "logtostderr": false,
+        "quiet": true,
+        "no_warnings": true,
+        "default_search": "auto",
+        "source_address": "0.0.0.0",  "//": "ipv6 addresses cause issues sometimes",
+        "cookiefile": "assets\\MusicBot\\youtube.com_cookies.txt"
+    },
+
+    "GDHTTPHeader":{
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.124 Safari/537.36"
+    },
+
+    "googleDriveFileSizeLimitInMB": 100,
+    "acceptableMusicContainer": ["aac" , "flac" , "m4a" , "mp3" , "ogg" , "wav" , "weba"],
+    "googleDriveIcon": "https://cdn.icon-icons.com/icons2/2631/PNG/512/google_drive_new_logo_icon_159136.png",
+
+    "ffmpegopts":{
+        "before_options": "-nostdin",
+        "options": "-vn -filter:a 'volume=0.5'"
+    },
+
+    "MusicBotOpts":{
+        "bitrate": 96
+    },
+
+    "newestNhentaiBookNum": 411000,
+    
+    "error_message_file": "assets\\error.jpg",
+
+    "BotIconUrl": "https://upload.wikimedia.org/wikipedia/en/f/f7/RickRoll.png",
+    "TOKEN": "TOKENHERE"
+}
