@@ -1,8 +1,7 @@
-# DPX_Discord_bot
+# DPX_Discord_Bot
 
-DPX Discord bot 開源版本
+DPX Discord Bot 開源版本
 ---
-license：BSD 2-Clause License  
 刪減自閉源的自用版本，需要連接MySQL才能使用，音樂佇列、部分訊息歷史紀錄會存在那，推薦使用XAMPP，還能順便開個web server用於顯示狀態  
 程式運行參數於settings.json設定，這份說明文檔的指令前綴字皆是預設值「!!」，實際使用時可自行更改
 運行時可使用「!!help」查詢指令  
