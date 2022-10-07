@@ -33,12 +33,12 @@ class HelpMessage(Cog_Extension):
             elif page == 3:
                 embed = discord.Embed(title="播音樂功能列表", description='\u200b' , color=0xc0c0c0)
                 embed.set_author(name="Discord bot" , url=discord.Embed.Empty , icon_url=json_data['BotIconUrl'])
-                embed.add_field(name="指令", value=f'{pf}play + (網址)\n{pf}add + (網址)\n{pf}pause\n{pf}resume\n{pf}skip\n{pf}loop\n{pf}stop\n{pf}join\n{pf}queue\n{pf}nowplaying' , inline=True)
-                embed.add_field(name="功能", value='播放該音樂\n增加該音樂至播放隊列\n暫停播放\n恢復播放\n跳過目前曲目\n單曲重複播放\n停止播放 並清除音樂資料\n加入用戶所在語音頻道\n查看播放隊列\n查看現正播放' , inline=True)
+                embed.add_field(name="指令", value=f'{pf}play + (網址)\n{pf}playlocal + (音樂檔案路徑)\n{pf}add + (網址)\n{pf}addlocal + (音樂檔案路徑)\n{pf}pause\n{pf}resume\n{pf}skip\n{pf}loop\n{pf}stop\n{pf}join\n{pf}queue\n{pf}nowplaying' , inline=True)
+                embed.add_field(name="功能", value='播放該音樂\n播放該本機音樂（僅限開bot的管理員使用）\n增加該音樂至播放隊列\n增加該本機音樂至播放隊列（僅限開bot的管理員使用）\n暫停播放\n恢復播放\n跳過目前曲目\n單曲重複播放\n停止播放 並清除音樂資料\n加入用戶所在語音頻道\n查看播放隊列\n查看現正播放' , inline=True)
                 embed.add_field(name='\u200b', value='\u200b' , inline=False)
                 embed.add_field(name='支援類型', value='網站\nGoogle雲端音訊檔案容器\nGoogle雲端單檔大小上限' , inline=True)
                 embed.add_field(name='\u200b', value=f'YouTube Google雲端\naac flac m4a mp3 ogg wav weba\n{json_data["googleDriveFileSizeLimitInMB"]}MB' , inline=True)
-                embed.add_field(name='\u200b', value=f'如果運行發生問題，請使用{pf}stop清除資料，並再重新操作一次' , inline=False)
+                embed.add_field(name='\u200b', value=f'並不支援播放YouTube合輯，播放將造成bot當機\n如果播音樂發生問題，請使用{pf}stop清除資料，並再重新操作一次，實在不行請重啟bot' , inline=False)
                 await ctx.send(embed=embed)
             elif page == 4:
                 embed = discord.Embed(title="其他功能列表", description='\u200b' , color=0xc0c0c0)

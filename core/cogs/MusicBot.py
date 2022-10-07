@@ -119,16 +119,20 @@ class MusicCommands(Cog_Extension):
     @commands.command()
     async def play(self , ctx , url):
         if ctx.author.voice: # If the person is in a channel
-            if url.startswith('https://youtube.com/') or url.startswith('https://www.youtube.com/') or url.startswith('https://youtu.be/'):         #處理 YouTube 影片
+            if url.startswith('https://youtube.com/') or url.startswith('https://www.youtube.com/') or url.startswith('https://youtu.be/') or url.startswith('https://m.youtube.com/'):         #處理 YouTube 影片
                 try:
+                    if '&playnext=' in url:
+                        0/0
                     if url.startswith('https://youtube.com/'):
                         url = url.replace('https://youtube.com/' , 'https://www.youtube.com/')
+                    elif url.startswith('https://m.youtube.com/'):
+                        url = url.replace('https://m.youtube.com/' , 'https://www.youtube.com/')
+                    elif url.startswith('https://youtu.be/'):
+                        url = url.replace('https://youtu.be/' , 'https://www.youtube.com/watch?v=')
                     if url.startswith('https://www.youtube.com/shorts/'):
                         url = url.replace('https://www.youtube.com/shorts/' , 'https://www.youtube.com/watch?v=')
                     elif 'playlist?list=' in url:
                         pytube.Playlist(url)
-                    elif url.startswith('https://youtu.be/'):
-                        url = url.replace('https://youtu.be/' , 'https://www.youtube.com/watch?v=')
                     else:
                         pytube.YouTube(url).check_availability()
                 except:
@@ -180,6 +184,38 @@ class MusicCommands(Cog_Extension):
             await ctx.reply('請先進入頻道')
 
     @commands.command()
+    async def playlocal(self , ctx , * , path=None):
+        if ctx.author.id == json_data['adminID']:
+            if ctx.author.voice: # If the person is in a channel
+                try:
+                    if AllMusicPlayingStatus[ctx.guild.id].playing == False:        #找不到此項或=False則進except
+                        0/0
+                except:
+                    if os.path.isfile(path):
+                        await self.JoinChannel(ctx)
+                        AllMusicPlayingStatus[ctx.guild.id] = self.MusicPlayingStatus(ctx , self.bot)
+                        AllMusicPlayingStatus[ctx.guild.id].playing = True
+                        if AllMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() < 51:
+                            AllMusicPlayingStatus[ctx.guild.id].InitMusic('' , 0)
+                            AllMusicPlayingStatus[ctx.guild.id].tempMusic.title = os.path.basename(path)
+                            AllMusicPlayingStatus[ctx.guild.id].tempMusic.audio_url = path
+                            AllMusicPlayingStatus[ctx.guild.id].tempMusic.thumbnail_url = json_data['localMusicIcon']
+                            await AllMusicPlayingStatus[ctx.guild.id].PutMusic()
+                        else:
+                            await ctx.send('播放隊列數量已達50上限')
+                        await AllMusicPlayingStatus[ctx.guild.id].GetMusic()
+                        self.bot.loop.create_task(self.AudioPlayerTask(ctx))
+                    else:
+                        await ctx.reply('找不到此檔案')
+                else:
+                    await self.JoinChannel(ctx)
+                    await self.addlocal(ctx , path)
+            else:
+                await ctx.reply('請先進入頻道')
+        else:
+            await ctx.reply('此功能僅限開此bot的管理員使用')
+
+    @commands.command()
     async def add(self , ctx , url):
         if ctx.voice_client: # If the commands is in a voice channel:
             try:
@@ -194,14 +230,20 @@ class MusicCommands(Cog_Extension):
                 except:
                     await ctx.reply('請先播放音樂')
                 else:
-                    if url.startswith('https://youtube.com/') or url.startswith('https://www.youtube.com/') or url.startswith('https://youtu.be/'):         #處理 YouTube 影片
+                    if url.startswith('https://youtube.com/') or url.startswith('https://www.youtube.com/') or url.startswith('https://youtu.be/') or url.startswith('https://m.youtube.com/'):         #處理 YouTube 影片
                         try:
+                            if '&playnext=' in url:
+                                0/0
                             if url.startswith('https://youtube.com/'):
                                 url = url.replace('https://youtube.com/' , 'https://www.youtube.com/')
-                            if 'playlist?list=' in url:
-                                pytube.Playlist(url)
+                            elif url.startswith('https://m.youtube.com/'):
+                                url = url.replace('https://m.youtube.com/' , 'https://www.youtube.com/')
                             elif url.startswith('https://youtu.be/'):
                                 url = url.replace('https://youtu.be/' , 'https://www.youtube.com/watch?v=')
+                            if url.startswith('https://www.youtube.com/shorts/'):
+                                url = url.replace('https://www.youtube.com/shorts/' , 'https://www.youtube.com/watch?v=')
+                            if 'playlist?list=' in url:
+                                pytube.Playlist(url)
                             else:
                                 pytube.YouTube(url).check_availability()
                         except:
@@ -278,6 +320,49 @@ class MusicCommands(Cog_Extension):
                             await ctx.send('播放隊列數量已達50上限')
         else:
             await ctx.reply('未處於任一語音頻道內')
+
+    @commands.command()
+    async def addlocal(self , ctx , *path_):
+        path = ''
+        if path_:
+            for i in range(len(path_)):
+                path+=path_[i]
+                if i != len(path_):
+                    path += ' '
+        del path_
+        if ctx.author.id == json_data['adminID']:
+            if ctx.voice_client: # If the commands is in a voice channel:
+                try:
+                    if ctx.voice_client.channel != ctx.message.author.voice.channel:        #確認用戶在頻道在頻道裡
+                        0/0
+                except:
+                    await ctx.reply('請先進入頻道')
+                else:
+                    try:
+                        if AllMusicPlayingStatus[ctx.guild.id].playing == False:        #找不到此項或=False則進except
+                            0/0
+                    except:
+                        await ctx.reply('請先播放音樂')
+                    else:
+                        if os.path.isfile(path):
+                            if AllMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() < 51:
+                                AllMusicPlayingStatus[ctx.guild.id].InitMusic('' , 0)
+                                AllMusicPlayingStatus[ctx.guild.id].tempMusic.title = os.path.basename(path)
+                                AllMusicPlayingStatus[ctx.guild.id].tempMusic.audio_url = path
+                                AllMusicPlayingStatus[ctx.guild.id].tempMusic.thumbnail_url = json_data['localMusicIcon']
+                                await AllMusicPlayingStatus[ctx.guild.id].PutMusic()
+                                music = AllMusicPlayingStatus[ctx.guild.id].tempMusic
+                                embed = discord.Embed(title='本機音樂', description=music.title , color=0x00ffff)
+                                embed.set_author(name="已加入隊列" , url=discord.Embed.Empty , icon_url=discord.Embed.Empty)
+                                await ctx.channel.send(embed=embed)
+                            else:
+                                await ctx.send('播放隊列數量已達50上限')
+                        else:
+                            await ctx.reply('找不到此檔案')
+            else:
+                await ctx.reply('未處於任一語音頻道內')
+        else:
+            await ctx.reply('此功能僅限開此bot的管理員使用')
 
     @commands.command()
     async def pause(self , ctx):
@@ -406,12 +491,12 @@ class MusicCommands(Cog_Extension):
                 0/0
             else:
                 music = AllMusicPlayingStatus[ctx.guild.id].music
-                if music.type == 1:
+                if music.type == 0:
+                    embed = discord.Embed(title=music.title, description='本機音樂' , color=0x00ff00)
+                elif music.type == 1:
                     embed = discord.Embed(title=music.title, description=f'長度：{music.duration}' , color=0x00ff00)
                 elif music.type == 2:
                     embed = discord.Embed(title=music.title, description='來自 Google 雲端硬碟' , color=0x00ff00)
-                elif music.type == 0:
-                    embed = discord.Embed(title=music.title, description='本地音樂' , color=0x00ff00)
                 embed.set_author(name="現正播放" , url=discord.Embed.Empty , icon_url=discord.Embed.Empty)
                 embed.set_thumbnail(url=music.thumbnail_url) 
                 await ctx.channel.send(embed=embed , delete_after=10)
@@ -428,14 +513,18 @@ class MusicCommands(Cog_Extension):
         else:
             queue = AllMusicPlayingStatus[ctx.guild.id].GetMusicQueue()
             embed = discord.Embed(title="音樂隊列", description=discord.Embed.Empty , color=0x00ffff)
-            if queue[0][8] == 1:
+            if queue[0][8] == 0:
+                MusicNames = f'現正播放：\n（本機音樂）{queue[0][1]}\n\n'
+            elif queue[0][8] == 1:
                 MusicNames = f'現正播放：\n（YouTube）{queue[0][1]} {queue[0][3]}\n\n'
             elif queue[0][8] == 2:
                 MusicNames = f'現正播放：\n（Google Drive）{queue[0][1]}\n\n'
             if len(queue) >= 2:
                 MusicNames += f'音樂隊列：\n'
             for i in range(1 , len(queue)):
-                if queue[i][8] == 1:
+                if queue[i][8] == 0:
+                    MusicNames += f'{"%02d" % (i)}.（本機音樂）{queue[i][1]}\n'
+                elif queue[i][8] == 1:
                     MusicNames += f'{"%02d" % (i)}.（YouTube）{queue[i][1]} {queue[i][3]}\n'
                 elif queue[i][8] == 2:
                     MusicNames += f'{"%02d" % (i)}.（Google Drive）{queue[i][1]}\n'
@@ -458,7 +547,14 @@ class MusicCommands(Cog_Extension):
                     await self.LeaveChannel(ctx)
                     break
             try:
-                if AllMusicPlayingStatus[ctx.guild.id].music.type == 1:
+                if AllMusicPlayingStatus[ctx.guild.id].music.type == 0:
+                    music = AllMusicPlayingStatus[ctx.guild.id].music
+                    if os.path.isfile(music.audio_url):
+                        ctx.voice_client.play(discord.FFmpegOpusAudio(executable = 'assets/MusicBot/ffmpeg.exe' , bitrate = json_data['MusicBotOpts']['bitrate'] , source = music.audio_url , before_options=json_data['ffmpegopts']['before_options'] , options=json_data['ffmpegopts']['options']) , after = lambda _: self.TogglePlayNextMusic(ctx))
+                        embed = discord.Embed(title=music.title, description='本機音樂' , color=0x00ff00)
+                    else:
+                        embed = discord.Embed(title=music.title, description='未找到檔案 將跳過' , color=0x00ff00)
+                elif AllMusicPlayingStatus[ctx.guild.id].music.type == 1:
                     await AllMusicPlayingStatus[ctx.guild.id].renewYTMusicInfo()
                     music = AllMusicPlayingStatus[ctx.guild.id].music
                     ctx.voice_client.play(discord.FFmpegOpusAudio(executable = 'assets/MusicBot/ffmpeg.exe' , bitrate = json_data['MusicBotOpts']['bitrate'] , source = music.audio_url , before_options=json_data['ffmpegopts']['before_options'] , options=json_data['ffmpegopts']['options']) , after = lambda _: self.TogglePlayNextMusic(ctx))

@@ -1,6 +1,8 @@
 {
     "command_prefix": "!!",
 
+    "adminID": 123456789012345678,
+
     "log_channel_id": 123456789012345678,
 
     "MySQLSettings": {
@@ -21,7 +23,7 @@
         "quiet": true,
         "no_warnings": true,
         "default_search": "auto",
-        "source_address": "0.0.0.0",  "//": "ipv6 addresses cause issues sometimes",
+        "source_address": "0.0.0.0",
         "cookiefile": "assets\\MusicBot\\youtube.com_cookies.txt"
     },
 
@@ -31,7 +33,9 @@
 
     "googleDriveFileSizeLimitInMB": 100,
     "acceptableMusicContainer": ["aac" , "flac" , "m4a" , "mp3" , "ogg" , "wav" , "weba"],
-    "googleDriveIcon": "https://cdn.icon-icons.com/icons2/2631/PNG/512/google_drive_new_logo_icon_159136.png",
+    "googleDriveIcon": "https://upload.wikimedia.org/wikipedia/en/f/f7/RickRoll.png",
+
+    "localMusicIcon":"https://upload.wikimedia.org/wikipedia/en/f/f7/RickRoll.png",
 
     "ffmpegopts":{
         "before_options": "-nostdin",
@@ -42,7 +46,7 @@
         "bitrate": 96
     },
 
-    "newestNhentaiBookNum": 411000,
+    "newestNhentaiBookNum": 423000,
     
     "error_message_file": "assets\\error.jpg",
 
