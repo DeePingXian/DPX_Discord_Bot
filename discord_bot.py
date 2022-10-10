@@ -56,7 +56,7 @@ LoadAnsweringContent()
 @bot.event
 async def on_ready():
     channel = bot.get_channel(json_data['log_channel_id'])
-    game = discord.Game('使用!!help查詢指令')
+    game = discord.Game(f'使用{json_data["command_prefix"]}help查詢指令')
     await bot.change_presence(status=discord.Status.online, activity=game)
     ping = round (bot.latency * 1000)
     print(f'啟動完成 與 Discord 延遲為 {ping} ms')
