@@ -12,17 +12,6 @@ class MySQL(Cog_Extension):
 
     command = ""
 
-    def hadleSpecialCharacters(self , string):
-        try:
-            string = string.replace("'" , "\\'")
-        except:
-            pass
-        try:
-            string = string.replace("\\" , "\\\\")
-        except:
-            pass
-        return string
-
     def test(self):
         try:
             MySQLConnection = pymysql.connect(**json_data['MySQLSettings'])
@@ -142,11 +131,11 @@ class MySQL(Cog_Extension):
                 command = f"DELETE FROM discord_{message.guild.id}_messagelog.{message.channel.id} limit 1"
                 cursor.execute(command)
                 MySQLConnection.commit()
-            message.content = self.hadleSpecialCharacters(message.content)
+            message.content = pymysql.converters.escape_string(message.content)
             if type == 0:
                 command = f"INSERT INTO discord_{message.guild.id}_messagelog.{message.channel.id} (author , author_id ,  content , attachment , sent_at , type) VALUES (\'{message.author}\' , \'{message.author.id}\' , \'{message.content}\' , \'{attachment}\' , \'{message.created_at}\' , 0);"
             elif type == 1:
-                message_before.content = self.hadleSpecialCharacters(message_before.content)
+                message_before.content = pymysql.converters.escape_string(message_before.content)
                 command = f"INSERT INTO discord_{message.guild.id}_messagelog.{message.channel.id} (author , author_id ,  content , editted_content , attachment , sent_at , editted_at , type) VALUES (\'{message.author}\' , \'{message.author.id}\' , \'{message_before.content}\' , \'{message.content}\' , \'{attachment}\' , \'{message.created_at}\' , \'{message.edited_at}\' , 1);"
             elif type == 2:
                 command = f"INSERT INTO discord_{message.guild.id}_messagelog.{message.channel.id} (author , author_id ,  content , attachment , sent_at , editted_at , type) VALUES (\'{message.author}\' , \'{message.author.id}\' , \'{message.content}\' , \'{attachment}\' , \'{message.created_at}\' , \'{deleted_at}\' , 2);"
@@ -201,9 +190,9 @@ class MySQL(Cog_Extension):
             command = f"SELECT * FROM discord_{GuildID}.music_queue"
             cursor.execute(command)
             MusicQueue = cursor.fetchall()
-            music.title = self.hadleSpecialCharacters(music.title)
-            music.audio_url = self.hadleSpecialCharacters(music.audio_url)
-            music.file_name = self.hadleSpecialCharacters(music.file_name)
+            music.title = pymysql.converters.escape_string(music.title)
+            music.audio_url = pymysql.converters.escape_string(music.audio_url)
+            music.file_name = pymysql.converters.escape_string(music.file_name)
             if MusicQueue == ():
                 command = f"INSERT INTO discord_{GuildID}.music_queue (id , title , file_name , duration , url , audio_url , thumbnail_url , file_size , type) VALUES (0 , \'{music.title}\' , \'{music.file_name}\' , \'{music.duration}\' , \'{music.url}\' , \'{music.audio_url}\' , \'{music.thumbnail_url}\' , \'{music.file_size}\' , \'{music.type}\');"
             else:

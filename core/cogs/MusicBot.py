@@ -427,7 +427,7 @@ class MusicCommands(Cog_Extension):
                         AllMusicPlayingStatus[ctx.guild.id].SingleLoop = False
                         await AllMusicPlayingStatus[ctx.guild.id].SetSingleLoop()
                         embed = discord.Embed(title='已跳過', description=AllMusicPlayingStatus[ctx.guild.id].music.title , color=0x00ffff)
-                        await ctx.channel.send(embed=embed , delete_after=10)
+                        await ctx.channel.send(embed=embed)
                         ctx.voice_client.stop()
             except:
                 await ctx.reply('請先進入頻道')
@@ -470,7 +470,7 @@ class MusicCommands(Cog_Extension):
                     0/0
                 else:
                     embed = discord.Embed(title='已停止播放', description=discord.Embed.Empty , color=0xff0000)
-                    await ctx.send(embed=embed , delete_after=10)
+                    await ctx.send(embed=embed)
                     await self.LeaveChannel(ctx)
             except:
                 await ctx.reply('請先進入頻道')
@@ -499,7 +499,7 @@ class MusicCommands(Cog_Extension):
                     embed = discord.Embed(title=music.title, description='來自 Google 雲端硬碟' , color=0x00ff00)
                 embed.set_author(name="現正播放" , url=discord.Embed.Empty , icon_url=discord.Embed.Empty)
                 embed.set_thumbnail(url=music.thumbnail_url) 
-                await ctx.channel.send(embed=embed , delete_after=10)
+                await ctx.channel.send(embed=embed)
         except:
             await ctx.send('未播放')
 
