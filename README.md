@@ -19,14 +19,6 @@ DPX Discord Bot 開源版本
 - gdown
 - openpyxl
 - PyMySQL
-## 由上述套件呼叫的其他套件
-- bs4
-- filelock
-- pkg_resources
-- soupsieve
-- tqdm
-- optparse
-- plistlib
 ***
 ## 功能＆使用說明
 請先至：https://discord.com/developers/applications 註冊一bot，並將該bot的token設定到settings.json中，讓此程式套上使用
