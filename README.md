@@ -99,6 +99,7 @@ DPX Discord Bot 開源版本
 
 ### **其他功能**
 <table>
+<tr><td>!!help</td><td>查詢指令</td></tr>
 <tr><td>!!status</td><td>回傳 bot 狀態</td></tr>
 <tr><td>!!MajorArcana + (隨意內容)</td><td>產生一張大密儀塔羅牌</td></tr>
 <tr><td>!!MajorArcana3 + (隨意內容)</td><td>產生三張大密儀塔羅牌</td></tr>
