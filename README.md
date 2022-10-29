@@ -21,7 +21,8 @@ DPX Discord Bot 開源版本
 - PyMySQL
 ***
 ## 功能＆使用說明
-請先至：https://discord.com/developers/applications 註冊一bot，並將該bot的token設定到settings.json中，讓此程式套上使用
+簡易教學影片：https://www.youtube.com/watch?v=3XOrqhkXuA0 ，實際請以這頁面為主  
+請至：https://discord.com/developers/applications 註冊一bot，並將該bot的token設定到settings.json中，讓此程式套上使用
 <br><br>
 
 ### **settings.json**

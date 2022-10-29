@@ -468,12 +468,12 @@ class MusicCommands(Cog_Extension):
             try:
                 if ctx.voice_client.channel != ctx.message.author.voice.channel:        #確認用戶在頻道在頻道裡
                     0/0
-                else:
-                    embed = discord.Embed(title='已停止播放', description=discord.Embed.Empty , color=0xff0000)
-                    await ctx.send(embed=embed)
-                    await self.LeaveChannel(ctx)
             except:
                 await ctx.reply('請先進入頻道')
+            else:
+                embed = discord.Embed(title='已停止播放', description=discord.Embed.Empty , color=0xff0000)
+                await ctx.send(embed=embed)
+                await self.LeaveChannel(ctx)
         else:
             await ctx.reply('未處於任一語音頻道內')
 
