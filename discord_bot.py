@@ -150,22 +150,25 @@ async def getwebtoken(ctx):
 
 @bot.command()
 async def status(ctx):
-    DBStatus = ''
-    if DB.test():
-        DBStatus = '正常'
+    if ctx.author.id == json_data['adminID']:
+        DBStatus = ''
+        if DB.test():
+            DBStatus = '正常'
+        else:
+            DBStatus = '錯誤'
+        ping = round (bot.latency * 1000)
+        CogFileString = ""
+        for CogFile in CogFileList:
+            CogFileString += f'{CogFile}\n'        
+        embed = discord.Embed(title="bot 狀態一覽", description='\u200b' , color=0xc0c0c0)
+        embed.set_author(name="DPX discord bot" , url=discord.Embed.Empty , icon_url=json_data['BotIconUrl'])
+        embed.add_field(name="類別", value='與 Discord 網路延遲\nMySQL 操作狀態' , inline=True)
+        embed.add_field(name="狀態", value=f'{ping} ms\n{DBStatus}' , inline=True)
+        embed.add_field(name='\u200b', value='\u200b' , inline=False)
+        embed.add_field(name="已載入之cog", value=CogFileString , inline=False)
+        await ctx.send(embed=embed)
     else:
-        DBStatus = '錯誤'
-    ping = round (bot.latency * 1000)
-    CogFileString = ""
-    for CogFile in CogFileList:
-        CogFileString += f'{CogFile}\n'        
-    embed = discord.Embed(title="bot 狀態一覽", description='\u200b' , color=0xc0c0c0)
-    embed.set_author(name="DPX discord bot" , url=discord.Embed.Empty , icon_url=json_data['BotIconUrl'])
-    embed.add_field(name="類別", value='與 Discord 網路延遲\nMySQL 操作狀態' , inline=True)
-    embed.add_field(name="狀態", value=f'{ping} ms\n{DBStatus}' , inline=True)
-    embed.add_field(name='\u200b', value='\u200b' , inline=False)
-    embed.add_field(name="已載入之cog", value=CogFileString , inline=False)
-    await ctx.send(embed=embed)
+        await ctx.reply('此功能僅限開此bot的管理員使用')
 
 @tasks.loop(hours=1)
 async def autoLog():
