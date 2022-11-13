@@ -95,6 +95,13 @@ DPX Discord Bot 開源版本
 如果播音樂發生問題，請使用!!stop清除資料，並再重新操作一次，實在不行請重啟bot
 <br><br><br>
 
+### **本 bot 附屬網頁相關**
+<table>
+<tr><td>!!getguildid</td><td>取得本 Discord 伺服器（群組）的 ID</td></tr>
+<tr><td>!!getwebtoken</td><td>取得存取網頁用的 token</td></tr>
+</table>
+<br><br>
+
 ### **訊息歷史紀錄功能**
 <table>
 <tr><td>!!history + (數字)</td><td>回傳前第n個被刪除/編輯的文字訊息 (上限99則)</td></tr>
