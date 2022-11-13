@@ -8,7 +8,7 @@ import time
 import datetime
 import openpyxl
 
-class HelpMessage(Cog_Extension):
+class messageHistory(Cog_Extension):
 
     #儲存被刪除的訊息
 
@@ -26,11 +26,11 @@ class HelpMessage(Cog_Extension):
             DB = self.bot.get_cog('MySQL')
             DB.PutMessageLog(message , None , time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime()) , 2)
             self.SaveDeletedMessage(message , DeletedTime)
-            if not os.path.isdir(f'MessageHistory\\{message.guild}\\{message.channel}\\files'):
-                os.makedirs(f'MessageHistory\\{message.guild}\\{message.channel}\\files')
+            if not os.path.isdir(f'messageHistory\\{message.guild}\\{message.channel}\\files'):
+                os.makedirs(f'messageHistory\\{message.guild}\\{message.channel}\\files')
             r=requests.get(message.attachments[0].url, stream=True)     #存附件
             slashpos = message.attachments[0].url.rfind('/')
-            imageName=str(f'MessageHistory\\{message.guild}\\{message.channel}\\files\\{message.author}➼{(message.attachments[0].url)[slashpos+1:]}')
+            imageName=str(f'messageHistory\\{message.guild}\\{message.channel}\\files\\{message.author}➼{(message.attachments[0].url)[slashpos+1:]}')
             with open(imageName, 'wb') as out_file:
                 shutil.copyfileobj(r.raw, out_file)
 
@@ -54,12 +54,12 @@ class HelpMessage(Cog_Extension):
             num = 1
         if num == 'all':
             try:
-                await ctx.send(file=discord.File(f'MessageHistory\\{ctx.guild}\\{ctx.channel}\\{ctx.channel}_MessageHistory.xlsx'))
+                await ctx.send(file=discord.File(f'messageHistory\\{ctx.guild}\\{ctx.channel}\\{ctx.channel}_messageHistory.xlsx'))
             except:
                 await ctx.send('無已刪除/編輯的文字訊息')
         elif int(num) >= 1 and int(num) <= 99:
             try:
-                AnsweringSheet = openpyxl.load_workbook(f'MessageHistory\\{ctx.guild}\\{ctx.channel}\\{ctx.channel}_MessageHistory.xlsx').worksheets[0]
+                AnsweringSheet = openpyxl.load_workbook(f'messageHistory\\{ctx.guild}\\{ctx.channel}\\{ctx.channel}_messageHistory.xlsx').worksheets[0]
             except:
                 await ctx.send('無已刪除/編輯的文字訊息')
             else:
@@ -96,7 +96,7 @@ class HelpMessage(Cog_Extension):
             num = num[0]
         except:
             num = 1
-        path = f'MessageHistory\\{ctx.guild}\\{ctx.channel}\\files'
+        path = f'messageHistory\\{ctx.guild}\\{ctx.channel}\\files'
         file_list = os.listdir(f'{path}')
         if len(file_list) != 0:
             file_list.sort(key=lambda x: os.path.getmtime(f'{path}\\{x}') , reverse = True)
@@ -109,14 +109,14 @@ class HelpMessage(Cog_Extension):
             await ctx.send('無已刪除檔案訊息')
 
     def SaveDeletedMessage(self , message , DeletedTime):
-        if not os.path.isdir(f'MessageHistory\\{message.guild}\\{message.channel}'):
-            os.makedirs(f'MessageHistory\\{message.guild}\\{message.channel}')
-        if not os.path.isfile(f'MessageHistory\\{message.guild}\\{message.channel}\\{message.channel}_MessageHistory.xlsx'):
+        if not os.path.isdir(f'messageHistory\\{message.guild}\\{message.channel}'):
+            os.makedirs(f'messageHistory\\{message.guild}\\{message.channel}')
+        if not os.path.isfile(f'messageHistory\\{message.guild}\\{message.channel}\\{message.channel}_messageHistory.xlsx'):
             AnsweringBook = openpyxl.Workbook()
             AnsweringSheet = AnsweringBook.active
             AnsweringSheet.append(('傳送者' , '原始訊息內容' , '修改後訊息內容' , '傳送時間' , '刪除/編輯時間'))
-            AnsweringBook.save(f'MessageHistory\\{message.guild}\\{message.channel}\\{message.channel}_MessageHistory.xlsx')
-        AnsweringBook = openpyxl.load_workbook(f'MessageHistory\\{message.guild}\\{message.channel}\\{message.channel}_MessageHistory.xlsx')
+            AnsweringBook.save(f'messageHistory\\{message.guild}\\{message.channel}\\{message.channel}_messageHistory.xlsx')
+        AnsweringBook = openpyxl.load_workbook(f'messageHistory\\{message.guild}\\{message.channel}\\{message.channel}_messageHistory.xlsx')
         AnsweringSheet = AnsweringBook.worksheets[0]
         if AnsweringSheet.max_row >= 100:
             for i in range(2 , AnsweringSheet.max_row):
@@ -135,17 +135,17 @@ class HelpMessage(Cog_Extension):
                     AnsweringSheet.cell(row=2 , column=5 , value=str(DeletedTime))
         else:
             AnsweringSheet.append((str(message.author) , str(message.content) ,'', str((message.created_at + datetime.timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")) , str(DeletedTime)))
-        AnsweringBook.save(f'MessageHistory\\{message.guild}\\{message.channel}\\{message.channel}_MessageHistory.xlsx')
+        AnsweringBook.save(f'messageHistory\\{message.guild}\\{message.channel}\\{message.channel}_messageHistory.xlsx')
 
     def SaveEdittedMessage(self , message_before , message_after , EdittedTime):
-        if not os.path.isdir(f'MessageHistory\\{message_before.guild}\\{message_before.channel}'):
-            os.makedirs(f'MessageHistory\\{message_before.guild}\\{message_before.channel}')
-        if not os.path.isfile(f'MessageHistory\\{message_before.guild}\\{message_before.channel}\\{message_before.channel}_MessageHistory.xlsx'):
+        if not os.path.isdir(f'messageHistory\\{message_before.guild}\\{message_before.channel}'):
+            os.makedirs(f'messageHistory\\{message_before.guild}\\{message_before.channel}')
+        if not os.path.isfile(f'messageHistory\\{message_before.guild}\\{message_before.channel}\\{message_before.channel}_messageHistory.xlsx'):
             AnsweringBook = openpyxl.Workbook()
             AnsweringSheet = AnsweringBook.active
             AnsweringSheet.append(('傳送者' , '原始訊息內容' , '修改後訊息內容' , '傳送時間' , '刪除/編輯時間'))
-            AnsweringBook.save(f'MessageHistory\\{message_before.guild}\\{message_before.channel}\\{message_before.channel}_MessageHistory.xlsx')
-        AnsweringBook = openpyxl.load_workbook(f'MessageHistory\\{message_before.guild}\\{message_before.channel}\\{message_before.channel}_MessageHistory.xlsx')
+            AnsweringBook.save(f'messageHistory\\{message_before.guild}\\{message_before.channel}\\{message_before.channel}_messageHistory.xlsx')
+        AnsweringBook = openpyxl.load_workbook(f'messageHistory\\{message_before.guild}\\{message_before.channel}\\{message_before.channel}_messageHistory.xlsx')
         AnsweringSheet = AnsweringBook.worksheets[0]
         if AnsweringSheet.max_row >= 100:
             for i in range(2 , AnsweringSheet.max_row):
@@ -164,7 +164,7 @@ class HelpMessage(Cog_Extension):
                     AnsweringSheet.cell(row=2 , column=5 , value=str(EdittedTime))
         else:
             AnsweringSheet.append((str(message_before.author) , str(message_before.content) , str(message_after.content) , str((message_before.created_at + datetime.timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")) , str(EdittedTime)))
-        AnsweringBook.save(f'MessageHistory\\{message_before.guild}\\{message_before.channel}\\{message_before.channel}_MessageHistory.xlsx')
+        AnsweringBook.save(f'messageHistory\\{message_before.guild}\\{message_before.channel}\\{message_before.channel}_messageHistory.xlsx')
 
 def setup(bot):
-    bot.add_cog(HelpMessage(bot))
+    bot.add_cog(messageHistory(bot))

@@ -36,6 +36,7 @@ DPX Discord Bot 開源版本
 <tr><td>command_prefix</td><td>設定bot的指令前綴字，若訊息開頭為此字串，bot會當指令處理</td></tr>
 <tr><td>☆log_channel_id</td><td>設定傳送log的Discord頻道ID，啟動時每隔一小時bot會在該頻道發送狀態訊息，配合訊息歷史紀錄功能可當log用</td></tr>
 <tr><td>☆MySQLSettings</td><td>設定MySQL連線參數</td></tr>
+<tr><td>webSettings</td><td>設定是否已啟用本bot附屬網頁，及網頁網址</td></tr>
 <tr><td>ytdlopts</td><td>設定ytdl參數</td></tr>
 <tr><td>△ytdlopts/cookiefile</td><td>設定連YouTube的cookie檔案，播YouTube音樂時使用，用於讓bot瀏覽有年齡限制的影片，若不設定將無法播放有年齡限制的影片。建議做法是隨便登個YouTube帳號，然後把它的cookie拿出來，放在json檔裡寫的那個位置</td></tr>
 <tr><td>GDHTTPHeader</td><td>設定向Google雲端發送的HTTP標頭</td></tr>
@@ -52,23 +53,26 @@ DPX Discord Bot 開源版本
 </table>
 <br><br>
 
+### **以下指令之command_prefix均以預設值「!!」表示**
+<br><br>
+
 ### **應答機**
 <br>
-使用\assets\AnsweringMachine\下的Excel表格設定<br>
+<table>
+<tr><td>!!sendansweringcontentlist</td><td>傳送應答列表</td></tr>
+<tr><td>!!editansweringcontentlist</td><td>修改應答列表（請附上應答列表檔案）</td></tr>
+</table>
 若訊息符合設定條件，bot會回傳設定的訊息內容<br>
-在線修改須使用!!reloadmsg讓bot重新載入內容<br>
-<br><br><br>
-
-### **以下指令之command_prefix均以預設值「!!」表示**
+修改訊息附件檔案須手動於\assets\answeringMachine\下修改<br>
 <br><br>
 
 ### **產生連結功能**
 <table>
-<tr><td>!!nh rand</td><td>隨機產生本子連結</td></tr>
-<tr><td>!!nh + (車號)</td><td>產生該本子連結</td></tr>
-<tr><td>!!pix + (作品號)</td><td>產生該pixiv作品連結</td></tr>
-<tr><td>!!pixu + (作者號)</td><td>產生該pixiv作者連結</td></tr>
-<tr><td>!!twiu + (用戶ID)</td><td>產生該twitter用戶連結</td></tr>
+<tr><td>!!nh rand</td><td>隨機傳送本子連結</td></tr>
+<tr><td>!!nh + (車號)</td><td>傳送該本子連結</td></tr>
+<tr><td>!!pix + (作品號)</td><td>傳送該pixiv作品連結</td></tr>
+<tr><td>!!pixu + (作者號)</td><td>傳送該pixiv作者連結</td></tr>
+<tr><td>!!twiu + (用戶ID)</td><td>傳送該twitter用戶連結</td></tr>
 </table>
 <br><br>
 
@@ -103,6 +107,6 @@ DPX Discord Bot 開源版本
 <table>
 <tr><td>!!help</td><td>查詢指令</td></tr>
 <tr><td>!!status</td><td>回傳 bot 狀態</td></tr>
-<tr><td>!!MajorArcana + (隨意內容)</td><td>產生一張大密儀塔羅牌</td></tr>
-<tr><td>!!MajorArcana3 + (隨意內容)</td><td>產生三張大密儀塔羅牌</td></tr>
+<tr><td>!!majorArcana + (隨意內容)</td><td>產生一張大密儀塔羅牌</td></tr>
+<tr><td>!!majorArcana3 + (隨意內容)</td><td>產生三張大密儀塔羅牌</td></tr>
 </table>

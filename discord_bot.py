@@ -4,10 +4,11 @@ from discord.ext import tasks
 from discord.ext.commands import Bot
 import shutil
 import os
-#程式整潔相關
 import json
-#Excel操作
 import openpyxl
+import requests
+import time
+import uuid
 
 with open('settings.json' , 'r' , encoding = 'utf8') as json_file:
     json_data = json.load(json_file)
@@ -34,43 +35,67 @@ if DB.test():
 else:
     print('MySQL 操作錯誤')
 
-#清空MusicTemp
+#清空musicTemp
 
-if os.path.isdir('assets/MusicBot/MusicTemp'):
-    shutil.rmtree('assets/MusicBot/MusicTemp' , ignore_errors = True)
+if os.path.isdir('assets/musicBot/musicTemp'):
+    shutil.rmtree('assets/musicBot/musicTemp' , ignore_errors = True)
 
 #載入答錄機訊息
 
 AnsweringDict = {}
-def LoadAnsweringContent():
-    AnsweringSheet = openpyxl.load_workbook('assets\\AnsweringMachine\\AnsweringContent.xlsx').worksheets[0]
+def loadAnsweringContent():
+    AnsweringDict.clear()
+    AnsweringSheet = openpyxl.load_workbook('assets\\answeringMachine\\answeringContent.xlsx').worksheets[0]
     for i in range(2 , AnsweringSheet.max_row+1):
         value = []
         for j in range(1 , 6):
             value.append(AnsweringSheet.cell(row=i, column=j).value)
         AnsweringDict[AnsweringSheet.cell(row=i, column=1).value] = value        
-LoadAnsweringContent()
+loadAnsweringContent()
+
+@bot.command()
+async def sendansweringcontentlist(ctx):
+    await ctx.send(file=discord.File('assets\\answeringMachine\\answeringContent.xlsx'))
+
+#修改答錄機訊息
+
+@bot.command()
+async def editansweringcontentlist(ctx):
+    try:
+        _ = ctx.message.attachments[0]
+    except:
+        await ctx.reply('請附上修改自「!!sendansweringcontentlist」指令提供的檔案')
+    else:
+        if ctx.message.attachments[0].url[0:26] == "https://cdn.discordapp.com" and ctx.message.attachments[0].url[ctx.message.attachments[0].url.rfind('/')+1:] == 'answeringContent.xlsx':
+            try:
+                if not os.path.isdir('assets/answeringMachine/temp'):         #先下載再取代，比較安全
+                    os.mkdir('assets/answeringMachine/temp')
+                r=requests.get(ctx.message.attachments[0].url , stream=True)
+                with open('assets\\answeringMachine\\temp\\answeringContent.xlsx', 'wb') as outFile:
+                    shutil.copyfileobj(r.raw, outFile)
+                shutil.copyfile('assets\\answeringMachine\\temp\\answeringContent.xlsx' , 'assets\\answeringMachine\\answeringContent.xlsx')
+                if os.path.isfile('assets\\answeringMachine\\temp\\answeringContent.xlsx'):
+                    os.remove('assets\\answeringMachine\\temp\\answeringContent.xlsx')
+            except:
+                await ctx.reply('寫入檔案時發生錯誤')
+            else:
+                loadAnsweringContent()
+                await ctx.send('應答機更新完成')
+        else:
+            await ctx.reply('請附上修改自「!!sendansweringcontentlist」指令提供的檔案')
 
 #啟動訊息
 
 @bot.event
 async def on_ready():
     channel = bot.get_channel(json_data['log_channel_id'])
-    game = discord.Game(f'使用{json_data["command_prefix"]}help查詢指令')
+    game = discord.Game(f'輸入{json_data["command_prefix"]}help查詢指令')
     await bot.change_presence(status=discord.Status.online, activity=game)
     ping = round (bot.latency * 1000)
     print(f'啟動完成 與 Discord 延遲為 {ping} ms')
     await channel.send('啟動完成')
-    autoLog.start()
     DB.CleanAllMusicTable()
-
-#重新讀取應答機訊息
-
-@bot.command()
-async def reloadmsg(ctx):
-    AnsweringDict.clear
-    LoadAnsweringContent()
-    await ctx.send('已重新載入應答機訊息')
+    autoLog.start()
 
 @bot.event
 async def on_message(message):
@@ -89,11 +114,37 @@ async def on_message(message):
                     await message.channel.send(AnsweringDict[i][1])
                 if AnsweringDict[i][2] != None:
                     try:
-                        await message.channel.send(file=discord.File(f'assets\\AnsweringMachine\\{AnsweringDict[i][2]}'))
+                        await message.channel.send(file=discord.File(f'assets\\answeringMachine\\{AnsweringDict[i][2]}'))
                     except:
                         pass
 
     await bot.process_commands(message)
+
+#取得本 Discord 伺服器的 ID
+
+@bot.command()
+async def getguildid(ctx):
+    await ctx.send(f'本伺服器ID：{ctx.guild.id}')
+
+#更新資料庫網頁存取token
+
+@tasks.loop(seconds=60)
+async def waitForUpdateToken():
+    nowHour = time.gmtime().tm_hour
+    nowMinute = time.gmtime().tm_min
+    if nowHour == 0 and nowMinute >= 0 and nowMinute <= 1:
+        updateToken.start()
+        waitForUpdateToken.stop()
+
+@tasks.loop(hours=24)
+async def updateToken():
+    DB.UpdateToken(str(uuid.uuid4())[:8])
+
+#取得存取網頁之token
+
+@bot.command()
+async def getwebtoken(ctx):
+    await ctx.send(f'目前存取網頁之 token：\n{DB.GetToken()}\ntoken 每天 UTC 0:00／CST 8:00 更新')
 
 #bot狀態回報
 

@@ -14,13 +14,13 @@ import uuid
 with open('settings.json', 'r', encoding='utf8') as json_file:
     json_data = json.load(json_file)
 
-AllMusicPlayingStatus = {}
+allMusicPlayingStatus = {}
 
-class MusicCommands(Cog_Extension):
+class musicCommands(Cog_Extension):
 
-    class MusicPlayingStatus:
+    class musicPlayingStatus:
 
-        class MusicDetail:
+        class musicDetail:
             def __init__(self , url):
                 self.url = url
                 self.title = None
@@ -35,6 +35,7 @@ class MusicCommands(Cog_Extension):
             self.ctx = ctx
             self.text_channel_id = ctx.channel.id
             self.music = None
+            self.tempMusic = None
             self.PlayNextMusic = asyncio.Event()
             self.playing = False
             self.SingleLoop = False
@@ -43,7 +44,7 @@ class MusicCommands(Cog_Extension):
             self.DB.CreateMusicTable(ctx.guild.id)
 
         def InitMusic(self , url , type):
-            self.tempMusic = self.MusicDetail(url)
+            self.tempMusic = self.musicDetail(url)
             self.tempMusic.type = type
 
         async def GetYTMusicInfo(self):
@@ -65,8 +66,8 @@ class MusicCommands(Cog_Extension):
             self.music.thumbnail_url = pytube.YouTube(self.music.url).thumbnail_url
 
         async def GetGDMusicInfo(self):
-            if not os.path.isdir('assets/MusicBot/MusicTemp'):
-                os.mkdir('assets/MusicBot/MusicTemp')
+            if not os.path.isdir('assets/musicBot/musicTemp'):
+                os.mkdir('assets/musicBot/musicTemp')
             self.tempMusic.title = (((requests.get(self.tempMusic.url , stream=True , headers=json_data['GDHTTPHeader'])).text.partition('</title>'))[0]).partition('<title>')[2]
             self.tempMusic.title = self.tempMusic.title[:self.tempMusic.title.rfind(' -')]
             if self.tempMusic.title[self.tempMusic.title.rfind('.')+1:] in json_data['acceptableMusicContainer']:
@@ -83,8 +84,8 @@ class MusicCommands(Cog_Extension):
             self.tempMusic.thumbnail_url = json_data['googleDriveIcon']
 
         async def downloadGDMusic(self):
-            if (self.music.file_name != '') and (not self.music.file_name in os.listdir('assets/MusicBot/MusicTemp')):
-                gdown.download(id=(self.music.url.lstrip('https://drive.google.com/file/d/')).partition('/')[0], output='assets/MusicBot/MusicTemp/' + self.music.file_name, quiet=True)
+            if (self.music.file_name != '') and (not self.music.file_name in os.listdir('assets/musicBot/musicTemp')):
+                gdown.download(id=(self.music.url.lstrip('https://drive.google.com/file/d/')).partition('/')[0], output='assets/musicBot/musicTemp/' + self.music.file_name, quiet=True)
 
         async def PutMusic(self):
             self.DB.PutMusic(self.ctx.guild.id , self.tempMusic)
@@ -139,43 +140,43 @@ class MusicCommands(Cog_Extension):
                     await ctx.reply('此連結無法使用')
                 else:
                     try:
-                        if AllMusicPlayingStatus[ctx.guild.id].playing == False:        #找不到此項或=False則進except
+                        if allMusicPlayingStatus[ctx.guild.id].playing == False:        #找不到此項或=False則進except
                             0/0
                     except:
                         await self.JoinChannel(ctx)
-                        AllMusicPlayingStatus[ctx.guild.id] = self.MusicPlayingStatus(ctx , self.bot)
-                        AllMusicPlayingStatus[ctx.guild.id].playing = True
+                        allMusicPlayingStatus[ctx.guild.id] = self.musicPlayingStatus(ctx , self.bot)
+                        allMusicPlayingStatus[ctx.guild.id].playing = True
                         if 'playlist?list=' in url:
                             await self.add(ctx , url)
                         elif ('watch?v=' in url) and ('&list=' in url):
                             await self.add(ctx , url)
                         else:
-                            if AllMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() < 51:
-                                AllMusicPlayingStatus[ctx.guild.id].InitMusic(url , 1)
-                                await AllMusicPlayingStatus[ctx.guild.id].GetYTMusicInfo()
-                                await AllMusicPlayingStatus[ctx.guild.id].PutMusic()
+                            if allMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() < 51:
+                                allMusicPlayingStatus[ctx.guild.id].InitMusic(url , 1)
+                                await allMusicPlayingStatus[ctx.guild.id].GetYTMusicInfo()
+                                await allMusicPlayingStatus[ctx.guild.id].PutMusic()
                             else:
                                 await ctx.send('播放隊列數量已達50上限')
-                        await AllMusicPlayingStatus[ctx.guild.id].GetMusic()
+                        await allMusicPlayingStatus[ctx.guild.id].GetMusic()
                         self.bot.loop.create_task(self.AudioPlayerTask(ctx))
                     else:
                         await self.JoinChannel(ctx)
                         await self.add(ctx , url)
             elif url.startswith('https://drive.google.com/file/d/'):         #處理 Google 雲端音樂檔案
                 try:
-                    if AllMusicPlayingStatus[ctx.guild.id].playing == False:        #找不到此項或=False則進except
+                    if allMusicPlayingStatus[ctx.guild.id].playing == False:        #找不到此項或=False則進except
                         0/0
                 except:
                     await self.JoinChannel(ctx)
-                    AllMusicPlayingStatus[ctx.guild.id] = self.MusicPlayingStatus(ctx , self.bot)
-                    AllMusicPlayingStatus[ctx.guild.id].playing = True
-                    if AllMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() < 51:
-                        AllMusicPlayingStatus[ctx.guild.id].InitMusic(url , 2)
-                        await AllMusicPlayingStatus[ctx.guild.id].GetGDMusicInfo()
-                        await AllMusicPlayingStatus[ctx.guild.id].PutMusic()
+                    allMusicPlayingStatus[ctx.guild.id] = self.musicPlayingStatus(ctx , self.bot)
+                    allMusicPlayingStatus[ctx.guild.id].playing = True
+                    if allMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() < 51:
+                        allMusicPlayingStatus[ctx.guild.id].InitMusic(url , 2)
+                        await allMusicPlayingStatus[ctx.guild.id].GetGDMusicInfo()
+                        await allMusicPlayingStatus[ctx.guild.id].PutMusic()
                     else:
                         await ctx.send('播放隊列數量已達50上限')
-                    await AllMusicPlayingStatus[ctx.guild.id].GetMusic()
+                    await allMusicPlayingStatus[ctx.guild.id].GetMusic()
                     self.bot.loop.create_task(self.AudioPlayerTask(ctx))
                 else:
                     await self.JoinChannel(ctx)
@@ -188,22 +189,22 @@ class MusicCommands(Cog_Extension):
         if ctx.author.id == json_data['adminID']:
             if ctx.author.voice: # If the person is in a channel
                 try:
-                    if AllMusicPlayingStatus[ctx.guild.id].playing == False:        #找不到此項或=False則進except
+                    if allMusicPlayingStatus[ctx.guild.id].playing == False:        #找不到此項或=False則進except
                         0/0
                 except:
                     if os.path.isfile(path):
                         await self.JoinChannel(ctx)
-                        AllMusicPlayingStatus[ctx.guild.id] = self.MusicPlayingStatus(ctx , self.bot)
-                        AllMusicPlayingStatus[ctx.guild.id].playing = True
-                        if AllMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() < 51:
-                            AllMusicPlayingStatus[ctx.guild.id].InitMusic('' , 0)
-                            AllMusicPlayingStatus[ctx.guild.id].tempMusic.title = os.path.basename(path)
-                            AllMusicPlayingStatus[ctx.guild.id].tempMusic.audio_url = path
-                            AllMusicPlayingStatus[ctx.guild.id].tempMusic.thumbnail_url = json_data['localMusicIcon']
-                            await AllMusicPlayingStatus[ctx.guild.id].PutMusic()
+                        allMusicPlayingStatus[ctx.guild.id] = self.musicPlayingStatus(ctx , self.bot)
+                        allMusicPlayingStatus[ctx.guild.id].playing = True
+                        if allMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() < 51:
+                            allMusicPlayingStatus[ctx.guild.id].InitMusic('' , 0)
+                            allMusicPlayingStatus[ctx.guild.id].tempMusic.title = os.path.basename(path)
+                            allMusicPlayingStatus[ctx.guild.id].tempMusic.audio_url = path
+                            allMusicPlayingStatus[ctx.guild.id].tempMusic.thumbnail_url = json_data['localMusicIcon']
+                            await allMusicPlayingStatus[ctx.guild.id].PutMusic()
                         else:
                             await ctx.send('播放隊列數量已達50上限')
-                        await AllMusicPlayingStatus[ctx.guild.id].GetMusic()
+                        await allMusicPlayingStatus[ctx.guild.id].GetMusic()
                         self.bot.loop.create_task(self.AudioPlayerTask(ctx))
                     else:
                         await ctx.reply('找不到此檔案')
@@ -225,7 +226,7 @@ class MusicCommands(Cog_Extension):
                 await ctx.reply('請先進入頻道')
             else:
                 try:
-                    if AllMusicPlayingStatus[ctx.guild.id].playing == False:        #找不到此項或=False則進except
+                    if allMusicPlayingStatus[ctx.guild.id].playing == False:        #找不到此項或=False則進except
                         0/0
                 except:
                     await ctx.reply('請先播放音樂')
@@ -254,14 +255,14 @@ class MusicCommands(Cog_Extension):
                                 VideoNames = str()
                                 times = 0
                                 for i in MusicPlaylist.video_urls:
-                                    if AllMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() >= 51:
+                                    if allMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() >= 51:
                                         await ctx.send('播放隊列數量已達50上限')
                                         break
                                     times += 1
-                                    AllMusicPlayingStatus[ctx.guild.id].InitMusic(i , 1)
-                                    await AllMusicPlayingStatus[ctx.guild.id].GetYTMusicInfo()
-                                    await AllMusicPlayingStatus[ctx.guild.id].PutMusic()
-                                    music = AllMusicPlayingStatus[ctx.guild.id].tempMusic
+                                    allMusicPlayingStatus[ctx.guild.id].InitMusic(i , 1)
+                                    await allMusicPlayingStatus[ctx.guild.id].GetYTMusicInfo()
+                                    await allMusicPlayingStatus[ctx.guild.id].PutMusic()
+                                    music = allMusicPlayingStatus[ctx.guild.id].tempMusic
                                     if times <= 10:
                                         VideoNames += f'{"%02d" % (times)}. {music.title} {music.duration}\n'
                                 if times > 10:
@@ -277,17 +278,17 @@ class MusicCommands(Cog_Extension):
                                 GetVideo = False
                                 times = 0
                                 for i in MusicPlaylist.video_urls:
-                                    if AllMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() >= 51:
+                                    if allMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() >= 51:
                                         await ctx.send('播放隊列數量已達50上限')
                                         break
                                     if VideoId in i:
                                         GetVideo = True
                                     if GetVideo:
                                         times += 1
-                                        AllMusicPlayingStatus[ctx.guild.id].InitMusic(i , 1)
-                                        await AllMusicPlayingStatus[ctx.guild.id].GetYTMusicInfo()
-                                        await AllMusicPlayingStatus[ctx.guild.id].PutMusic()
-                                        music = AllMusicPlayingStatus[ctx.guild.id].tempMusic
+                                        allMusicPlayingStatus[ctx.guild.id].InitMusic(i , 1)
+                                        await allMusicPlayingStatus[ctx.guild.id].GetYTMusicInfo()
+                                        await allMusicPlayingStatus[ctx.guild.id].PutMusic()
+                                        music = allMusicPlayingStatus[ctx.guild.id].tempMusic
                                         if times <= 10:
                                             VideoNames += f'{"%02d" % (times)}. {music.title} {music.duration}\n'
                                 if times > 10:
@@ -297,22 +298,22 @@ class MusicCommands(Cog_Extension):
                                     embed.add_field(name='\u200b', value=VideoNames , inline=False)
                                     await ctx.channel.send(embed=embed)
                             else:
-                                if AllMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() < 51:
-                                    AllMusicPlayingStatus[ctx.guild.id].InitMusic(url , 1)
-                                    await AllMusicPlayingStatus[ctx.guild.id].GetYTMusicInfo()
-                                    await AllMusicPlayingStatus[ctx.guild.id].PutMusic()
-                                    music = AllMusicPlayingStatus[ctx.guild.id].tempMusic
+                                if allMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() < 51:
+                                    allMusicPlayingStatus[ctx.guild.id].InitMusic(url , 1)
+                                    await allMusicPlayingStatus[ctx.guild.id].GetYTMusicInfo()
+                                    await allMusicPlayingStatus[ctx.guild.id].PutMusic()
+                                    music = allMusicPlayingStatus[ctx.guild.id].tempMusic
                                     embed = discord.Embed(title=music.title, description=f'長度：{music.duration}' , color=0x00ffff)
                                     embed.set_author(name="已加入隊列" , url=discord.Embed.Empty , icon_url=discord.Embed.Empty)
                                     await ctx.channel.send(embed=embed)
                                 else:
                                     await ctx.send('播放隊列數量已達50上限')
                     elif url.startswith('https://drive.google.com/file/d/'):         #處理 Google 雲端音樂檔案
-                        if AllMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() < 51:
-                            AllMusicPlayingStatus[ctx.guild.id].InitMusic(url , 2)
-                            await AllMusicPlayingStatus[ctx.guild.id].GetGDMusicInfo()
-                            await AllMusicPlayingStatus[ctx.guild.id].PutMusic()
-                            music = AllMusicPlayingStatus[ctx.guild.id].tempMusic
+                        if allMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() < 51:
+                            allMusicPlayingStatus[ctx.guild.id].InitMusic(url , 2)
+                            await allMusicPlayingStatus[ctx.guild.id].GetGDMusicInfo()
+                            await allMusicPlayingStatus[ctx.guild.id].PutMusic()
+                            music = allMusicPlayingStatus[ctx.guild.id].tempMusic
                             embed = discord.Embed(title=music.title, description='來自 Google 雲端硬碟' , color=0x00ffff)
                             embed.set_author(name="已加入隊列" , url=discord.Embed.Empty , icon_url=discord.Embed.Empty)
                             await ctx.channel.send(embed=embed)
@@ -339,19 +340,19 @@ class MusicCommands(Cog_Extension):
                     await ctx.reply('請先進入頻道')
                 else:
                     try:
-                        if AllMusicPlayingStatus[ctx.guild.id].playing == False:        #找不到此項或=False則進except
+                        if allMusicPlayingStatus[ctx.guild.id].playing == False:        #找不到此項或=False則進except
                             0/0
                     except:
                         await ctx.reply('請先播放音樂')
                     else:
                         if os.path.isfile(path):
-                            if AllMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() < 51:
-                                AllMusicPlayingStatus[ctx.guild.id].InitMusic('' , 0)
-                                AllMusicPlayingStatus[ctx.guild.id].tempMusic.title = os.path.basename(path)
-                                AllMusicPlayingStatus[ctx.guild.id].tempMusic.audio_url = path
-                                AllMusicPlayingStatus[ctx.guild.id].tempMusic.thumbnail_url = json_data['localMusicIcon']
-                                await AllMusicPlayingStatus[ctx.guild.id].PutMusic()
-                                music = AllMusicPlayingStatus[ctx.guild.id].tempMusic
+                            if allMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() < 51:
+                                allMusicPlayingStatus[ctx.guild.id].InitMusic('' , 0)
+                                allMusicPlayingStatus[ctx.guild.id].tempMusic.title = os.path.basename(path)
+                                allMusicPlayingStatus[ctx.guild.id].tempMusic.audio_url = path
+                                allMusicPlayingStatus[ctx.guild.id].tempMusic.thumbnail_url = json_data['localMusicIcon']
+                                await allMusicPlayingStatus[ctx.guild.id].PutMusic()
+                                music = allMusicPlayingStatus[ctx.guild.id].tempMusic
                                 embed = discord.Embed(title='本機音樂', description=music.title , color=0x00ffff)
                                 embed.set_author(name="已加入隊列" , url=discord.Embed.Empty , icon_url=discord.Embed.Empty)
                                 await ctx.channel.send(embed=embed)
@@ -372,11 +373,11 @@ class MusicCommands(Cog_Extension):
                     0/0
                 else:
                     try:
-                        if not AllMusicPlayingStatus[ctx.guild.id].playing:
+                        if not allMusicPlayingStatus[ctx.guild.id].playing:
                             0/0
                         else:
                             if ctx.voice_client.is_playing():
-                                embed = discord.Embed(title='已暫停播放', description=AllMusicPlayingStatus[ctx.guild.id].music.title , color=0xffff00)
+                                embed = discord.Embed(title='已暫停播放', description=allMusicPlayingStatus[ctx.guild.id].music.title , color=0xffff00)
                                 await ctx.channel.send(embed=embed)
                                 ctx.voice_client.pause()
                             else:
@@ -396,11 +397,11 @@ class MusicCommands(Cog_Extension):
                     0/0
                 else:
                     try:
-                        if not AllMusicPlayingStatus[ctx.guild.id].playing:
+                        if not allMusicPlayingStatus[ctx.guild.id].playing:
                             0/0
                         else:
                             if ctx.voice_client.is_paused():
-                                embed = discord.Embed(title='已恢復播放', description=AllMusicPlayingStatus[ctx.guild.id].music.title , color=0x00ff00)
+                                embed = discord.Embed(title='已恢復播放', description=allMusicPlayingStatus[ctx.guild.id].music.title , color=0x00ff00)
                                 await ctx.channel.send(embed=embed)
                                 ctx.voice_client.resume()
                             else:
@@ -419,14 +420,14 @@ class MusicCommands(Cog_Extension):
                 if ctx.voice_client.channel != ctx.message.author.voice.channel:        #確認用戶在頻道在頻道裡
                     0/0
                 else:
-                    if AllMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() == 1:
+                    if allMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() == 1:
                         embed = discord.Embed(title='已停止播放', description=discord.Embed.Empty , color=0xff0000)
                         await ctx.send(embed=embed)
                         await self.LeaveChannel(ctx)
                     else:
-                        AllMusicPlayingStatus[ctx.guild.id].SingleLoop = False
-                        await AllMusicPlayingStatus[ctx.guild.id].SetSingleLoop()
-                        embed = discord.Embed(title='已跳過', description=AllMusicPlayingStatus[ctx.guild.id].music.title , color=0x00ffff)
+                        allMusicPlayingStatus[ctx.guild.id].SingleLoop = False
+                        await allMusicPlayingStatus[ctx.guild.id].SetSingleLoop()
+                        embed = discord.Embed(title='已跳過', description=allMusicPlayingStatus[ctx.guild.id].music.title , color=0x00ffff)
                         await ctx.channel.send(embed=embed)
                         ctx.voice_client.stop()
             except:
@@ -444,19 +445,19 @@ class MusicCommands(Cog_Extension):
                 await ctx.reply('請先進入頻道')
             else:
                 try:
-                    if AllMusicPlayingStatus[ctx.guild.id].playing == False:
+                    if allMusicPlayingStatus[ctx.guild.id].playing == False:
                         0/0
                     else:
-                        await AllMusicPlayingStatus[ctx.guild.id].GetLoop()
-                        if AllMusicPlayingStatus[ctx.guild.id].SingleLoop == False:
-                            AllMusicPlayingStatus[ctx.guild.id].SingleLoop = True
-                            embed = discord.Embed(title='已啟用單曲重複播放', description=AllMusicPlayingStatus[ctx.guild.id].music.title , color=0x00ff00)
+                        await allMusicPlayingStatus[ctx.guild.id].GetLoop()
+                        if allMusicPlayingStatus[ctx.guild.id].SingleLoop == False:
+                            allMusicPlayingStatus[ctx.guild.id].SingleLoop = True
+                            embed = discord.Embed(title='已啟用單曲重複播放', description=allMusicPlayingStatus[ctx.guild.id].music.title , color=0x00ff00)
                             await ctx.send(embed=embed)
                         else:
-                            AllMusicPlayingStatus[ctx.guild.id].SingleLoop = False
-                            embed = discord.Embed(title='已停用單曲重複播放', description=AllMusicPlayingStatus[ctx.guild.id].music.title , color=0x00ff00)
+                            allMusicPlayingStatus[ctx.guild.id].SingleLoop = False
+                            embed = discord.Embed(title='已停用單曲重複播放', description=allMusicPlayingStatus[ctx.guild.id].music.title , color=0x00ff00)
                             await ctx.send(embed=embed)
-                        await AllMusicPlayingStatus[ctx.guild.id].SetSingleLoop()
+                        await allMusicPlayingStatus[ctx.guild.id].SetSingleLoop()
                 except:
                     await ctx.reply('未播放')
         else:
@@ -487,10 +488,10 @@ class MusicCommands(Cog_Extension):
     @commands.command()
     async def nowplaying(self , ctx):
         try:
-            if AllMusicPlayingStatus[ctx.guild.id].playing == False:
+            if allMusicPlayingStatus[ctx.guild.id].playing == False:
                 0/0
             else:
-                music = AllMusicPlayingStatus[ctx.guild.id].music
+                music = allMusicPlayingStatus[ctx.guild.id].music
                 if music.type == 0:
                     embed = discord.Embed(title=music.title, description='本機音樂' , color=0x00ff00)
                 elif music.type == 1:
@@ -506,12 +507,12 @@ class MusicCommands(Cog_Extension):
     @commands.command()
     async def queue(self , ctx):
         try:
-            if AllMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() == 0:      #這是舊的程式碼 應該不會觸發
+            if allMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() == 0:      #這是舊的程式碼 應該不會觸發
                 0/0
         except:
             await ctx.send('無音樂待播放')
         else:
-            queue = AllMusicPlayingStatus[ctx.guild.id].GetMusicQueue()
+            queue = allMusicPlayingStatus[ctx.guild.id].GetMusicQueue()
             embed = discord.Embed(title="音樂隊列", description=discord.Embed.Empty , color=0x00ffff)
             if queue[0][8] == 0:
                 MusicNames = f'現正播放：\n（本機音樂）{queue[0][1]}\n\n'
@@ -532,50 +533,52 @@ class MusicCommands(Cog_Extension):
                     if len(queue) > 11:
                         MusicNames += f'\n...後面還有{len(queue)-11}首'
                     break
+            if json_data['webSettings']['enabled'] == True:
+                MusicNames += '\n\n更多資訊請至 bot 附屬網頁瀏覽'
             embed.add_field(name='\u200b', value=MusicNames , inline=False)
             await ctx.channel.send(embed=embed)
 
     async def AudioPlayerTask(self , ctx):
         while True:
-            AllMusicPlayingStatus[ctx.guild.id].PlayNextMusic.clear()
-            if not AllMusicPlayingStatus[ctx.guild.id].SingleLoop:
-                if AllMusicPlayingStatus[ctx.guild.id].music.type == 2:
-                    if os.path.isfile('assets/MusicBot/MusicTemp/' + AllMusicPlayingStatus[ctx.guild.id].music.file_name):
-                        os.remove('assets/MusicBot/MusicTemp/' + AllMusicPlayingStatus[ctx.guild.id].music.file_name)
-                await AllMusicPlayingStatus[ctx.guild.id].GetMusic()
-                if AllMusicPlayingStatus[ctx.guild.id].music == None:
+            allMusicPlayingStatus[ctx.guild.id].PlayNextMusic.clear()
+            if not allMusicPlayingStatus[ctx.guild.id].SingleLoop:
+                if allMusicPlayingStatus[ctx.guild.id].music.type == 2:
+                    if os.path.isfile('assets/musicBot/musicTemp/' + allMusicPlayingStatus[ctx.guild.id].music.file_name):
+                        os.remove('assets/musicBot/musicTemp/' + allMusicPlayingStatus[ctx.guild.id].music.file_name)
+                await allMusicPlayingStatus[ctx.guild.id].GetMusic()
+                if allMusicPlayingStatus[ctx.guild.id].music == None:
                     await self.LeaveChannel(ctx)
                     break
             try:
-                if AllMusicPlayingStatus[ctx.guild.id].music.type == 0:
-                    music = AllMusicPlayingStatus[ctx.guild.id].music
+                if allMusicPlayingStatus[ctx.guild.id].music.type == 0:
+                    music = allMusicPlayingStatus[ctx.guild.id].music
                     if os.path.isfile(music.audio_url):
-                        ctx.voice_client.play(discord.FFmpegOpusAudio(executable = 'assets/MusicBot/ffmpeg.exe' , bitrate = json_data['MusicBotOpts']['bitrate'] , source = music.audio_url , before_options=json_data['ffmpegopts']['before_options'] , options=json_data['ffmpegopts']['options']) , after = lambda _: self.TogglePlayNextMusic(ctx))
+                        ctx.voice_client.play(discord.FFmpegOpusAudio(executable = 'assets/musicBot/ffmpeg.exe' , bitrate = json_data['musicBotOpts']['bitrate'] , source = music.audio_url , before_options=json_data['ffmpegopts']['before_options'] , options=json_data['ffmpegopts']['options']) , after = lambda _: self.TogglePlayNextMusic(ctx))
                         embed = discord.Embed(title=music.title, description='本機音樂' , color=0x00ff00)
                     else:
                         embed = discord.Embed(title=music.title, description='未找到檔案 將跳過' , color=0x00ff00)
-                elif AllMusicPlayingStatus[ctx.guild.id].music.type == 1:
-                    await AllMusicPlayingStatus[ctx.guild.id].renewYTMusicInfo()
-                    music = AllMusicPlayingStatus[ctx.guild.id].music
-                    ctx.voice_client.play(discord.FFmpegOpusAudio(executable = 'assets/MusicBot/ffmpeg.exe' , bitrate = json_data['MusicBotOpts']['bitrate'] , source = music.audio_url , before_options=json_data['ffmpegopts']['before_options'] , options=json_data['ffmpegopts']['options']) , after = lambda _: self.TogglePlayNextMusic(ctx))
+                elif allMusicPlayingStatus[ctx.guild.id].music.type == 1:
+                    await allMusicPlayingStatus[ctx.guild.id].renewYTMusicInfo()
+                    music = allMusicPlayingStatus[ctx.guild.id].music
+                    ctx.voice_client.play(discord.FFmpegOpusAudio(executable = 'assets/musicBot/ffmpeg.exe' , bitrate = json_data['musicBotOpts']['bitrate'] , source = music.audio_url , before_options=json_data['ffmpegopts']['before_options'] , options=json_data['ffmpegopts']['options']) , after = lambda _: self.TogglePlayNextMusic(ctx))
                     embed = discord.Embed(title=music.title, description=f'長度：{music.duration}' , color=0x00ff00)
-                elif AllMusicPlayingStatus[ctx.guild.id].music.type == 2:
-                    music = AllMusicPlayingStatus[ctx.guild.id].music
-                    await AllMusicPlayingStatus[ctx.guild.id].downloadGDMusic()
-                    ctx.voice_client.play(discord.FFmpegOpusAudio(executable = 'assets/MusicBot/ffmpeg.exe' , bitrate = json_data['MusicBotOpts']['bitrate'] , source = 'assets/MusicBot/MusicTemp/' + music.file_name , before_options=json_data['ffmpegopts']['before_options'] , options=json_data['ffmpegopts']['options']) , after = lambda _: self.TogglePlayNextMusic(ctx))
+                elif allMusicPlayingStatus[ctx.guild.id].music.type == 2:
+                    music = allMusicPlayingStatus[ctx.guild.id].music
+                    await allMusicPlayingStatus[ctx.guild.id].downloadGDMusic()
+                    ctx.voice_client.play(discord.FFmpegOpusAudio(executable = 'assets/musicBot/ffmpeg.exe' , bitrate = json_data['musicBotOpts']['bitrate'] , source = 'assets/musicBot/musicTemp/' + music.file_name , before_options=json_data['ffmpegopts']['before_options'] , options=json_data['ffmpegopts']['options']) , after = lambda _: self.TogglePlayNextMusic(ctx))
                     embed = discord.Embed(title=music.title, description='來自 Google 雲端硬碟' , color=0x00ff00)
                 embed.set_author(name="現正播放" , url=discord.Embed.Empty , icon_url=discord.Embed.Empty)
                 embed.set_thumbnail(url=music.thumbnail_url)
                 await ctx.channel.send(embed=embed , delete_after=10)
-                await AllMusicPlayingStatus[ctx.guild.id].PlayNextMusic.wait()
-                if not AllMusicPlayingStatus[ctx.guild.id].SingleLoop:
-                    await AllMusicPlayingStatus[ctx.guild.id].PopMusic()
+                await allMusicPlayingStatus[ctx.guild.id].PlayNextMusic.wait()
+                if not allMusicPlayingStatus[ctx.guild.id].SingleLoop:
+                    await allMusicPlayingStatus[ctx.guild.id].PopMusic()
             except:
                 self.TogglePlayNextMusic(ctx)
 
     def TogglePlayNextMusic(self , ctx):
         try:
-            AllMusicPlayingStatus[ctx.guild.id].PlayNextMusic.set()
+            allMusicPlayingStatus[ctx.guild.id].PlayNextMusic.set()
         except:
             pass
 
@@ -592,19 +595,19 @@ class MusicCommands(Cog_Extension):
 
     async def LeaveChannel(self , ctx):
         try:
-            if AllMusicPlayingStatus[ctx.guild.id].playing == False:
+            if allMusicPlayingStatus[ctx.guild.id].playing == False:
                 0/0
         except:                                  
             await ctx.voice_client.disconnect()
         else:
             try:
                 await ctx.voice_client.disconnect()
-                AllMusicPlayingStatus[ctx.guild.id].CleanMusicTable()
-                del AllMusicPlayingStatus[ctx.guild.id]
+                allMusicPlayingStatus[ctx.guild.id].CleanMusicTable()
+                del allMusicPlayingStatus[ctx.guild.id]
             except:      #通常是AttributeError
                 pass
-        if os.path.isdir('assets/MusicBot/MusicTemp'):
-            shutil.rmtree('assets/MusicBot/MusicTemp' , ignore_errors = False)
+        if os.path.isdir('assets/musicBot/musicTemp'):
+            shutil.rmtree('assets/musicBot/musicTemp' , ignore_errors = False)
 
 def setup(bot):
-    bot.add_cog(MusicCommands(bot))
+    bot.add_cog(musicCommands(bot))

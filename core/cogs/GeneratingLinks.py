@@ -6,7 +6,7 @@ import json
 with open('settings.json' , 'r' , encoding = 'utf8') as json_file:
     json_data = json.load(json_file)
 
-class GeneratingLinks(Cog_Extension):
+class generatingLinks(Cog_Extension):
     
     @commands.command()
     async def nh(self , ctx , book):
@@ -38,4 +38,4 @@ class GeneratingLinks(Cog_Extension):
         await ctx.send(f'https://twitter.com/{user}')
 
 def setup(bot):
-    bot.add_cog(GeneratingLinks(bot))
+    bot.add_cog(generatingLinks(bot))

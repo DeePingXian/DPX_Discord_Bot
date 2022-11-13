@@ -1,8 +1,5 @@
-import discord
-from discord.ext import commands
 from core.classes import Cog_Extension
 import pymysql
-import os
 import json
 
 with open('settings.json' , 'r' , encoding = 'utf8') as json_file:
