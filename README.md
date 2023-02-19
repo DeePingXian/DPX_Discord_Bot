@@ -9,8 +9,8 @@ DPX Discord Bot 開源版本
 這程式僅能使用單執行續執行，將吃重CPU的單核效能  
 程式運行參數於settings.json設定，這份說明文檔的指令前綴字皆是預設值「!!」，實際使用時可自行更改，為表達方便，以下指令前綴字均以預設值「!!」表示  
 運行時可使用「!!help」查詢指令  
-若播音樂時語音頻道所有人皆退出，此bot並不會跟著退出，而是繼續播下去，故可常駐頻道持續播音樂
-大部分有年齡限制的影片都可以直接播，不需設置cookie，但不保證全部都能播
+若播音樂時語音頻道所有人皆退出，此bot並不會跟著退出，而是繼續播下去，故可常駐頻道持續播音樂  
+大部分有年齡限制的影片都可以直接播，不需設置cookie，但不保證全部都能播  
 手動使用指令停止播音樂，退出頻道時會跳錯誤訊息，因為不影響運作所以也懶得修，無視即可  
 ***
 ## 直接使用了以下第三方 Python 套件
@@ -37,7 +37,7 @@ DPX Discord Bot 開源版本
 <tr><td>command_prefix</td><td>設定bot的指令前綴字，若訊息開頭為此字串，bot會當指令處理</td></tr>
 <tr><td>☆log_channel_id</td><td>設定傳送log的Discord頻道ID，啟動時每隔一小時bot會在該頻道發送狀態訊息，配合訊息歷史紀錄功能可當log用</td></tr>
 <tr><td>☆MySQLSettings</td><td>設定MySQL連線參數</td></tr>
-<tr><td>webSettings</td><td>設定是否已啟用本bot附屬網頁，及網頁網址</td></tr>
+<tr><td>webSettings</td><td>設定本bot附屬網頁網址，若為空則不啟用本bot相關功能</td></tr>
 <tr><td>ytdlopts</td><td>設定ytdl參數</td></tr>
 <tr><td>GDHTTPHeader</td><td>設定向Google雲端發送的HTTP標頭</td></tr>
 <tr><td>googleDriveFileSizeLimitInMB</td><td>設定播Google雲端音樂的檔案大小上限(單位為MB)，避免下載太大的檔案造成網路塞車</td></tr>
