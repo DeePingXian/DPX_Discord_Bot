@@ -5,17 +5,18 @@ DPX Discord Bot 開源版本
 刪減自閉源的自用版本，自用版本需要連接MySQL才能使用，這裡也跟著繼承，音樂佇列、部分訊息歷史紀錄會存在那，推薦使用XAMPP附帶的MySQL，可順便裝上附屬網站程式  
 給bot操作的MySQL帳號需給予全域寫入權限，運行時bot將全自動操作MySQL  
 本bot附屬網站程式，可以配合使用：https://github.com/DeePingXian/DPX_Discord_Bot_Website  
-若要使用 Python 環境運行原程式碼，建議使用本人開發時使用的3.10版，其他版本未測試過不知好壞  
+若要使用 Python 環境運行原程式碼，最低需求是3.8版，不過建議使用本人開發時使用的3.10版，其他版本未測試過不知好壞  
 這程式僅能使用單執行續執行，將吃重CPU的單核效能  
 程式運行參數於settings.json設定，這份說明文檔的指令前綴字皆是預設值「!!」，實際使用時可自行更改，為表達方便，以下指令前綴字均以預設值「!!」表示  
 運行時可使用「!!help」查詢指令  
-若播音樂時語音頻道所有人皆退出，此bot並不會跟著退出，而是繼續播下去，故可常駐頻道持續播音樂  
+若播音樂時語音頻道所有人皆退出，此bot並不會跟著退出，而是繼續播下去，故可常駐頻道持續播音樂
+大部分有年齡限制的影片都可以直接播，不需設置cookie，但不保證全部都能播
 手動使用指令停止播音樂，退出頻道時會跳錯誤訊息，因為不影響運作所以也懶得修，無視即可  
 ***
 ## 直接使用了以下第三方 Python 套件
 - discord.py[voice]
 - requests  （如果報錯 請更新urllib3）
-- youtube-dl
+- yt-dlp
 - pytube
 - gdown
 - openpyxl
@@ -38,7 +39,6 @@ DPX Discord Bot 開源版本
 <tr><td>☆MySQLSettings</td><td>設定MySQL連線參數</td></tr>
 <tr><td>webSettings</td><td>設定是否已啟用本bot附屬網頁，及網頁網址</td></tr>
 <tr><td>ytdlopts</td><td>設定ytdl參數</td></tr>
-<tr><td>△ytdlopts/cookiefile</td><td>設定連YouTube的cookie檔案，播YouTube音樂時使用，用於讓bot瀏覽有年齡限制的影片，若不設定將無法播放有年齡限制的影片。建議做法是隨便登個YouTube帳號，然後把它的cookie拿出來，放在json檔裡寫的那個位置</td></tr>
 <tr><td>GDHTTPHeader</td><td>設定向Google雲端發送的HTTP標頭</td></tr>
 <tr><td>googleDriveFileSizeLimitInMB</td><td>設定播Google雲端音樂的檔案大小上限(單位為MB)，避免下載太大的檔案造成網路塞車</td></tr>
 <tr><td>acceptableMusicContainer</td><td>設定播Google雲端音樂可接受的檔案容器，避免被用來播一些不支援的項目造成錯誤</td></tr>

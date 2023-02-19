@@ -13,27 +13,23 @@
     },
 
     "webSettings":{
-        "enabled": false,
-        "url": "https://"
+        "url": ""
     },
 
     "ytdlopts":{
-        "format": "bestaudio/best",
-        "outtmpl": "downloads/%(extractor)s-%(id)s-%(title)s.%(ext)s",
-        "restrictfilenames": true,
+        "format": "bestaudio",
         "noplaylist": true,
         "nocheckcertificate": true,
-        "ignoreerrors": false,
-        "logtostderr": false,
+        "ignoreerrors": true,
+        "logtostderr": true,
         "quiet": true,
         "no_warnings": true,
         "default_search": "auto",
-        "source_address": "0.0.0.0",
-        "cookiefile": "assets\\musicBot\\youtube.com_cookies.txt"
+        "source_address": "0.0.0.0"
     },
 
     "GDHTTPHeader":{
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.124 Safari/537.36"
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 Edg/109.0.1518.61"
     },
 
     "googleDriveFileSizeLimitInMB": 100,
@@ -43,7 +39,7 @@
     "localMusicIcon":"https://upload.wikimedia.org/wikipedia/en/f/f7/RickRoll.png",
 
     "ffmpegopts":{
-        "before_options": "-nostdin",
+        "before_options": "-nostdin -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
         "options": "-vn -filter:a 'volume=0.5'"
     },
 
@@ -51,7 +47,7 @@
         "bitrate": 96
     },
 
-    "newestNhentaiBookNum": 428000,
+    "newestNhentaiBookNum": 443000,
     
     "error_message_file": "assets\\error.jpg",
 
