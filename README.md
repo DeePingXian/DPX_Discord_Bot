@@ -4,27 +4,25 @@ DPX Discord Bot 開源版本
 ---
 刪減自閉源的自用版本，自用版本需要連接MySQL才能使用，這裡也跟著繼承，音樂佇列、部分訊息歷史紀錄會存在那，推薦使用XAMPP附帶的MySQL，可順便裝上附屬網站程式  
 給bot操作的MySQL帳號需給予全域寫入權限，運行時bot將全自動操作MySQL  
-本bot附屬網站程式，可以配合使用：https://github.com/DeePingXian/DPX_Discord_Bot_Website  
-若要使用 Python 環境運行原程式碼，最低需求是3.8版，不過建議使用本人開發時使用的3.10版，其他版本未測試過不知好壞  
+本bot附屬網站程式，可以配合使用：<a href="https://github.com/DeePingXian/DPX_Discord_Bot_Website">https://github.com/DeePingXian/DPX_Discord_Bot_Website</a>  
+若要使用Python環境運行原程式碼，最低需求是3.11版
 這程式僅能使用單執行續執行，將吃重CPU的單核效能  
 程式運行參數於settings.json設定，這份說明文檔的指令前綴字皆是預設值「!!」，實際使用時可自行更改，為表達方便，以下指令前綴字均以預設值「!!」表示  
-運行時可使用「!!help」查詢指令  
-若播音樂時語音頻道所有人皆退出，此bot並不會跟著退出，而是繼續播下去，故可常駐頻道持續播音樂  
 大部分有年齡限制的影片都可以直接播，不需設置cookie，但不保證全部都能播  
-手動使用指令停止播音樂，退出頻道時會跳錯誤訊息，因為不影響運作所以也懶得修，無視即可  
 ***
-## 直接使用了以下第三方 Python 套件
-- discord.py[voice]
-- requests  （如果報錯 請更新urllib3）
-- yt-dlp
-- pytube
-- gdown
-- openpyxl
-- PyMySQL
+## 特色重點
+- 提供打包編譯版本，擁有比原生CPython更高的執行效率
+- 可播 YouTube、Google雲端、bilibili、電腦本地檔案 來源的音樂
+- 不偵測語音頻道裡是否有人，可常駐播放音樂
+- 自由設定的聊天應答機
+- 訊息歷史紀錄功能，可傳回被刪除、編輯的訊息（資料存於本地，無資安問題）
+- 可即時查詢指令
+- 方便閱讀大量資訊的附屬網頁
+- 其他更多功能...
 ***
 ## 功能＆使用說明
-簡易教學影片：https://www.youtube.com/watch?v=3XOrqhkXuA0 ，實際請以這GitHub頁面為主  
-請至：https://discord.com/developers/applications 註冊一bot，並將該bot的token設定到settings.json中，讓此程式套上使用
+簡易教學影片：<a href="https://www.youtube.com/watch?v=3XOrqhkXuA0">https://www.youtube.com/watch?v=3XOrqhkXuA0</a>，實際請以這GitHub頁面為主  
+請至：<a href="https://discord.com/developers/applications">https://discord.com/developers/applications</a> 註冊一bot，並將該bot的token設定到settings.json中，讓此程式套上使用
 <br><br>
 
 ### **settings.json**
@@ -37,15 +35,17 @@ DPX Discord Bot 開源版本
 <tr><td>command_prefix</td><td>設定bot的指令前綴字，若訊息開頭為此字串，bot會當指令處理</td></tr>
 <tr><td>☆log_channel_id</td><td>設定傳送log的Discord頻道ID，啟動時每隔一小時bot會在該頻道發送狀態訊息，配合訊息歷史紀錄功能可當log用</td></tr>
 <tr><td>☆MySQLSettings</td><td>設定MySQL連線參數</td></tr>
-<tr><td>webSettings</td><td>設定本bot附屬網頁網址，若為空則不啟用本bot相關功能</td></tr>
-<tr><td>ytdlopts</td><td>設定ytdl參數</td></tr>
-<tr><td>GDHTTPHeader</td><td>設定向Google雲端發送的HTTP標頭</td></tr>
-<tr><td>googleDriveFileSizeLimitInMB</td><td>設定播Google雲端音樂的檔案大小上限(單位為MB)，避免下載太大的檔案造成網路塞車</td></tr>
-<tr><td>acceptableMusicContainer</td><td>設定播Google雲端音樂可接受的檔案容器，避免被用來播一些不支援的項目造成錯誤</td></tr>
-<tr><td>△googleDriveIcon</td><td>設定Google雲端圖標的網址，播Google雲端音樂功能會用到</td></tr>
-<tr><td>△localMusicIcon</td><td>設定本機音樂圖標的網址，播本機音樂功能會用到</td></tr>
+<tr><td>webSettings/url</td><td>設定本bot附屬網頁網址，若為空則不啟用本bot相關功能</td></tr>
 <tr><td>ffmpegopts</td><td>設定FFMPEG參數</td></tr>
-<tr><td>MusicBotOpts/bitrate</td><td>設定播音樂時之位元率（注意編碼是OPUS，以及實際效果與該DC語音頻道設定有關）</td></tr>
+<tr><th colspan="2">musicBotOpts</th></tr>
+<tr><td>maxQueueLen</td><td>設定音樂隊列項目上限</td></tr>
+<tr><td>bitrate</td><td>設定播音樂時之位元率（注意編碼是OPUS，以及實際效果與該DC語音頻道設定有關）</td></tr>
+<tr><td>△localMusicIcon</td><td>設定本機音樂圖標的網址，播本機音樂功能會用到</td></tr>
+<tr><th colspan="2">googleDrive</th></tr>
+<tr><td>fileSizeLimitInMB</td><td>設定播Google雲端音樂的檔案大小上限(單位為MB)，避免下載太大的檔案造成網路塞車</td></tr>
+<tr><td>acceptableMusicContainer</td><td>設定播Google雲端音樂可接受的檔案副檔名，避免被用來播一些不支援的項目造成錯誤</td></tr>
+<tr><td>△icon</td><td>設定Google雲端圖標的網址，播Google雲端音樂功能會用到</td></tr>
+<tr><td>HTTPHeader</td><td>設定抓Google雲端檔案時，向其發送的HTTP標頭</td></tr>
 <tr><td>△newestNhentaiBookNum</td><td>設定當下nhentai車號上限，隨機產生本子功能會用到</td></tr>
 <tr><td>error_message_file</td><td>設定報錯時傳送的圖片</td></tr>
 <tr><td>△BotIconUrl</td><td>設定bot logo圖標網址，查指令功能會用到</td></tr>
@@ -90,8 +90,8 @@ DPX Discord Bot 開源版本
 <tr><td>!!queue</td><td>查看播放隊列</td></tr>
 <tr><td>!!nowplaying</td><td>查看現正播放</td></tr>
 </table>
-支援播放的網站：YouTube、Google雲端<br>
-並不支援播放YouTube合輯，播放將造成程式故障，目前暫無方法避免<br>
+支援播放的來源：YouTube影片、直播、播放清單、合輯，Google雲端檔案，bilibili影片、影片列表(beta)，電腦本地檔案<br>
+播放B站影片時受限於機制，bot反應會較慢<br>
 如果播音樂發生問題，請使用!!stop清除資料，並再重新操作一次，實在不行請重啟bot
 <br><br><br>
 
@@ -117,3 +117,18 @@ DPX Discord Bot 開源版本
 <tr><td>!!majorArcana + (隨意內容)</td><td>產生一張大密儀塔羅牌</td></tr>
 <tr><td>!!majorArcana3 + (隨意內容)</td><td>產生三張大密儀塔羅牌</td></tr>
 </table>
+<br><br>
+
+***
+## 直接使用了以下第三方 Python 套件
+- discord.py[voice] v2.1.1
+- requests
+- yt-dlp 2023.2.17
+- gdown
+- openpyxl
+- PyMySQL
+***
+## 已知錯誤
+- 無法播放「<a href="https://www.youtube.com/watch?v=rPJz3syNbtE">https://www.youtube.com/watch?v=rPJz3syNbtE</a>」，且會造成程式錯誤
+- 手動使用指令停止播音樂，退出頻道時會跳錯誤訊息，因為不影響運作所以也懶得修，無視即可
+- 播放B站影片可能會產生一些錯誤訊息

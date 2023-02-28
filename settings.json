@@ -16,38 +16,32 @@
         "url": ""
     },
 
-    "ytdlopts":{
-        "format": "bestaudio",
-        "noplaylist": true,
-        "nocheckcertificate": true,
-        "ignoreerrors": true,
-        "logtostderr": true,
-        "quiet": true,
-        "no_warnings": true,
-        "default_search": "auto",
-        "source_address": "0.0.0.0"
-    },
-
-    "GDHTTPHeader":{
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 Edg/109.0.1518.61"
-    },
-
-    "googleDriveFileSizeLimitInMB": 100,
-    "acceptableMusicContainer": ["aac" , "flac" , "m4a" , "mp3" , "mp4" , "ogg" , "wav" , "weba"],
-    "googleDriveIcon": "https://upload.wikimedia.org/wikipedia/en/f/f7/RickRoll.png",
-
-    "localMusicIcon":"https://upload.wikimedia.org/wikipedia/en/f/f7/RickRoll.png",
-
     "ffmpegopts":{
-        "before_options": "-nostdin -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
-        "options": "-vn -filter:a 'volume=0.5'"
+        "online":{
+            "before_options": "-nostdin -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
+            "options": "-vn -filter:a 'volume=0.5'"
+        },
+        "local":{
+            "before_options": "-nostdin",
+            "options": "-vn -filter:a 'volume=0.5'"
+        }
     },
 
     "musicBotOpts":{
-        "bitrate": 96
+        "maxQueueLen": 100,
+        "bitrate": 96,
+        "localMusicIcon":"https://upload.wikimedia.org/wikipedia/en/f/f7/RickRoll.png",
+        "googleDrive":{
+            "fileSizeLimitInMB": 100,
+            "acceptableMusicContainer": ["aac" , "flac" , "m4a" , "mp3" , "mp4" , "ogg" , "wav" , "weba"],
+            "icon": "https://upload.wikimedia.org/wikipedia/en/f/f7/RickRoll.png",
+            "HTTPHeader":{
+                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 Edg/109.0.1518.61"
+            }
+        }
     },
 
-    "newestNhentaiBookNum": 443000,
+    "newestNhentaiBookNum": 444000,
     
     "error_message_file": "assets\\error.jpg",
 

@@ -1,73 +1,76 @@
-import discord , os , shutil , json
+import discord
 from discord.ext import commands , tasks
 from discord.ext.commands import Bot
+import asyncio , os , shutil , json
 
-with open('settings.json' , 'r' , encoding = 'utf8') as json_file:
-    json_data = json.load(json_file)
+async def main():
 
-intents = discord.Intents.all()
-bot=Bot(command_prefix=json_data['command_prefix'] , intents=intents)
-bot.remove_command("help")
+    with open('settings.json' , 'r' , encoding = 'utf8') as json_file:
+        settings = json.load(json_file)
 
-#載入cogs
+    intents = discord.Intents.all()
+    bot = Bot(command_prefix=settings['command_prefix'] , intents=intents)
+    bot.remove_command("help")
 
-CogFileList = []
-for CogFile in os.listdir('core\\cogs'):
-    if CogFile.endswith('.py'):
-        bot.load_extension(f'core.cogs.{CogFile[:-3]}')
-        CogFileList.append(CogFile)
-        print(f"已載入{CogFile}")
+    #載入cogs
 
-#啟動時清除音樂機器人資料
+    CogFileList = []
+    for CogFile in os.listdir('core\\cogs'):
+        if CogFile.endswith('.py'):
+            await bot.load_extension(f'core.cogs.{CogFile[:-3]}')
+            CogFileList.append(CogFile)
+            print(f"已載入{CogFile}")
 
-DB = bot.get_cog('MySQL')
-DB.Init()
-if DB.test():
-    print('MySQL 操作正常')
-else:
-    print('MySQL 操作錯誤')
+    #啟動時清除音樂機器人資料
 
-#清空musicTemp
+    DB = bot.get_cog('MySQL')
+    DB.Init()
+    if DB.test():
+        print('MySQL 操作正常')
+    else:
+        print('MySQL 操作錯誤')
 
-if os.path.isdir('assets/musicBot/musicTemp'):
-    shutil.rmtree('assets/musicBot/musicTemp' , ignore_errors = True)
+    #清空musicTemp
 
-#啟動訊息
+    if os.path.isdir('assets/musicBot/musicTemp'):
+        shutil.rmtree('assets/musicBot/musicTemp' , ignore_errors = True)
 
-@bot.event
-async def on_ready():
-    channel = bot.get_channel(json_data['log_channel_id'])
-    game = discord.Game(f'輸入{json_data["command_prefix"]}help查詢指令')
-    await bot.change_presence(status=discord.Status.online, activity=game)
-    ping = round (bot.latency * 1000)
-    print(f'啟動完成 與 Discord 延遲為 {ping} ms')
-    await channel.send('啟動完成')
-    DB.CleanAllMusicTable()
+    #啟動訊息
 
-@bot.event
-async def on_message(message):
+    @bot.event
+    async def on_ready():
+        channel = bot.get_channel(settings['log_channel_id'])
+        game = discord.Game(f'輸入{settings["command_prefix"]}help查詢指令')
+        await bot.change_presence(status=discord.Status.online, activity=game)
+        ping = round (bot.latency * 1000)
+        print(f'啟動完成 與 Discord 延遲為 {ping} ms')
+        await channel.send('啟動完成')
+        DB.CleanAllMusicTable()
 
-    #訊息log
-    
-    if message.content != '' or message.attachments != []:
-        DB.PutMessageLog(message , None , None , 0)
+    @bot.event
+    async def on_message(message):
 
-    await bot.process_commands(message)
+        #訊息log
+        
+        if message.content != '' or message.attachments != []:
+            DB.PutMessageLog(message , None , None , 0)
 
-#錯誤訊息
+        await bot.process_commands(message)
 
-@bot.event
-async def on_error(event, *args, **kwargs):
-    message = args[0] #Gets the message object
-    await SendErrorMessage(message)
+    #錯誤訊息
 
-@bot.event
-async def on_command_error(ctx, error):
-    await SendErrorMessage(f'{ctx.message}\n{error}')
+    @bot.event
+    async def on_command_error(ctx , error):
+        await ctx.reply(f'發生錯誤\n{error}')
+        await ctx.send(file=discord.File(settings['error_message_file']))
 
-async def SendErrorMessage(message):
-    await message.reply('發生錯誤')
-    await message.channel.send(file=discord.File(json_data['error_message_file']))
+    @bot.event
+    async def on_error(event , *args , **kwargs):
+        message = args[0]
+        await message.reply('發生錯誤')
+        await message.channel.send(file=discord.File(settings['error_message_file']))
+
+    await bot.start(settings['TOKEN'])
 
 if __name__ == "__main__":
-    bot.run(json_data['TOKEN'])
+    asyncio.run(main())

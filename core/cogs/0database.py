@@ -1,17 +1,11 @@
 from core.classes import Cog_Extension
 import pymysql
-import json
-
-with open('settings.json' , 'r' , encoding = 'utf8') as json_file:
-    json_data = json.load(json_file)
 
 class MySQL(Cog_Extension):
 
-    command = ""
-
     def test(self):
         try:
-            MySQLConnection = pymysql.connect(**json_data['MySQLSettings'])
+            MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
             with MySQLConnection.cursor() as cursor:
                 command = "CREATE DATABASE IF NOT EXISTS discord_test"
                 cursor.execute(command)
@@ -35,7 +29,7 @@ class MySQL(Cog_Extension):
             return True
 
     def Init(self):
-        MySQLConnection = pymysql.connect(**json_data['MySQLSettings'])
+        MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
         with MySQLConnection.cursor() as cursor:
             command = f"CREATE DATABASE IF NOT EXISTS discord_status"
             cursor.execute(command)
@@ -46,14 +40,14 @@ class MySQL(Cog_Extension):
         MySQLConnection.close()
 
     def CreateDatabase(self , GuildID):
-        MySQLConnection = pymysql.connect(**json_data['MySQLSettings'])
+        MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
         with MySQLConnection.cursor() as cursor:
             command = f"CREATE DATABASE IF NOT EXISTS discord_{GuildID}"
             cursor.execute(command)
         MySQLConnection.close()
 
     def UpdateToken(self , token):
-        MySQLConnection = pymysql.connect(**json_data['MySQLSettings'])
+        MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
         with MySQLConnection.cursor() as cursor:
             command = f"CREATE TABLE IF NOT EXISTS discord_status.token (token TEXT NOT NULL) ENGINE = InnoDB;"
             cursor.execute(command)
@@ -65,7 +59,7 @@ class MySQL(Cog_Extension):
         MySQLConnection.close()
 
     def GetToken(self):
-        MySQLConnection = pymysql.connect(**json_data['MySQLSettings'])
+        MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
         with MySQLConnection.cursor() as cursor:
             command = f"SELECT token FROM discord_status.token"
             cursor.execute(command)
@@ -76,7 +70,7 @@ class MySQL(Cog_Extension):
     #訊息歷史紀錄功能相關
 
     def PutMessageLog(self , message , message_before , deleted_at , type):
-        MySQLConnection = pymysql.connect(**json_data['MySQLSettings'])
+        MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
         with MySQLConnection.cursor() as cursor:
             command = f"SELECT * FROM discord_status.guilds"
             cursor.execute(command)
@@ -143,7 +137,7 @@ class MySQL(Cog_Extension):
     #音樂機器人功能相關
 
     def CreateMusicTable(self , GuildID):
-        MySQLConnection = pymysql.connect(**json_data['MySQLSettings'])
+        MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
         with MySQLConnection.cursor() as cursor:
             command = f"SELECT * FROM discord_status.guilds"
             cursor.execute(command)
@@ -173,7 +167,7 @@ class MySQL(Cog_Extension):
         MySQLConnection.close()
 
     def GetMusicQueue(self , GuildID):
-        MySQLConnection = pymysql.connect(**json_data['MySQLSettings'])
+        MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
         with MySQLConnection.cursor() as cursor:
             command = f"SELECT * FROM discord_{GuildID}.music_queue"
             cursor.execute(command)
@@ -182,7 +176,7 @@ class MySQL(Cog_Extension):
         return MusicQueue
 
     def PutMusic(self , GuildID , music):
-        MySQLConnection = pymysql.connect(**json_data['MySQLSettings'])
+        MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
         with MySQLConnection.cursor() as cursor:
             command = f"SELECT * FROM discord_{GuildID}.music_queue"
             cursor.execute(command)
@@ -199,7 +193,7 @@ class MySQL(Cog_Extension):
         MySQLConnection.close()
 
     def GetMusicStatus(self , GuildID):
-        MySQLConnection = pymysql.connect(**json_data['MySQLSettings'])
+        MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
         with MySQLConnection.cursor() as cursor:
             command = f"SELECT * FROM discord_{GuildID}.music_status"
             cursor.execute(command)
@@ -208,7 +202,7 @@ class MySQL(Cog_Extension):
         return MusicStatus
 
     def GetMusicQueueLen(self , GuildID):
-        MySQLConnection = pymysql.connect(**json_data['MySQLSettings'])
+        MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
         with MySQLConnection.cursor() as cursor:
             command = f"SELECT * FROM discord_{GuildID}.music_queue"
             cursor.execute(command)
@@ -219,15 +213,15 @@ class MySQL(Cog_Extension):
     def GetMusic(self , GuildID):
         class MusicDetail:
             def __init__(self , url):
-                self.title = None
+                self.title = ''
                 self.file_name = ''
-                self.duration = None
+                self.duration = ''
                 self.url = url
-                self.audio_url = None
-                self.thumbnail_url = None
-                self.file_size = None
+                self.audio_url = ''
+                self.thumbnail_url = ''
+                self.file_size = 0
                 self.type = 0
-        MySQLConnection = pymysql.connect(**json_data['MySQLSettings'])
+        MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
         with MySQLConnection.cursor() as cursor:
             command = f"SELECT * FROM discord_{GuildID}.music_queue"
             cursor.execute(command)
@@ -240,7 +234,7 @@ class MySQL(Cog_Extension):
             music = MusicDetail(music1[4])
             music.title = music1[1]
             music.file_name = music1[2]
-            music.duration = music1[3]
+            music.duration = str(music1[3])
             music.audio_url = music1[5]
             music.thumbnail_url = music1[6]
             music.file_size = music1[7]
@@ -248,7 +242,7 @@ class MySQL(Cog_Extension):
             return music
 
     def PopMusic(self , GuildID):
-        MySQLConnection = pymysql.connect(**json_data['MySQLSettings'])
+        MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
         with MySQLConnection.cursor() as cursor:
             command = f"DELETE FROM discord_{GuildID}.music_queue limit 1"
             cursor.execute(command)
@@ -256,7 +250,7 @@ class MySQL(Cog_Extension):
         MySQLConnection.close()
 
     def SetSingleLoop(self , GuildID , SingleLoop):
-        MySQLConnection = pymysql.connect(**json_data['MySQLSettings'])
+        MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
         with MySQLConnection.cursor() as cursor:
             if SingleLoop:
                 command = f"UPDATE discord_{GuildID}.music_status SET single_loop = 1"
@@ -267,7 +261,7 @@ class MySQL(Cog_Extension):
         MySQLConnection.close()
 
     def GetLoop(self , GuildID):
-        MySQLConnection = pymysql.connect(**json_data['MySQLSettings'])
+        MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
         with MySQLConnection.cursor() as cursor:
             command = f"SELECT * FROM discord_{GuildID}.music_status"
             cursor.execute(command)
@@ -280,7 +274,7 @@ class MySQL(Cog_Extension):
             return False
 
     def CleanMusicTable(self , GuildID):
-        MySQLConnection = pymysql.connect(**json_data['MySQLSettings'])
+        MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
         with MySQLConnection.cursor() as cursor:
             try:
                 command = f"DELETE FROM discord_status.music_guilds WHERE id = {GuildID}"
@@ -301,7 +295,7 @@ class MySQL(Cog_Extension):
         MySQLConnection.close()
 
     def CleanAllMusicTable(self):
-        MySQLConnection = pymysql.connect(**json_data['MySQLSettings'])
+        MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
         with MySQLConnection.cursor() as cursor:
             command = "SELECT * FROM discord_status.music_guilds"
             cursor.execute(command)
@@ -322,5 +316,5 @@ class MySQL(Cog_Extension):
             del music_guilds
         MySQLConnection.close()
 
-def setup(bot):
-    bot.add_cog(MySQL(bot))
+async def setup(bot):
+    await bot.add_cog(MySQL(bot))

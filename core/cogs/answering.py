@@ -5,7 +5,7 @@ import discord , os , shutil , requests , openpyxl
 class answering(Cog_Extension):
 
     def __init__(self , bot):
-        self.bot = bot
+        super().__init__(bot)
         self.AnsweringDict = {}
         self.loadAnsweringContent()
 
@@ -67,5 +67,5 @@ class answering(Cog_Extension):
                         except:
                             pass
 
-def setup(bot):
-    bot.add_cog(answering(bot))
+async def setup(bot):
+    await bot.add_cog(answering(bot))

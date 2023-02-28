@@ -1,12 +1,7 @@
 import discord
 from discord.ext import commands
 from core.classes import Cog_Extension
-import os
-import requests
-import shutil
-import time
-import datetime
-import openpyxl
+import os , shutil , time , datetime , requests , openpyxl
 
 class message_history(Cog_Extension):
 
@@ -166,5 +161,5 @@ class message_history(Cog_Extension):
             AnsweringSheet.append((str(message_before.author) , str(message_before.content) , str(message_after.content) , str((message_before.created_at + datetime.timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")) , str(EdittedTime)))
         AnsweringBook.save(f'messageHistory\\{message_before.guild}\\{message_before.channel}\\{message_before.channel}_messageHistory.xlsx')
 
-def setup(bot):
-    bot.add_cog(message_history(bot))
+async def setup(bot):
+    await bot.add_cog(message_history(bot))

@@ -4,10 +4,6 @@ import time , uuid
 
 class website(Cog_Extension):
 
-    def __init__(self , bot):
-        self.bot = bot
-        self.DB = bot.get_cog('MySQL')
-
     #取得存取網頁之token
 
     @commands.command()
@@ -38,5 +34,5 @@ class website(Cog_Extension):
     async def updateToken(self):
         self.DB.UpdateToken(str(uuid.uuid4())[:8])
 
-def setup(bot):
-    bot.add_cog(website(bot))
+async def setup(bot):
+    await bot.add_cog(website(bot))

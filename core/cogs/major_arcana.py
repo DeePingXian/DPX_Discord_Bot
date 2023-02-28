@@ -469,5 +469,5 @@ class major_arcana(Cog_Extension):
                         await ctx.send(f'世界（逆位）')
                         await ctx.send(file=discord.File('.\\assets\\majorArcana\\21_1.jpg'))
 
-def setup(bot):
-    bot.add_cog(major_arcana(bot))
+async def setup(bot):
+    await bot.add_cog(major_arcana(bot))
