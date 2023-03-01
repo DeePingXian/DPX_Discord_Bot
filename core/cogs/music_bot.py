@@ -118,7 +118,7 @@ class music_bot(Cog_Extension):
             with YoutubeDL(self.ytdlOpts) as ytdl:
                 infoDict = await asyncio.to_thread(ytdl.extract_info , self.music.url , download=False)
                 while not infoDict['url'].startswith('https://upos-hz-mirrorakam.akamaized.net/'):     #只有這個來源的能正常播放
-                    await asyncio.sleep(2)      #避免頻繁request被鎖
+                    await asyncio.sleep(3)      #避免頻繁request被鎖
                     infoDict = await asyncio.to_thread(ytdl.extract_info , self.music.url , download=False)
                 self.music.audio_url = infoDict['url']
                 self.music.title = infoDict.get('title' , '')
