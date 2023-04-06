@@ -71,12 +71,12 @@ class message_history(Cog_Extension):
                 if AnsweringSheet.cell(row=target , column=1).value != None:
                     if AnsweringSheet.cell(row=target , column=3).value == None:
                         embed = discord.Embed(title=AnsweringSheet.cell(row=target , column=1).value, description=f'刪除之訊息：\n「{AnsweringSheet.cell(row=target , column=2).value}」' , color=0xff0000)
-                        embed.set_author(name=f'前第{num}個被刪除/編輯的文字訊息' , url=discord.Embed.Empty , icon_url=discord.Embed.Empty)
+                        embed.set_author(name=f'前第{num}個被刪除/編輯的文字訊息' , url=None , icon_url=None)
                         embed.add_field(name="傳送訊息時間", value=AnsweringSheet.cell(row=target , column=4).value , inline=True)
                         embed.add_field(name="刪除訊息時間", value=AnsweringSheet.cell(row=target , column=5).value , inline=True)
                     else:
                         embed = discord.Embed(title=AnsweringSheet.cell(row=target , column=1).value, description=f'原訊息：\n「{AnsweringSheet.cell(row=target , column=2).value}」\n編輯後之訊息：\n「{AnsweringSheet.cell(row=target , column=3).value}」' , color=0xff0000)
-                        embed.set_author(name=f'前第{num}個被刪除/編輯的文字訊息' , url=discord.Embed.Empty , icon_url=discord.Embed.Empty)
+                        embed.set_author(name=f'前第{num}個被刪除/編輯的文字訊息' , url=None , icon_url=None)
                         embed.add_field(name="傳送訊息時間", value=AnsweringSheet.cell(row=target , column=4).value , inline=True)
                         embed.add_field(name="編輯訊息時間", value=AnsweringSheet.cell(row=target , column=5).value , inline=True)
                     await ctx.send(embed=embed)

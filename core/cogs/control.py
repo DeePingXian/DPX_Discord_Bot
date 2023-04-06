@@ -16,7 +16,7 @@ class control(Cog_Extension):
                 DBStatus = '錯誤'
             ping = round (self.bot.latency * 1000)   
             embed = discord.Embed(title="bot 狀態一覽", description='\u200b' , color=0xc0c0c0)
-            embed.set_author(name="DPX discord bot" , url=discord.Embed.Empty , icon_url=self.settings['BotIconUrl'])
+            embed.set_author(name="DPX discord bot" , url=None , icon_url=self.settings['BotIconUrl'])
             embed.add_field(name="類別", value='與 Discord 網路延遲\nMySQL 操作狀態' , inline=True)
             embed.add_field(name="狀態", value=f'{ping} ms\n{DBStatus}' , inline=True)
             await ctx.send(embed=embed)

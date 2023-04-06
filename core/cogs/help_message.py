@@ -38,13 +38,13 @@ class help_message(Cog_Extension):
                 embed.add_field(name="指令", value=f'{self.pf}play + (網址)\n{self.pf}playlocal + (音樂檔案路徑)\n{self.pf}add + (網址)\n{self.pf}addlocal + (音樂檔案路徑)\n{self.pf}pause\n{self.pf}resume\n{self.pf}skip\n{self.pf}loop\n{self.pf}stop\n{self.pf}join\n{self.pf}queue\n{self.pf}nowplaying' , inline=True)
                 embed.add_field(name="功能", value='播放該音樂\n播放該本機音樂（僅限開bot的管理員使用）\n增加該音樂至播放隊列\n增加該本機音樂至播放隊列（僅限開bot的管理員使用）\n暫停播放\n恢復播放\n跳過目前曲目\n單曲重複播放\n停止播放 並清除音樂資料\n加入用戶所在語音頻道\n查看播放隊列\n查看現正播放' , inline=True)
                 embed.add_field(name='\u200b', value='\u200b' , inline=False)
-                embed.add_field(name='支援類型', value='來源\n\n\nGoogle雲端音訊檔案容器\nGoogle雲端單檔大小上限' , inline=True)
+                embed.add_field(name='支援類型', value='來源\n\n\n播放隊列上限\nGoogle雲端音訊檔案容器\nGoogle雲端單檔大小上限' , inline=True)
                 acceptableMusicContainer = ''
                 for i in self.settings['musicBotOpts']['googleDrive']['acceptableMusicContainer']:
                     acceptableMusicContainer += i
                     if i != self.settings['musicBotOpts']['googleDrive']['acceptableMusicContainer'][-1]:
                         acceptableMusicContainer += ' '
-                embed.add_field(name='\u200b', value=f'YouTube影片、直播、播放清單、合輯\nGoogle雲端檔案\nbilibili影片、影片列表(beta)\n{acceptableMusicContainer}\n{self.settings["musicBotOpts"]["googleDrive"]["fileSizeLimitInMB"]}MB' , inline=True)
+                embed.add_field(name='\u200b', value=f'YouTube影片、直播、播放清單、合輯\nGoogle雲端檔案\nbilibili影片、影片列表(beta)\n{self.settings["musicBotOpts"]["maxQueueLen"]}\n{acceptableMusicContainer}\n{self.settings["musicBotOpts"]["googleDrive"]["fileSizeLimitInMB"]}MB' , inline=True)
                 embed.add_field(name='\u200b', value=f'播放B站影片時受限於機制，bot反應會較慢\n如果播音樂發生問題，請使用{self.pf}stop清除資料，並再重新操作一次，實在不行請重啟bot' , inline=False)
                 await ctx.send(embed=embed)
             elif page == 4:

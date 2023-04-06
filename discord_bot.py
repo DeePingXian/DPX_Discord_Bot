@@ -1,5 +1,6 @@
 import discord
-from discord.ext import commands , tasks
+import pymysql , openpyxl , gdown        #編譯用
+from discord.ext import commands , tasks        #編譯用
 from discord.ext.commands import Bot
 import asyncio , os , shutil , json
 
@@ -52,8 +53,12 @@ async def main():
 
         #訊息log
         
-        if message.content != '' or message.attachments != []:
-            DB.PutMessageLog(message , None , None , 0)
+        try:
+            if message.content != '' or message.attachments != []:
+                DB.PutMessageLog(message , None , None , 0)
+        except:
+            if message.author != bot.user:
+                raise ConnectionError('MySQL connection failed, can\'t create message log.')   
 
         await bot.process_commands(message)
 
