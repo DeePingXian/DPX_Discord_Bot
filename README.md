@@ -5,7 +5,7 @@ DPX Discord Bot 開源版本
 刪減自閉源的自用版本，自用版本需要連接MySQL才能使用，這裡也跟著繼承，音樂佇列、部分訊息歷史紀錄會存在那，推薦使用XAMPP附帶的MySQL，可順便裝上附屬網站程式  
 給bot操作的MySQL帳號需給予全域寫入權限，運行時bot將全自動操作MySQL  
 本bot附屬網站程式，可以配合使用：<a href="https://github.com/DeePingXian/DPX_Discord_Bot_Website">https://github.com/DeePingXian/DPX_Discord_Bot_Website</a>  
-若要使用Python環境運行原程式碼，最低需求是3.11版
+若要使用Python環境運行原程式碼，最低需求是3.11版  
 這程式僅能使用單執行續執行，將吃重CPU的單核效能  
 程式運行參數於settings.json設定，這份說明文檔的指令前綴字皆是預設值「!!」，實際使用時可自行更改，為表達方便，以下指令前綴字均以預設值「!!」表示  
 大部分有年齡限制的影片都可以直接播，不需設置cookie，但不保證全部都能播  
