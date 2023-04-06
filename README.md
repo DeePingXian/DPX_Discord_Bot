@@ -121,12 +121,12 @@ DPX Discord Bot 開源版本
 
 ***
 ## 直接使用了以下第三方 Python 套件
-- discord.py[voice] v2.1.1
+- discord.py[voice] v2.2.2
 - requests
-- yt-dlp 2023.2.17
-- gdown
-- openpyxl
-- PyMySQL
+- yt-dlp 2023.3.4
+- gdown 4.6.4
+- openpyxl 3.1.2
+- PyMySQL 1.0.2
 ***
 ## 已知錯誤
 - 無法播放「<a href="https://www.youtube.com/watch?v=rPJz3syNbtE">https://www.youtube.com/watch?v=rPJz3syNbtE</a>」，且會造成程式錯誤

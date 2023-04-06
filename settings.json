@@ -33,7 +33,7 @@
         "localMusicIcon":"https://upload.wikimedia.org/wikipedia/en/f/f7/RickRoll.png",
         "googleDrive":{
             "fileSizeLimitInMB": 100,
-            "acceptableMusicContainer": ["aac" , "flac" , "m4a" , "mp3" , "mp4" , "ogg" , "wav" , "weba"],
+            "acceptableMusicContainer": ["aac" , "flac" , "m4a" , "mp3" , "mp4" , "ogg" , "opus" , "wav" , "weba"],
             "icon": "https://upload.wikimedia.org/wikipedia/en/f/f7/RickRoll.png",
             "HTTPHeader":{
                 "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 Edg/109.0.1518.61"
@@ -41,7 +41,7 @@
         }
     },
 
-    "newestNhentaiBookNum": 444000,
+    "newestNhentaiBookNum": 450000,
     
     "error_message_file": "assets\\error.jpg",
 
