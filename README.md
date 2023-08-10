@@ -45,7 +45,6 @@ DPX Discord Bot 開源版本
 <tr><td>fileSizeLimitInMB</td><td>設定播Google雲端音樂的檔案大小上限(單位為MB)，避免下載太大的檔案造成網路塞車</td></tr>
 <tr><td>acceptableMusicContainer</td><td>設定播Google雲端音樂可接受的檔案副檔名，避免被用來播一些不支援的項目造成錯誤</td></tr>
 <tr><td>△icon</td><td>設定Google雲端圖標的網址，播Google雲端音樂功能會用到</td></tr>
-<tr><td>HTTPHeader</td><td>設定抓Google雲端檔案時，向其發送的HTTP標頭</td></tr>
 <tr><td>△newestNhentaiBookNum</td><td>設定當下nhentai車號上限，隨機產生本子功能會用到</td></tr>
 <tr><td>error_message_file</td><td>設定報錯時傳送的圖片</td></tr>
 <tr><td>△BotIconUrl</td><td>設定bot logo圖標網址，查指令功能會用到</td></tr>
@@ -79,7 +78,7 @@ DPX Discord Bot 開源版本
 ### **播音樂功能**
 <table>
 <tr><td>!!play + (網址)</td><td>播放該音樂</td></tr>
-<tr><td>!!playlocal + (音樂檔案路徑）</td><td>播放該本機音樂（僅限開bot的管理員使用）</td></tr>
+<tr><td>!!playlocal + (音樂檔案路徑)</td><td>播放該本機音樂（僅限開bot的管理員使用）</td></tr>
 <tr><td>!!add + (網址)</td><td>增加該音樂至播放隊列</td></tr>
 <tr><td>!!addlocal + (音樂檔案路徑)</td><td>增加該本機音樂至播放隊列（僅限開bot的管理員使用）</td></tr>
 <tr><td>!!pause</td><td>暫停播放</td></tr>
@@ -120,15 +119,20 @@ DPX Discord Bot 開源版本
 <br><br>
 
 ***
-## 直接使用了以下第三方 Python 套件
-- discord.py[voice] v2.2.2
-- requests
-- yt-dlp 2023.3.4
-- gdown 4.6.4
-- openpyxl 3.1.2
-- PyMySQL 1.0.2
+## 直接呼叫了以下非標準 Python package
+<table>
+<tr><td>項目</td><td>版本</td><td>授權</td></tr>
+<tr><td>discord.py[voice]</td><td>2.2.2</td><td>MIT License</td></tr>
+<tr><td>fake-useragent</td><td>1.2.1</td><td>Apache License Version 2.0</td></tr>
+<tr><td>gdown</td><td>4.7.1</td><td>MIT License</td></tr>
+<tr><td>openpyxl</td><td>3.1.2</td><td>MIT License</td></tr>
+<tr><td>PyMySQL</td><td>1.0.2</td><td>MIT License</td></tr>
+<tr><td>Requests</td><td>2.28.2</td><td>Apache License Version 2.0</td></tr>
+<tr><td>yt-dlp</td><td>2023.7.6</td><td>The Unlicense</td></tr>
+</table>
+
 ***
 ## 已知錯誤
 - 無法播放「<a href="https://www.youtube.com/watch?v=rPJz3syNbtE">https://www.youtube.com/watch?v=rPJz3syNbtE</a>」，且會造成程式錯誤
-- 手動使用指令停止播音樂，退出頻道時會跳錯誤訊息，因為不影響運作所以也懶得修，無視即可
-- 播放B站影片可能會產生一些錯誤訊息
+- 播放部分B站影片會直接跳掉，如「<a href=https://www.bilibili.com/video/BV1qs411q7PC>https://www.bilibili.com/video/BV1qs411q7PC</a>」
+- 播放B站影片可能會產生一些錯誤，跟挑選播放源時頻繁請求有關

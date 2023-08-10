@@ -4,18 +4,6 @@ import time , uuid
 
 class website(Cog_Extension):
 
-    #取得存取網頁之token
-
-    @commands.command()
-    async def getwebtoken(self , ctx):
-        await ctx.send(f'目前存取網頁之 token：\n{self.DB.GetToken()}\ntoken 每天 UTC 0:00／CST 8:00 更新')
-
-    #取得本 Discord 伺服器的 ID
-
-    @commands.command()
-    async def getguildid(self , ctx):
-        await ctx.send(f'本伺服器ID：{ctx.guild.id}')
-
     #更新資料庫網頁存取token
 
     @commands.Cog.listener()

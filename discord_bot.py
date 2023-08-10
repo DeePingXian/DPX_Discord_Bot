@@ -1,6 +1,7 @@
 import discord
-import pymysql , openpyxl , gdown        #編譯用
-from discord.ext import commands , tasks        #編譯用
+import pymysql , openpyxl , gdown , optparse        #打包用
+from fake_useragent import UserAgent        #打包用
+from discord.ext import commands , tasks        #打包用
 from discord.ext.commands import Bot
 import asyncio , os , shutil , json
 
@@ -20,7 +21,6 @@ async def main():
         if CogFile.endswith('.py'):
             await bot.load_extension(f'core.cogs.{CogFile[:-3]}')
             CogFileList.append(CogFile)
-            print(f"已載入{CogFile}")
 
     #啟動時清除音樂機器人資料
 
@@ -44,7 +44,7 @@ async def main():
         game = discord.Game(f'輸入{settings["command_prefix"]}help查詢指令')
         await bot.change_presence(status=discord.Status.online, activity=game)
         ping = round (bot.latency * 1000)
-        print(f'啟動完成 與 Discord 延遲為 {ping} ms')
+        print(f'啟動完成｜bot身份為「{bot.user}」｜與 Discord 延遲為 {ping} ms')
         await channel.send('啟動完成')
         DB.CleanAllMusicTable()
 

@@ -23,7 +23,7 @@ class music_bot(Cog_Extension):
                 self.file_size = 0
                 self.type = type
 
-        def __init__(self , ctx , settings , DB):
+        def __init__(self , ctx , settings , userAgent , DB):
             self.ctx = ctx
             self.music = None
             self.tempMusic = None
@@ -31,6 +31,8 @@ class music_bot(Cog_Extension):
             self.PlayNextMusic = asyncio.Event()
             self.playing = False
             self.SingleLoop = False
+            self.audioPlayerTask = None
+            self.userAgent = userAgent
             self.DB = DB
             self.CreateDatabase()
             self.CreateMusicTable()
@@ -78,12 +80,12 @@ class music_bot(Cog_Extension):
             if not os.path.isdir('assets/musicBot/musicTemp'):
                 os.mkdir('assets/musicBot/musicTemp')
             self.tempMusicDict[num].url = url
-            self.tempMusicDict[num].title = (((await asyncio.to_thread(requests.get , url , stream=True , headers=self.settings['musicBotOpts']['googleDrive']['HTTPHeader'])).text.partition('</title>'))[0]).partition('<title>')[2]
+            self.tempMusicDict[num].title = (((await asyncio.to_thread(requests.get , url , stream=True , headers={"user-agent": self.userAgent.random})).text.partition('</title>'))[0]).partition('<title>')[2]
             self.tempMusicDict[num].title = self.tempMusicDict[num].title[:self.tempMusicDict[num].title.rfind(' -')]
             if self.tempMusicDict[num].title[self.tempMusicDict[num].title.rfind('.')+1:] in self.settings['musicBotOpts']['googleDrive']['acceptableMusicContainer']:
                 self.tempMusicDict[num].audio_url = (self.tempMusicDict[num].url.lstrip('https://drive.google.com/file/d/')).partition('/')[0]
-                self.tempMusicDict[num].audio_url = (await asyncio.to_thread(requests.get , 'https://drive.google.com/uc?export=open&confirm=yTib&id=' + self.tempMusicDict[num].audio_url , stream=True , headers=self.settings['musicBotOpts']['googleDrive']['HTTPHeader'])).url
-                self.tempMusicDict[num].file_size = int((await asyncio.to_thread(requests.get , self.tempMusicDict[num].audio_url , stream=True , headers=self.settings['musicBotOpts']['googleDrive']['HTTPHeader'])).headers['Content-length'])
+                self.tempMusicDict[num].audio_url = (await asyncio.to_thread(requests.get , 'https://drive.google.com/uc?export=open&confirm=yTib&id=' + self.tempMusicDict[num].audio_url , stream=True , headers={"user-agent": self.userAgent.random})).url
+                self.tempMusicDict[num].file_size = int((await asyncio.to_thread(requests.get , self.tempMusicDict[num].audio_url , stream=True , headers={"user-agent": self.userAgent.random})).headers['Content-length'])
                 if self.tempMusicDict[num].file_size <= self.settings['musicBotOpts']['googleDrive']['fileSizeLimitInMB'] * 1048576:
                     self.tempMusicDict[num].file_name = str(uuid.uuid4()) + self.tempMusicDict[num].title[self.tempMusicDict[num].title.rfind("."):]
                 else:
@@ -178,10 +180,10 @@ class music_bot(Cog_Extension):
                 else:
                     try:
                         if self.allMusicPlayingStatus[ctx.guild.id].playing == False:        #找不到此項或=False則進except
-                            0/0
+                            raise
                     except:
                         await self.JoinChannel(ctx)
-                        self.allMusicPlayingStatus[ctx.guild.id] = self.musicPlayingStatus(ctx , self.settings , self.bot.get_cog('MySQL'))
+                        self.allMusicPlayingStatus[ctx.guild.id] = self.musicPlayingStatus(ctx , self.settings , self.userAgent , self.bot.get_cog('MySQL'))
                         self.allMusicPlayingStatus[ctx.guild.id].playing = True
                         if 'playlist?list=' in url:
                             await self.add(ctx , url)
@@ -196,34 +198,34 @@ class music_bot(Cog_Extension):
                             else:
                                 await self.allMusicPlayingStatus[ctx.guild.id].PutMusic()
                         await self.allMusicPlayingStatus[ctx.guild.id].GetMusic()
-                        self.bot.loop.create_task(self.AudioPlayerTask(ctx))
+                        self.allMusicPlayingStatus[ctx.guild.id].audioPlayerTask = asyncio.create_task(self.AudioPlayerTask(ctx))
                     else:
                         await self.JoinChannel(ctx)
                         await self.add(ctx , url)
             elif url.startswith('https://drive.google.com/file/d/'):         #處理 Google 雲端音樂檔案
                 try:
                     if self.allMusicPlayingStatus[ctx.guild.id].playing == False:        #找不到此項或=False則進except
-                        0/0
+                        raise
                 except:
                     await self.JoinChannel(ctx)
-                    self.allMusicPlayingStatus[ctx.guild.id] = self.musicPlayingStatus(ctx , self.settings , self.bot.get_cog('MySQL'))
+                    self.allMusicPlayingStatus[ctx.guild.id] = self.musicPlayingStatus(ctx , self.settings , self.userAgent , self.bot.get_cog('MySQL'))
                     self.allMusicPlayingStatus[ctx.guild.id].playing = True
                     self.allMusicPlayingStatus[ctx.guild.id].initTempMusic(1 , 2)
                     await self.allMusicPlayingStatus[ctx.guild.id].getGDMusicInfo(1 , url)
                     await self.allMusicPlayingStatus[ctx.guild.id].PutMusic()
                     await self.allMusicPlayingStatus[ctx.guild.id].GetMusic()
-                    self.bot.loop.create_task(self.AudioPlayerTask(ctx))
+                    self.allMusicPlayingStatus[ctx.guild.id].audioPlayerTask = asyncio.create_task(self.AudioPlayerTask(ctx))
                 else:
                     await self.JoinChannel(ctx)
                     await self.add(ctx , url)
             elif url.startswith('https://www.bilibili.com/video/') or url.startswith('https://b23.tv/') or url.startswith('http://b23.tv/') or url.startswith('https://space.bilibili.com/'):         #處理 bilibili 影片
                 try:
                     if self.allMusicPlayingStatus[ctx.guild.id].playing == False:        #找不到此項或=False則進except
-                        0/0
+                        raise
                 except:
                     if url.startswith('https://www.bilibili.com/video/') or url.startswith('https://b23.tv/') or url.startswith('http://b23.tv/'):
                         await self.JoinChannel(ctx)
-                        self.allMusicPlayingStatus[ctx.guild.id] = self.musicPlayingStatus(ctx , self.settings , self.bot.get_cog('MySQL'))
+                        self.allMusicPlayingStatus[ctx.guild.id] = self.musicPlayingStatus(ctx , self.settings , self.userAgent , self.bot.get_cog('MySQL'))
                         self.allMusicPlayingStatus[ctx.guild.id].playing = True
                         self.allMusicPlayingStatus[ctx.guild.id].initTempMusic(1 , 3)
                         try:
@@ -234,11 +236,11 @@ class music_bot(Cog_Extension):
                             await self.allMusicPlayingStatus[ctx.guild.id].PutMusic()
                     elif url.startswith('https://space.bilibili.com/'):
                         await self.JoinChannel(ctx)
-                        self.allMusicPlayingStatus[ctx.guild.id] = self.musicPlayingStatus(ctx , self.settings , self.bot.get_cog('MySQL'))
+                        self.allMusicPlayingStatus[ctx.guild.id] = self.musicPlayingStatus(ctx , self.settings , self.userAgent , self.bot.get_cog('MySQL'))
                         self.allMusicPlayingStatus[ctx.guild.id].playing = True
                         await self.add(ctx , url)
                     await self.allMusicPlayingStatus[ctx.guild.id].GetMusic()
-                    self.bot.loop.create_task(self.AudioPlayerTask(ctx))
+                    self.allMusicPlayingStatus[ctx.guild.id].audioPlayerTask = asyncio.create_task(self.AudioPlayerTask(ctx))
                 else:
                     await self.JoinChannel(ctx)
                     await self.add(ctx , url)
@@ -253,11 +255,11 @@ class music_bot(Cog_Extension):
             if ctx.author.voice:        #確認用戶在語音頻道裡
                 try:
                     if self.allMusicPlayingStatus[ctx.guild.id].playing == False:        #找不到此項或=False則進except
-                        0/0
+                        raise
                 except:
                     if os.path.isfile(path):
                         await self.JoinChannel(ctx)
-                        self.allMusicPlayingStatus[ctx.guild.id] = self.musicPlayingStatus(ctx , self.settings , self.bot.get_cog('MySQL'))
+                        self.allMusicPlayingStatus[ctx.guild.id] = self.musicPlayingStatus(ctx , self.settings , self.userAgent , self.bot.get_cog('MySQL'))
                         self.allMusicPlayingStatus[ctx.guild.id].playing = True
                         if await self.allMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() < self.settings['musicBotOpts']['maxQueueLen'] + 1:
                             self.allMusicPlayingStatus[ctx.guild.id].initTempMusic(1 , 0)
@@ -284,13 +286,13 @@ class music_bot(Cog_Extension):
         if ctx.voice_client:        #確認在語音頻道裡
             try:
                 if ctx.voice_client.channel != ctx.author.voice.channel:        #確認用戶在相同的語音頻道裡
-                    0/0
+                    raise
             except:
                 await ctx.reply('請先進入頻道')
             else:
                 try:
                     if self.allMusicPlayingStatus[ctx.guild.id].playing == False:        #找不到此項或=False則進except
-                        0/0
+                        raise
                 except:
                     await ctx.reply('請先播放音樂')
                 else:
@@ -542,13 +544,13 @@ class music_bot(Cog_Extension):
             if ctx.voice_client:        #確認在語音頻道裡
                 try:
                     if ctx.voice_client.channel != ctx.author.voice.channel:        #確認用戶在相同的語音頻道裡
-                        0/0
+                        raise
                 except:
                     await ctx.reply('請先進入頻道')
                 else:
                     try:
                         if self.allMusicPlayingStatus[ctx.guild.id].playing == False:        #找不到此項或=False則進except
-                            0/0
+                            raise
                     except:
                         await ctx.reply('請先播放音樂')
                     else:
@@ -577,11 +579,11 @@ class music_bot(Cog_Extension):
         if ctx.voice_client:
             try:
                 if ctx.voice_client.channel != ctx.author.voice.channel:
-                    0/0
+                    raise
                 else:
                     try:
                         if not self.allMusicPlayingStatus[ctx.guild.id].playing:
-                            0/0
+                            raise
                         else:
                             if ctx.voice_client.is_playing():
                                 embed = discord.Embed(title='已暫停播放', description=self.allMusicPlayingStatus[ctx.guild.id].music.title , color=0xffff00)
@@ -601,11 +603,11 @@ class music_bot(Cog_Extension):
         if ctx.voice_client:
             try:
                 if ctx.voice_client.channel != ctx.author.voice.channel:
-                    0/0
+                    raise
                 else:
                     try:
                         if not self.allMusicPlayingStatus[ctx.guild.id].playing:
-                            0/0
+                            raise
                         else:
                             if ctx.voice_client.is_paused():
                                 embed = discord.Embed(title='已恢復播放', description=self.allMusicPlayingStatus[ctx.guild.id].music.title , color=0x00ff00)
@@ -625,7 +627,7 @@ class music_bot(Cog_Extension):
         if ctx.voice_client:
             try:
                 if ctx.voice_client.channel != ctx.author.voice.channel:
-                    0/0
+                    raise
                 else:
                     if await self.allMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() == 1:
                         embed = discord.Embed(title='已停止播放' , color=0xff0000)
@@ -647,13 +649,13 @@ class music_bot(Cog_Extension):
         if ctx.voice_client:
             try:
                 if ctx.voice_client.channel != ctx.author.voice.channel:
-                    0/0
+                    raise
             except:
                 await ctx.reply('請先進入頻道')
             else:
                 try:
                     if self.allMusicPlayingStatus[ctx.guild.id].playing == False:
-                        0/0
+                        raise
                     else:
                         await self.allMusicPlayingStatus[ctx.guild.id].GetLoop()
                         if self.allMusicPlayingStatus[ctx.guild.id].SingleLoop == False:
@@ -675,7 +677,7 @@ class music_bot(Cog_Extension):
         if ctx.voice_client:
             try:
                 if ctx.voice_client.channel != ctx.author.voice.channel:
-                    0/0
+                    raise
             except:
                 await ctx.reply('請先進入頻道')
             else:
@@ -696,7 +698,7 @@ class music_bot(Cog_Extension):
     async def nowplaying(self , ctx):
         try:
             if self.allMusicPlayingStatus[ctx.guild.id].playing == False:
-                0/0
+                raise
             else:
                 music = self.allMusicPlayingStatus[ctx.guild.id].music
                 loop = '重複' if self.allMusicPlayingStatus[ctx.guild.id].SingleLoop else ''
@@ -725,7 +727,7 @@ class music_bot(Cog_Extension):
     async def queue(self , ctx):
         try:
             if await self.allMusicPlayingStatus[ctx.guild.id].GetMusicQueueLen() == 0:      #這是舊的程式碼 應該不會觸發
-                0/0
+                raise
         except:
             await ctx.send('無音樂待播放')
         else:
@@ -785,6 +787,8 @@ class music_bot(Cog_Extension):
                 elif self.allMusicPlayingStatus[ctx.guild.id].music.type == 1:
                     try:
                         await self.allMusicPlayingStatus[ctx.guild.id].renewYTMusicInfo()
+                    except asyncio.CancelledError:
+                        break
                     except:
                         embed = discord.Embed(title='播放時發生問題 將跳過', description=self.allMusicPlayingStatus[ctx.guild.id].music.url , color=0x00ff00)
                     else:
@@ -804,7 +808,8 @@ class music_bot(Cog_Extension):
                 elif self.allMusicPlayingStatus[ctx.guild.id].music.type == 3:
                     try:
                         await self.allMusicPlayingStatus[ctx.guild.id].renewBiliMusicInfo()
-                        pass
+                    except asyncio.CancelledError:
+                        break
                     except:
                         embed = discord.Embed(title='播放時發生問題 將跳過', description=self.allMusicPlayingStatus[ctx.guild.id].music.url , color=0x00ff00)
                     else:
@@ -817,6 +822,8 @@ class music_bot(Cog_Extension):
                 await self.allMusicPlayingStatus[ctx.guild.id].PlayNextMusic.wait()
                 if not self.allMusicPlayingStatus[ctx.guild.id].SingleLoop:
                     await self.allMusicPlayingStatus[ctx.guild.id].PopMusic()
+            except asyncio.CancelledError:
+                break
             except:
                 self.TogglePlayNextMusic(ctx)
 
@@ -840,11 +847,12 @@ class music_bot(Cog_Extension):
     async def LeaveChannel(self , ctx):
         try:
             if self.allMusicPlayingStatus[ctx.guild.id].playing == False:
-                0/0
+                raise
         except:                                  
             await ctx.voice_client.disconnect()
         else:
             try:
+                self.allMusicPlayingStatus[ctx.guild.id].audioPlayerTask.cancel()
                 await ctx.voice_client.disconnect()
                 self.allMusicPlayingStatus[ctx.guild.id].CleanMusicTable()
                 del self.allMusicPlayingStatus[ctx.guild.id]
