@@ -39,7 +39,7 @@ DPX Discord Bot 開源版本
 <tr><td>ffmpegopts</td><td>設定FFMPEG參數</td></tr>
 <tr><th colspan="2">musicBotOpts</th></tr>
 <tr><td>maxQueueLen</td><td>設定音樂隊列項目上限</td></tr>
-<tr><td>bitrate</td><td>設定播音樂時之位元率（注意編碼是OPUS，以及實際效果與該DC語音頻道設定有關）</td></tr>
+<tr><td>bitrate</td><td>設定播音樂時之位元率（注意編碼是Opus，以及實際效果與該DC語音頻道設定有關）</td></tr>
 <tr><td>△localMusicIcon</td><td>設定本機音樂圖標的網址，播本機音樂功能會用到</td></tr>
 <tr><th colspan="2">googleDrive</th></tr>
 <tr><td>fileSizeLimitInMB</td><td>設定播Google雲端音樂的檔案大小上限(單位為MB)，避免下載太大的檔案造成網路塞車</td></tr>

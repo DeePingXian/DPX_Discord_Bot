@@ -3,9 +3,19 @@ import pymysql , openpyxl , gdown , optparse        #打包用
 from fake_useragent import UserAgent        #打包用
 from discord.ext import commands , tasks        #打包用
 from discord.ext.commands import Bot
-import asyncio , os , shutil , json
+import asyncio , os , shutil , requests , zipfile , json
 
 async def main():
+
+    os.makedirs("./assets/MusicBot/temp" , exist_ok=True)
+    if not os.path.isfile("./assets/MusicBot/ffmpeg.exe"):
+        print("未找到FFmpeg，下載中...")
+        with open("./assets/MusicBot/temp/ffmpeg-6.0-essentials_build.zip" , "wb") as f:
+            f.write(requests.get("https://github.com/GyanD/codexffmpeg/releases/download/6.0/ffmpeg-6.0-essentials_build.zip").content)
+        with zipfile.ZipFile("./assets/MusicBot/temp/ffmpeg-6.0-essentials_build.zip" , 'r') as f:
+            f.extractall("./assets/MusicBot/temp")
+        shutil.move("./assets/MusicBot/temp/ffmpeg-6.0-essentials_build/bin/ffmpeg.exe" , "./assets/MusicBot")
+    shutil.rmtree("./assets/MusicBot/temp")
 
     with open('settings.json' , 'r' , encoding = 'utf8') as json_file:
         settings = json.load(json_file)
