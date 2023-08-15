@@ -270,7 +270,7 @@ class music_bot(Cog_Extension):
                         else:
                             await ctx.send(f'播放隊列數量已達{self.settings["musicBotOpts"]["maxQueueLen"]}上限')
                         await self.allMusicPlayingStatus[ctx.guild.id].GetMusic()
-                        self.bot.loop.create_task(self.AudioPlayerTask(ctx))
+                        self.allMusicPlayingStatus[ctx.guild.id].audioPlayerTask = asyncio.create_task(self.AudioPlayerTask(ctx))
                     else:
                         await ctx.reply('找不到此檔案')
                 else:
