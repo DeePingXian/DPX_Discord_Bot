@@ -34,7 +34,7 @@ class control(Cog_Extension):
         await self.log()
 
     async def log(self):
-        channel = self.bot.get_channel(self.settings['log_channel_id'])
+        channel = self.bot.get_channel(self.settings['logChannelID'])
         word = f'與 Discord 延遲為 {round(self.bot.latency * 1000)} ms'
         if self.DB.test():
             word += '\nMySQL 操作正常'

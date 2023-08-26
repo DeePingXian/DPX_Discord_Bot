@@ -20,7 +20,7 @@ class website(Cog_Extension):
 
     @tasks.loop(hours=24)
     async def updateToken(self):
-        self.DB.UpdateToken(str(uuid.uuid4())[:8])
+        self.DB.updateToken(str(uuid.uuid4())[:8])
 
 async def setup(bot):
     await bot.add_cog(website(bot))

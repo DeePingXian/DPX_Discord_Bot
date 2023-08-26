@@ -7,85 +7,63 @@ import asyncio , os , shutil , requests , zipfile , json
 
 async def main():
 
-    os.makedirs("./assets/musicBot/temp" , exist_ok=True)
-    if not os.path.isfile("./assets/musicBot/ffmpeg.exe"):
+    os.makedirs("assets/musicBot/temp" , exist_ok=True)
+    if not os.path.isfile("assets/musicBot/ffmpeg.exe"):
         print("初次啟動，下載必要檔案中...")
-        with open("./assets/musicBot/temp/ffmpeg-6.0-essentials_build.zip" , "wb") as f:
+        with open("assets/musicBot/temp/ffmpeg-6.0-essentials_build.zip" , "wb") as f:
             f.write(requests.get("https://github.com/GyanD/codexffmpeg/releases/download/6.0/ffmpeg-6.0-essentials_build.zip").content)
-        with zipfile.ZipFile("./assets/musicBot/temp/ffmpeg-6.0-essentials_build.zip" , 'r') as f:
-            f.extractall("./assets/musicBot/temp")
-        shutil.move("./assets/musicBot/temp/ffmpeg-6.0-essentials_build/bin/ffmpeg.exe" , "./assets/musicBot")
-    shutil.rmtree("./assets/musicBot/temp")
+        with zipfile.ZipFile("assets/musicBot/temp/ffmpeg-6.0-essentials_build.zip" , "r") as f:
+            f.extractall("assets/musicBot/temp")
+        shutil.move("assets/musicBot/temp/ffmpeg-6.0-essentials_build/bin/ffmpeg.exe" , "assets/musicBot")
+    shutil.rmtree("assets/musicBot/temp")
 
-    with open('settings.json' , 'r' , encoding = 'utf8') as json_file:
+    with open("settings.json" , "r" , encoding = "utf8") as json_file:
         settings = json.load(json_file)
 
     intents = discord.Intents.all()
-    bot = Bot(command_prefix=settings['command_prefix'] , intents=intents)
+    bot = Bot(command_prefix=settings["commandPrefix"] , intents=intents)
     bot.remove_command("help")
 
     #載入cogs
 
     CogFileList = []
-    for CogFile in os.listdir('core\\cogs'):
-        if CogFile.endswith('.py'):
-            await bot.load_extension(f'core.cogs.{CogFile[:-3]}')
+    for CogFile in os.listdir("core/cogs"):
+        if CogFile.endswith(".py"):
+            await bot.load_extension(f"core.cogs.{CogFile[:-3]}")
             CogFileList.append(CogFile)
 
     #啟動時清除音樂機器人資料
 
-    DB = bot.get_cog('MySQL')
-    DB.Init()
+    DB = bot.get_cog("MySQL")
+    DB.init()
     if DB.test():
-        print('MySQL 操作正常')
+        print("MySQL 操作正常")
     else:
-        print('MySQL 操作錯誤')
-
-    #清空musicTemp
-
-    if os.path.isdir('assets/musicBot/musicTemp'):
-        shutil.rmtree('assets/musicBot/musicTemp' , ignore_errors = True)
+        print("MySQL 操作錯誤")
 
     #啟動訊息
 
     @bot.event
     async def on_ready():
-        channel = bot.get_channel(settings['log_channel_id'])
-        game = discord.Game(f'輸入{settings["command_prefix"]}help查詢指令')
+        channel = bot.get_channel(settings["logChannelID"])
+        game = discord.Game(f"輸入{settings['commandPrefix']}help查詢指令")
         await bot.change_presence(status=discord.Status.online, activity=game)
         ping = round (bot.latency * 1000)
-        print(f'啟動完成｜bot身份為「{bot.user}」｜與 Discord 延遲為 {ping} ms')
-        await channel.send('啟動完成')
-        DB.CleanAllMusicTable()
-
-    @bot.event
-    async def on_message(message):
-
-        #訊息log
-        
-        try:
-            if message.content != '' or message.attachments != []:
-                DB.PutMessageLog(message , None , None , 0)
-        except:
-            if message.author != bot.user:
-                raise ConnectionError('MySQL connection failed, can\'t create message log.')   
-
-        await bot.process_commands(message)
+        print(f"啟動完成｜bot身份為「{bot.user}」｜與 Discord 延遲為 {ping} ms")
+        await channel.send("啟動完成")
 
     #錯誤訊息
 
     @bot.event
     async def on_command_error(ctx , error):
-        await ctx.reply(f'發生錯誤\n{error}')
-        await ctx.send(file=discord.File(settings['error_message_file']))
+        await ctx.reply(f"發生錯誤\n{error}")
 
     @bot.event
     async def on_error(event , *args , **kwargs):
         message = args[0]
-        await message.reply('發生錯誤')
-        await message.channel.send(file=discord.File(settings['error_message_file']))
+        await message.reply("發生錯誤")
 
-    await bot.start(settings['TOKEN'])
+    await bot.start(settings["TOKEN"])
 
 if __name__ == "__main__":
     asyncio.run(main())

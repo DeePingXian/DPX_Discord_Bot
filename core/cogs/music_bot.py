@@ -9,6 +9,9 @@ class music_bot(Cog_Extension):
     def __init__(self , bot):
         super().__init__(bot)
         self.allMusicPlayingStatus = {}
+        self.DB.cleanAllMusicTable()
+        if os.path.isdir('assets/musicBot/musicTemp'):      #清空musicTemp
+            shutil.rmtree('assets/musicBot/musicTemp' , ignore_errors = True)        
 
     class musicPlayingStatus:
 
@@ -132,35 +135,35 @@ class music_bot(Cog_Extension):
             def aPutMusic(self):
                 for i in range(1 , len(self.tempMusicDict) + 1):
                     if self.tempMusicDict.get(i , None):        #單純避免空號
-                        self.DB.PutMusic(self.ctx.guild.id , self.tempMusicDict.pop(i))
+                        self.DB.putMusic(self.ctx.guild.id , self.tempMusicDict.pop(i))
             await asyncio.to_thread(aPutMusic , self)
 
         async def GetMusic(self):
-            self.music = await asyncio.to_thread(self.DB.GetMusic , self.ctx.guild.id)
+            self.music = await asyncio.to_thread(self.DB.getMusic , self.ctx.guild.id)
 
         async def PopMusic(self):
-            await asyncio.to_thread(self.DB.PopMusic , self.ctx.guild.id)
+            await asyncio.to_thread(self.DB.popMusic , self.ctx.guild.id)
 
         async def GetMusicQueueLen(self):
-            return await asyncio.to_thread(self.DB.GetMusicQueueLen , self.ctx.guild.id)
+            return await asyncio.to_thread(self.DB.getMusicQueueLen , self.ctx.guild.id)
 
         async def GetMusicQueue(self):
-            return await asyncio.to_thread(self.DB.GetMusicQueue , self.ctx.guild.id)
+            return await asyncio.to_thread(self.DB.getMusicQueue , self.ctx.guild.id)
 
         async def SetSingleLoop(self):
-            await asyncio.to_thread(self.DB.SetSingleLoop , self.ctx.guild.id , self.SingleLoop)
+            await asyncio.to_thread(self.DB.setSingleLoop , self.ctx.guild.id , self.SingleLoop)
 
         async def GetLoop(self):
-            self.SingleLoop = await asyncio.to_thread(self.DB.GetLoop , self.ctx.guild.id)
+            self.SingleLoop = await asyncio.to_thread(self.DB.getLoop , self.ctx.guild.id)
 
         def CreateDatabase(self):
-            self.DB.CreateDatabase(self.ctx.guild.id)
+            self.DB.createDatabase(self.ctx.guild.id)
 
         def CreateMusicTable(self):
-            self.DB.CreateMusicTable(self.ctx.guild.id)
+            self.DB.createMusicTable(self.ctx.guild.id)
 
         def CleanMusicTable(self):
-            self.DB.CleanMusicTable(self.ctx.guild.id)
+            self.DB.cleanMusicTable(self.ctx.guild.id)
 
     @commands.command()
     async def play(self , ctx , url):
@@ -860,6 +863,34 @@ class music_bot(Cog_Extension):
                 pass
         if os.path.isdir('assets/musicBot/musicTemp'):
             shutil.rmtree('assets/musicBot/musicTemp' , ignore_errors = False)
+
+    @commands.command()
+    async def download(self , ctx):
+        try:
+            if self.allMusicPlayingStatus[ctx.guild.id].playing == False:
+                raise
+            else:
+                music = self.allMusicPlayingStatus[ctx.guild.id].music
+                if music.type == 0:
+                    embed = discord.Embed(title="本地音樂 不開放下載" , color=0xff0000)
+                    embed.set_author(name=music.title)
+                elif music.type == 1:
+                    if music.file_name == 'live':
+                        embed = discord.Embed(title="YouTube直播 不開放下載" , color=0xff0000)
+                        embed.set_author(name=music.title)
+                    else:
+                        embed = discord.Embed(title="請按此下載" , url=music.audio_url , color=0x00ff00)
+                        embed.set_author(name=music.title)
+                elif music.type == 2:
+                    embed = discord.Embed(title="請按此下載" , url=music.url , color=0x00ff00)
+                    embed.set_author(name=music.title)
+                elif music.type == 3:
+                    embed = discord.Embed(title="請按此下載" , url=music.audio_url , color=0x00ff00)
+                    embed.set_author(name=music.title)
+                embed.set_thumbnail(url=music.thumbnail_url) 
+                await ctx.send(embed=embed)
+        except:
+            await ctx.send("未播放")
 
 async def setup(bot):
     await bot.add_cog(music_bot(bot))
