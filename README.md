@@ -2,13 +2,13 @@
 
 DPX Discord Bot 開源版本
 ---
-刪減自閉源的自用版本，自用版本需要連接MySQL才能使用，這裡也跟著繼承，音樂佇列、部分訊息歷史紀錄會存在那，推薦使用XAMPP附帶的MySQL，可順便裝上附屬網站程式  
+刪減自閉源的自用版本，自用版本需要連接MySQL才能使用，這裡也跟著繼承，音樂佇列、文字訊息歷史紀錄會存在那，推薦使用XAMPP附帶的MySQL，可順便裝上附屬網站程式  
 給bot操作的MySQL帳號需給予全域寫入權限，運行時bot將全自動操作MySQL  
 本bot附屬網站程式，可以配合使用：<a href="https://github.com/DeePingXian/DPX_Discord_Bot_Website">https://github.com/DeePingXian/DPX_Discord_Bot_Website</a>  
 若要使用Python環境運行原程式碼，最低需求是3.11版  
 這程式僅能使用單執行續執行，將吃重CPU的單核效能  
 程式運行參數於settings.json設定，這份說明文檔的指令前綴字皆是預設值「!!」，實際使用時可自行更改，為表達方便，以下指令前綴字均以預設值「!!」表示  
-大部分有年齡限制的影片都可以直接播，不需設置cookie，但不保證全部都能播  
+大部分有年齡限制的YouTube影片都可以直接播，不需設置cookie，但不保證全部都能播  
 ***
 ## 特色重點
 - 提供打包編譯版本，擁有比原生CPython更高的執行效率
@@ -32,9 +32,10 @@ DPX Discord Bot 開源版本
 <table>
 <tr><td>項目</td><td>說明</td></tr>
 <tr><td>☆adminID</td><td>您的Discord帳號ID，用於驗證只有本人才能使用的功能</td></tr>
-<tr><td>command_prefix</td><td>設定bot的指令前綴字，若訊息開頭為此字串，bot會當指令處理</td></tr>
-<tr><td>☆log_channel_id</td><td>設定傳送log的Discord頻道ID，啟動時每隔一小時bot會在該頻道發送狀態訊息，配合訊息歷史紀錄功能可當log用</td></tr>
+<tr><td>commandPrefix</td><td>設定bot的指令前綴字，若訊息開頭為此字串，bot會當指令處理</td></tr>
+<tr><td>☆logChannelID</td><td>設定傳送log的Discord頻道ID，啟動時每隔一小時bot會在該頻道發送狀態訊息，配合訊息歷史紀錄功能可當log用</td></tr>
 <tr><td>☆MySQLSettings</td><td>設定MySQL連線參數</td></tr>
+<tr><td>maxMessagesSaved</td><td>設定每個頻道儲存在MySQL的訊息歷史紀錄數量上限</td></tr>
 <tr><td>webSettings/url</td><td>設定本bot附屬網頁網址，若為空則不啟用本bot相關功能</td></tr>
 <tr><td>ffmpegopts</td><td>設定FFMPEG參數</td></tr>
 <tr><th colspan="2">musicBotOpts</th></tr>
@@ -46,16 +47,43 @@ DPX Discord Bot 開源版本
 <tr><td>acceptableMusicContainer</td><td>設定播Google雲端音樂可接受的檔案副檔名，避免被用來播一些不支援的項目造成錯誤</td></tr>
 <tr><td>△icon</td><td>設定Google雲端圖標的網址，播Google雲端音樂功能會用到</td></tr>
 <tr><td>△newestNhentaiBookNum</td><td>設定當下nhentai車號上限，隨機產生本子功能會用到</td></tr>
-<tr><td>error_message_file</td><td>設定報錯時傳送的圖片</td></tr>
-<tr><td>△BotIconUrl</td><td>設定bot logo圖標網址，查指令功能會用到</td></tr>
-<tr><td>☆TOKEN</td><td>設定bot token（廢話）</td></tr>
+<tr><td>☆TOKEN</td><td>設定bot token</td></tr>
 </table>
 <br><br>
 
-### **以下指令之command_prefix均以預設值「!!」表示**
+### **以下指令之commandPrefix均以預設值「!!」表示**
 <br><br>
 
-### **應答機**
+### **播音樂功能**
+<table>
+<tr><td>!!play + (網址)</td><td>播放該音樂</td></tr>
+<tr><td>!!playlocal + (音樂檔案路徑)</td><td>播放該本機音樂（僅限開bot的管理員使用）</td></tr>
+<tr><td>!!add + (網址)</td><td>增加該音樂至播放隊列</td></tr>
+<tr><td>!!addlocal + (音樂檔案路徑)</td><td>增加該本機音樂至播放隊列（僅限開bot的管理員使用）</td></tr>
+<tr><td>!!pause</td><td>暫停播放</td></tr>
+<tr><td>!!resume</td><td>恢復播放</td></tr>
+<tr><td>!!skip</td><td>跳過目前曲目</td></tr>
+<tr><td>!!stop</td><td>停止播放 並清除音樂資料</td></tr>
+<tr><td>!!queue</td><td>查看播放隊列</td></tr>
+<tr><td>!!nowplaying</td><td>查看現正播放</td></tr>
+<tr><td>!!download</td><td>下載現正播放的音樂</td></tr>
+<tr><td>!!join</td><td>加入用戶所在語音頻道</td></tr>
+</table>
+支援播放的來源：YouTube影片、直播、播放清單、合輯，Google雲端檔案，bilibili影片、影片列表(beta)，電腦本地檔案<br>
+播放B站影片時受限於機制，bot反應會較慢<br>
+如果播音樂發生問題，請使用!!stop清除資料，並再重新操作一次，實在不行請重啟bot
+<br><br><br>
+
+### **訊息歷史紀錄功能**
+<table>
+<tr><td>!!history</td><td>查詢最近25則修改的文字訊息</td></tr>
+<tr><td>!!historyf + (數字)</td><td>回傳前第n個被刪除的檔案訊息</td></tr>
+<tr><td>!!historyflist</td><td>回傳已刪除的附件檔案列表</td></tr>
+<tr><td>!!historyall + (數字 數字 數字)</td><td>匯出欲查詢的的文字訊息類型總集之Excel檔，0=未編輯、刪除的訊息，1=編輯，2=刪除，只輸入欲查詢的類型數字即可</td></tr>
+</table>
+<br><br>
+
+### **應答機功能**
 <br>
 <table>
 <tr><td>!!sendansweringcontentlist</td><td>傳送應答列表</td></tr>
@@ -75,25 +103,6 @@ DPX Discord Bot 開源版本
 </table>
 <br><br>
 
-### **播音樂功能**
-<table>
-<tr><td>!!play + (網址)</td><td>播放該音樂</td></tr>
-<tr><td>!!playlocal + (音樂檔案路徑)</td><td>播放該本機音樂（僅限開bot的管理員使用）</td></tr>
-<tr><td>!!add + (網址)</td><td>增加該音樂至播放隊列</td></tr>
-<tr><td>!!addlocal + (音樂檔案路徑)</td><td>增加該本機音樂至播放隊列（僅限開bot的管理員使用）</td></tr>
-<tr><td>!!pause</td><td>暫停播放</td></tr>
-<tr><td>!!resume</td><td>恢復播放</td></tr>
-<tr><td>!!skip</td><td>跳過目前曲目</td></tr>
-<tr><td>!!stop</td><td>停止播放 並清除音樂資料</td></tr>
-<tr><td>!!join</td><td>加入用戶所在語音頻道</td></tr>
-<tr><td>!!queue</td><td>查看播放隊列</td></tr>
-<tr><td>!!nowplaying</td><td>查看現正播放</td></tr>
-</table>
-支援播放的來源：YouTube影片、直播、播放清單、合輯，Google雲端檔案，bilibili影片、影片列表(beta)，電腦本地檔案<br>
-播放B站影片時受限於機制，bot反應會較慢<br>
-如果播音樂發生問題，請使用!!stop清除資料，並再重新操作一次，實在不行請重啟bot
-<br><br><br>
-
 ### **本 bot 附屬網頁相關**
 <table>
 <tr><td>!!getguildid</td><td>取得本 Discord 伺服器（群組）的 ID</td></tr>
@@ -101,20 +110,12 @@ DPX Discord Bot 開源版本
 </table>
 <br><br>
 
-### **訊息歷史紀錄功能**
-<table>
-<tr><td>!!history + (數字)</td><td>回傳前第n個被刪除/編輯的文字訊息 (上限99則)</td></tr>
-<tr><td>!!history all</td><td>回傳所有被刪除/編輯的文字訊息 (上限99則)</td></tr>
-<tr><td>!!historyf + (數字)</td><td>回傳前第n個被刪除的檔案訊息</td></tr>
-</table>
-<br><br>
-
 ### **其他功能**
 <table>
 <tr><td>!!help</td><td>查詢指令</td></tr>
 <tr><td>!!status</td><td>回傳 bot 狀態</td></tr>
-<tr><td>!!majorArcana + (隨意內容)</td><td>產生一張大密儀塔羅牌</td></tr>
-<tr><td>!!majorArcana3 + (隨意內容)</td><td>產生三張大密儀塔羅牌</td></tr>
+<tr><td>!!majorArcana + (隨意內容)</td><td>根據訊息內容使用大密儀塔羅牌占卜</td></tr>
+<tr><td>!!majorArcana3 + (隨意內容)</td><td>根據訊息內容使用三張大密儀塔羅牌占卜</td></tr>
 </table>
 <br><br>
 
@@ -122,7 +123,7 @@ DPX Discord Bot 開源版本
 ## 直接呼叫了以下非標準 Python package
 <table>
 <tr><td>項目</td><td>版本</td><td>授權</td></tr>
-<tr><td>discord.py[voice]</td><td>2.2.2</td><td>MIT License</td></tr>
+<tr><td>discord.py[voice]</td><td>2.3.2</td><td>MIT License</td></tr>
 <tr><td>fake-useragent</td><td>1.2.1</td><td>Apache License Version 2.0</td></tr>
 <tr><td>gdown</td><td>4.7.1</td><td>MIT License</td></tr>
 <tr><td>openpyxl</td><td>3.1.2</td><td>MIT License</td></tr>

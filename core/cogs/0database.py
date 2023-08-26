@@ -5,7 +5,7 @@ class MySQL(Cog_Extension):
 
     def test(self):
         try:
-            MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
+            MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
             with MySQLConnection.cursor() as cursor:
                 command = "CREATE DATABASE IF NOT EXISTS discord_test"
                 cursor.execute(command)
@@ -28,9 +28,9 @@ class MySQL(Cog_Extension):
         else:
             return True
 
-    def Init(self):
+    def init(self):
         try:
-            MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
+            MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
             with MySQLConnection.cursor() as cursor:
                 command = f"CREATE DATABASE IF NOT EXISTS discord_status"
                 cursor.execute(command)
@@ -42,9 +42,9 @@ class MySQL(Cog_Extension):
         except:
             raise ConnectionError('MySQL connection error')
 
-    def CreateDatabase(self , GuildID):
+    def createDatabase(self , GuildID):
         try:
-            MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
+            MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
             with MySQLConnection.cursor() as cursor:
                 command = f"CREATE DATABASE IF NOT EXISTS discord_{GuildID}"
                 cursor.execute(command)
@@ -52,24 +52,24 @@ class MySQL(Cog_Extension):
         except:
             raise ConnectionError('MySQL connection error')
 
-    def UpdateToken(self , token):
+    def updateToken(self , token):
         try:
-            MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
+            MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
             with MySQLConnection.cursor() as cursor:
                 command = f"CREATE TABLE IF NOT EXISTS discord_status.token (token TEXT NOT NULL) ENGINE = InnoDB;"
                 cursor.execute(command)
                 command = f"TRUNCATE discord_status.token"
                 cursor.execute(command)
-                command = f"INSERT INTO discord_status.token (token) VALUES (\'{token}\');"
+                command = f"INSERT INTO discord_status.token (token) VALUES ('{token}');"
                 cursor.execute(command)
                 MySQLConnection.commit()
             MySQLConnection.close()
         except:
             raise ConnectionError('MySQL connection error')
 
-    def GetToken(self):
+    def getToken(self):
         try:
-            MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
+            MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
             with MySQLConnection.cursor() as cursor:
                 command = f"SELECT token FROM discord_status.token"
                 cursor.execute(command)
@@ -81,9 +81,9 @@ class MySQL(Cog_Extension):
 
     #訊息歷史紀錄功能相關
 
-    def PutMessageLog(self , message , message_before , deleted_at , type):
+    def putMessageLog(self , message , message_before , deleted_at , type):
         try:
-            MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
+            MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
             with MySQLConnection.cursor() as cursor:
                 command = f"SELECT * FROM discord_status.guilds"
                 cursor.execute(command)
@@ -94,9 +94,9 @@ class MySQL(Cog_Extension):
                         if str(message.guild.id) == i[0]:
                             GuildExists = True
                     if GuildExists:
-                        command = f"UPDATE discord_status.guilds SET `name` = \'{message.guild}\' WHERE `id` = \'{message.guild.id}\';"
+                        command = f"UPDATE discord_status.guilds SET `name` = '{message.guild}' WHERE `id` = '{message.guild.id}';"
                     else:
-                        command = f"INSERT INTO discord_status.guilds (id , name) VALUES (\'{message.guild.id}\' , \'{message.guild}\');"
+                        command = f"INSERT INTO discord_status.guilds (id , name) VALUES ('{message.guild.id}' , '{message.guild}');"
                     cursor.execute(command)
                     MySQLConnection.commit()
                 command = f"CREATE DATABASE IF NOT EXISTS discord_{message.guild.id}_messagelog"
@@ -111,15 +111,15 @@ class MySQL(Cog_Extension):
                             if str(message.channel.id) == i[0]:
                                 ChannelExists = True
                         if ChannelExists:
-                            command = f"UPDATE discord_{message.guild.id}_messagelog.channels SET `name` = \'{message.channel}\' WHERE `id` = \'{message.channel.id}\';"
+                            command = f"UPDATE discord_{message.guild.id}_messagelog.channels SET `name` = '{message.channel}' WHERE `id` = '{message.channel.id}';"
                         else:
-                            command = f"INSERT INTO discord_{message.guild.id}_messagelog.channels (id , name) VALUES (\'{message.channel.id}\' , \'{message.channel}\');"
+                            command = f"INSERT INTO discord_{message.guild.id}_messagelog.channels (id , name) VALUES ('{message.channel.id}' , '{message.channel}');"
                         cursor.execute(command)
                         MySQLConnection.commit()
                 except:
                     command = f"CREATE TABLE IF NOT EXISTS discord_{message.guild.id}_messagelog.channels ( id TEXT NOT NULL , name TEXT NOT NULL ) ENGINE = InnoDB;"
                     cursor.execute(command)
-                    command = f"INSERT INTO discord_{message.guild.id}_messagelog.channels (id , name) VALUES (\'{message.channel.id}\' , \'{message.channel}\');"
+                    command = f"INSERT INTO discord_{message.guild.id}_messagelog.channels (id , name) VALUES ('{message.channel.id}' , '{message.channel}');"
                     cursor.execute(command)
                     MySQLConnection.commit()
                 command = f"CREATE TABLE IF NOT EXISTS discord_{message.guild.id}_messagelog.{message.channel.id} ( author TEXT NOT NULL , author_id TEXT NOT NULL , content TEXT NOT NULL , editted_content TEXT NOT NULL , attachment TEXT NOT NULL , sent_at DATETIME NOT NULL , editted_at DATETIME NOT NULL , type TINYINT UNSIGNED NOT NULL) ENGINE = InnoDB;"
@@ -131,29 +131,53 @@ class MySQL(Cog_Extension):
                     attachment = message.attachments[0].url
                 except:
                     attachment = ''
-                if len(MesLog) >= 1000:
+                if len(MesLog) >= self.settings["maxMessagesSaved"]:
                     command = f"DELETE FROM discord_{message.guild.id}_messagelog.{message.channel.id} limit 1"
                     cursor.execute(command)
                     MySQLConnection.commit()
                 message.content = pymysql.converters.escape_string(message.content)
                 if type == 0:
-                    command = f"INSERT INTO discord_{message.guild.id}_messagelog.{message.channel.id} (author , author_id ,  content , attachment , sent_at , type) VALUES (\'{message.author}\' , \'{message.author.id}\' , \'{message.content}\' , \'{attachment}\' , \'{message.created_at}\' , 0);"
+                    command = f"INSERT INTO discord_{message.guild.id}_messagelog.{message.channel.id} (author , author_id ,  content , attachment , sent_at , type) VALUES ('{message.author}' , '{message.author.id}' , '{message.content}' , '{attachment}' , '{message.created_at}' , 0);"
                 elif type == 1:
                     message_before.content = pymysql.converters.escape_string(message_before.content)
-                    command = f"INSERT INTO discord_{message.guild.id}_messagelog.{message.channel.id} (author , author_id ,  content , editted_content , attachment , sent_at , editted_at , type) VALUES (\'{message.author}\' , \'{message.author.id}\' , \'{message_before.content}\' , \'{message.content}\' , \'{attachment}\' , \'{message.created_at}\' , \'{message.edited_at}\' , 1);"
+                    command = f"INSERT INTO discord_{message.guild.id}_messagelog.{message.channel.id} (author , author_id ,  content , editted_content , attachment , sent_at , editted_at , type) VALUES ('{message.author}' , '{message.author.id}' , '{message_before.content}' , '{message.content}' , '{attachment}' , '{message.created_at}' , '{message.edited_at}' , 1);"
                 elif type == 2:
-                    command = f"INSERT INTO discord_{message.guild.id}_messagelog.{message.channel.id} (author , author_id ,  content , attachment , sent_at , editted_at , type) VALUES (\'{message.author}\' , \'{message.author.id}\' , \'{message.content}\' , \'{attachment}\' , \'{message.created_at}\' , \'{deleted_at}\' , 2);"
+                    command = f"INSERT INTO discord_{message.guild.id}_messagelog.{message.channel.id} (author , author_id ,  content , attachment , sent_at , editted_at , type) VALUES ('{message.author}' , '{message.author.id}' , '{message.content}' , '{attachment}' , '{message.created_at}' , '{deleted_at}' , 2);"
                 cursor.execute(command)
                 MySQLConnection.commit()
             MySQLConnection.close()
         except:
             raise ConnectionError('MySQL connection error')
+        
+    def getMessageLog(self , guildID , channelID , msgType):
+        try:
+            MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
+            with MySQLConnection.cursor() as cursor:
+                getMsgType = 0
+                if type(msgType) == int:
+                    getMsgType = msgType
+                elif type(msgType) == list or type(msgType) == tuple:
+                    getMsgType = ""
+                    for i in msgType:
+                        getMsgType += f"{i}"
+                        if i != msgType[-1]:
+                            getMsgType += f" OR type = "
+                try:
+                    command = f"SELECT * FROM discord_{guildID}_messagelog.{channelID} WHERE type = {getMsgType}"
+                    cursor.execute(command)
+                    messages = cursor.fetchall()
+                except:
+                    raise Exception("Channel message log not found.")
+            MySQLConnection.close()
+            return messages
+        except:
+            raise ConnectionError("MySQL connection error")
 
     #音樂機器人功能相關
 
-    def CreateMusicTable(self , GuildID):
+    def createMusicTable(self , GuildID):
         try:
-            MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
+            MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
             with MySQLConnection.cursor() as cursor:
                 command = f"SELECT * FROM discord_status.guilds"
                 cursor.execute(command)
@@ -165,9 +189,9 @@ class MySQL(Cog_Extension):
                         if str(GuildID) == i[0]:
                             GuildExists = True
                     if GuildExists:
-                        command = f"UPDATE discord_status.guilds SET `name` = \'{GuildName}\' WHERE `id` = \'{GuildID}\';"
+                        command = f"UPDATE discord_status.guilds SET `name` = '{GuildName}' WHERE `id` = '{GuildID}';"
                     else:
-                        command = f"INSERT INTO discord_status.guilds (id , name) VALUES (\'{GuildID}\' , \'{GuildName}\');"
+                        command = f"INSERT INTO discord_status.guilds (id , name) VALUES ('{GuildID}' , '{GuildName}');"
                     cursor.execute(command)
                     MySQLConnection.commit()
                 command = f"CREATE TABLE IF NOT EXISTS discord_{GuildID}.music_queue ( id INT UNSIGNED NOT NULL , title TEXT NOT NULL , file_name TEXT NOT NULL , duration TIME NOT NULL , url TEXT NOT NULL , audio_url TEXT NOT NULL , thumbnail_url TEXT NOT NULL , file_size BIGINT UNSIGNED NOT NULL , type TINYINT UNSIGNED NOT NULL ) ENGINE = InnoDB;"
@@ -177,16 +201,16 @@ class MySQL(Cog_Extension):
                 command = f"INSERT INTO discord_{GuildID}.music_status (playlist_loop , playlist_loop_to_id , single_loop) VALUES (0 , 0 , 0);"
                 cursor.execute(command)
                 MySQLConnection.commit()
-                command = f"INSERT INTO discord_status.music_guilds (id, name) VALUES (\'{GuildID}\', \'{self.bot.get_guild(GuildID)}\');"
+                command = f"INSERT INTO discord_status.music_guilds (id, name) VALUES ('{GuildID}', '{self.bot.get_guild(GuildID)}');"
                 cursor.execute(command)
                 MySQLConnection.commit()
             MySQLConnection.close()
         except:
             raise ConnectionError('MySQL connection error')
 
-    def GetMusicQueue(self , GuildID):
+    def getMusicQueue(self , GuildID):
         try:
-            MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
+            MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
             with MySQLConnection.cursor() as cursor:
                 command = f"SELECT * FROM discord_{GuildID}.music_queue"
                 cursor.execute(command)
@@ -196,9 +220,9 @@ class MySQL(Cog_Extension):
         except:
             raise ConnectionError('MySQL connection error')
 
-    def PutMusic(self , GuildID , music):
+    def putMusic(self , GuildID , music):
         try:
-            MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
+            MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
             with MySQLConnection.cursor() as cursor:
                 command = f"SELECT * FROM discord_{GuildID}.music_queue"
                 cursor.execute(command)
@@ -207,18 +231,18 @@ class MySQL(Cog_Extension):
                 music.audio_url = pymysql.converters.escape_string(music.audio_url)
                 music.file_name = pymysql.converters.escape_string(music.file_name)
                 if MusicQueue == ():
-                    command = f"INSERT INTO discord_{GuildID}.music_queue (id , title , file_name , duration , url , audio_url , thumbnail_url , file_size , type) VALUES (0 , \'{music.title}\' , \'{music.file_name}\' , \'{music.duration}\' , \'{music.url}\' , \'{music.audio_url}\' , \'{music.thumbnail_url}\' , \'{music.file_size}\' , \'{music.type}\');"
+                    command = f"INSERT INTO discord_{GuildID}.music_queue (id , title , file_name , duration , url , audio_url , thumbnail_url , file_size , type) VALUES (0 , '{music.title}' , '{music.file_name}' , '{music.duration}' , '{music.url}' , '{music.audio_url}' , '{music.thumbnail_url}' , '{music.file_size}' , '{music.type}');"
                 else:
-                    command = f"INSERT INTO discord_{GuildID}.music_queue (id , title , file_name , duration , url , audio_url , thumbnail_url , file_size , type) VALUES ({int(MusicQueue[-1][0])+1} , \'{music.title}\' , \'{music.file_name}\' , \'{music.duration}\' , \'{music.url}\' , \'{music.audio_url}\' , \'{music.thumbnail_url}\' , \'{music.file_size}\' , \'{music.type}\');"
+                    command = f"INSERT INTO discord_{GuildID}.music_queue (id , title , file_name , duration , url , audio_url , thumbnail_url , file_size , type) VALUES ({int(MusicQueue[-1][0])+1} , '{music.title}' , '{music.file_name}' , '{music.duration}' , '{music.url}' , '{music.audio_url}' , '{music.thumbnail_url}' , '{music.file_size}' , '{music.type}');"
                 cursor.execute(command)
                 MySQLConnection.commit()
             MySQLConnection.close()
         except:
             raise ConnectionError('MySQL connection error')
 
-    def GetMusicStatus(self , GuildID):
+    def getMusicStatus(self , GuildID):
         try:
-            MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
+            MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
             with MySQLConnection.cursor() as cursor:
                 command = f"SELECT * FROM discord_{GuildID}.music_status"
                 cursor.execute(command)
@@ -228,9 +252,9 @@ class MySQL(Cog_Extension):
         except:
             raise ConnectionError('MySQL connection error')
 
-    def GetMusicQueueLen(self , GuildID):
+    def getMusicQueueLen(self , GuildID):
         try:
-            MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
+            MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
             with MySQLConnection.cursor() as cursor:
                 command = f"SELECT * FROM discord_{GuildID}.music_queue"
                 cursor.execute(command)
@@ -240,7 +264,7 @@ class MySQL(Cog_Extension):
         except:
             raise ConnectionError('MySQL connection error')
 
-    def GetMusic(self , GuildID):
+    def getMusic(self , GuildID):
         try:
             class MusicDetail:
                 def __init__(self , url):
@@ -252,7 +276,7 @@ class MySQL(Cog_Extension):
                     self.thumbnail_url = ''
                     self.file_size = 0
                     self.type = 0
-            MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
+            MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
             with MySQLConnection.cursor() as cursor:
                 command = f"SELECT * FROM discord_{GuildID}.music_queue"
                 cursor.execute(command)
@@ -274,9 +298,9 @@ class MySQL(Cog_Extension):
         except:
             raise ConnectionError('MySQL connection error')
 
-    def PopMusic(self , GuildID):
+    def popMusic(self , GuildID):
         try:
-            MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
+            MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
             with MySQLConnection.cursor() as cursor:
                 command = f"DELETE FROM discord_{GuildID}.music_queue limit 1"
                 cursor.execute(command)
@@ -285,9 +309,9 @@ class MySQL(Cog_Extension):
         except:
             raise ConnectionError('MySQL connection error')
 
-    def SetSingleLoop(self , GuildID , SingleLoop):
+    def setSingleLoop(self , GuildID , SingleLoop):
         try:
-            MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
+            MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
             with MySQLConnection.cursor() as cursor:
                 if SingleLoop:
                     command = f"UPDATE discord_{GuildID}.music_status SET single_loop = 1"
@@ -299,9 +323,9 @@ class MySQL(Cog_Extension):
         except:
             raise ConnectionError('MySQL connection error')
 
-    def GetLoop(self , GuildID):
+    def getLoop(self , GuildID):
         try:
-            MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
+            MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
             with MySQLConnection.cursor() as cursor:
                 command = f"SELECT * FROM discord_{GuildID}.music_status"
                 cursor.execute(command)
@@ -315,9 +339,9 @@ class MySQL(Cog_Extension):
         except:
             raise ConnectionError('MySQL connection error')
 
-    def CleanMusicTable(self , GuildID):
+    def cleanMusicTable(self , GuildID):
         try:
-            MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
+            MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
             with MySQLConnection.cursor() as cursor:
                 try:
                     command = f"DELETE FROM discord_status.music_guilds WHERE id = {GuildID}"
@@ -339,9 +363,9 @@ class MySQL(Cog_Extension):
         except:
             raise ConnectionError('MySQL connection error')
 
-    def CleanAllMusicTable(self):
+    def cleanAllMusicTable(self):
         try:
-            MySQLConnection = pymysql.connect(**self.settings['MySQLSettings'])
+            MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
             with MySQLConnection.cursor() as cursor:
                 command = "SELECT * FROM discord_status.music_guilds"
                 cursor.execute(command)
