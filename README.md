@@ -52,6 +52,7 @@ DPX Discord Bot 開源版本
 <br><br>
 
 ### **以下指令之commandPrefix均以預設值「!!」表示**
+### **範例圖片均為示意用途，使用時會根據實際情況、程式版本而變化**
 <br><br>
 
 ### **播音樂功能**
@@ -72,7 +73,11 @@ DPX Discord Bot 開源版本
 支援播放的來源：YouTube影片、直播、播放清單、合輯，Google雲端檔案，bilibili影片、影片列表(beta)，電腦本地檔案<br>
 播放B站影片時受限於機制，bot反應會較慢<br>
 如果播音樂發生問題，請使用!!stop清除資料，並再重新操作一次，實在不行請重啟bot
-<br><br><br>
+<br><br>
+
+<img src="https://i.imgur.com/wP00thf.png"><br>
+<img src="https://i.imgur.com/Nanq16d.png"><br>
+<img src="https://i.imgur.com/4izMhJm.png"><br><br>
 
 ### **訊息歷史紀錄功能**
 <table>
@@ -82,6 +87,10 @@ DPX Discord Bot 開源版本
 <tr><td>!!historyall + (數字 數字 數字)</td><td>匯出欲查詢的的文字訊息類型總集之Excel檔，0=未編輯、刪除的訊息，1=編輯，2=刪除，只輸入欲查詢的類型數字即可</td></tr>
 </table>
 <br><br>
+
+<img src="https://i.imgur.com/OjLJWQ1.png"><br>
+<img src="https://i.imgur.com/numxDRL.png"><br>
+<img src="https://i.imgur.com/cD4lOMI.png"><br><br>
 
 ### **應答機功能**
 <br>
@@ -119,6 +128,10 @@ DPX Discord Bot 開源版本
 </table>
 <br><br>
 
+<img src="https://i.imgur.com/nD9AF8u.png"><br>
+<img src="https://i.imgur.com/ttdxmLe.png"><br><br>
+<img src="https://i.imgur.com/gyIRSVa.png"><br><br>
+
 ***
 ## 直接呼叫了以下非標準 Python package
 <table>
@@ -136,4 +149,4 @@ DPX Discord Bot 開源版本
 ## 已知錯誤
 - 無法播放「<a href="https://www.youtube.com/watch?v=rPJz3syNbtE">https://www.youtube.com/watch?v=rPJz3syNbtE</a>」，且會造成程式錯誤
 - 播放部分B站影片會直接跳掉，如「<a href=https://www.bilibili.com/video/BV1qs411q7PC>https://www.bilibili.com/video/BV1qs411q7PC</a>」
-- 播放B站影片可能會產生一些錯誤，跟挑選播放源時頻繁請求有關
+- 播放B站影片可能會產生一些錯誤，跟bot挑選可用播放源時頻繁請求有關

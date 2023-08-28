@@ -89,48 +89,52 @@ class message_history(Cog_Extension):
     
     @commands.command()
     async def historyall(self , ctx , *msgType):
-        msgTypeValid = True if msgType != () else False
-        for i in msgType:
-            if i not in ('0' , '1' , '2'):
-                msgTypeValid = False
-                break
-        if msgTypeValid:
-            messages = self.DB.getMessageLog(ctx.guild.id , ctx.channel.id , msgType)
-            messages = list(messages)
-            messages.reverse()
-            os.makedirs(f"assets/messageHistory/temp" , exist_ok=True)
-            book = openpyxl.Workbook()
-            sheet = book.active
-            sheet.append(("作者" , "作者ID" , "原始訊息內容" , "修改後訊息內容" , "附件檔案" , "傳送時間 (CST)" , "刪除/編輯時間 (CST)" , "類型"))
-            for i in range(2 , len(messages)+2):
-                sheet.cell(row=i , column=1 , value=str(messages[i-2][0]))
-                sheet.cell(row=i , column=2 , value=str(messages[i-2][1]))
-                sheet.cell(row=i , column=3 , value=str(messages[i-2][2]))
-                sheet.cell(row=i , column=4 , value=str(messages[i-2][3]))
-                sheet.cell(row=i , column=5 , value=str(messages[i-2][4]))
-                sheet.cell(row=i , column=6 , value=str(messages[i-2][5] + datetime.timedelta(hours=8)))
-                sheet.cell(row=i , column=7 , value=str(messages[i-2][6] + datetime.timedelta(hours=8)) if str(messages[i-2][6]) != "0000-00-00 00:00:00" else "")
-                if messages[i-2][7] == 0:
-                    sheet.cell(row=i , column=8 , value="原訊息")
-                elif messages[i-2][7] == 1:
-                    sheet.cell(row=i , column=8 , value="編輯")
-                elif messages[i-2][7] == 2:
-                    sheet.cell(row=i , column=8 , value="刪除")
-            book.save(f"assets/messageHistory/temp/{ctx.channel}_{ctx.channel.id}_message_history.xlsx")
-            text = ""
+        if msgType != ():
+            msgTypeValid = True
             for i in msgType:
-                if i == '0':
-                    text += "未修改"
-                elif i == '1':
-                    text += "編輯"
-                elif i == '2':
-                    text += "刪除"
-                if i != msgType[-1]:
-                    text += "、"
-            await ctx.send(f"本頻道之{text}訊息列表" , file=discord.File(f"assets/messageHistory/temp/{ctx.channel}_{ctx.channel.id}_message_history.xlsx"))
-            shutil.rmtree("assets/messageHistory/temp")
+                if i not in ('0' , '1' , '2'):
+                    msgTypeValid = False
+                    break
+            if msgTypeValid:
+                messages = self.DB.getMessageLog(ctx.guild.id , ctx.channel.id , msgType)
+                messages = list(messages)
+                messages.reverse()
+                os.makedirs(f"assets/messageHistory/temp" , exist_ok=True)
+                book = openpyxl.Workbook()
+                sheet = book.active
+                sheet.append(("作者" , "作者ID" , "原始訊息內容" , "修改後訊息內容" , "附件檔案" , "傳送時間 (CST)" , "刪除/編輯時間 (CST)" , "類型"))
+                for i in range(2 , len(messages)+2):
+                    sheet.cell(row=i , column=1 , value=str(messages[i-2][0]))
+                    sheet.cell(row=i , column=2 , value=str(messages[i-2][1]))
+                    sheet.cell(row=i , column=3 , value=str(messages[i-2][2]))
+                    sheet.cell(row=i , column=4 , value=str(messages[i-2][3]))
+                    sheet.cell(row=i , column=5 , value=str(messages[i-2][4]))
+                    sheet.cell(row=i , column=6 , value=str(messages[i-2][5] + datetime.timedelta(hours=8)))
+                    sheet.cell(row=i , column=7 , value=str(messages[i-2][6] + datetime.timedelta(hours=8)) if str(messages[i-2][6]) != "0000-00-00 00:00:00" else "")
+                    if messages[i-2][7] == 0:
+                        sheet.cell(row=i , column=8 , value="原訊息")
+                    elif messages[i-2][7] == 1:
+                        sheet.cell(row=i , column=8 , value="編輯")
+                    elif messages[i-2][7] == 2:
+                        sheet.cell(row=i , column=8 , value="刪除")
+                book.save(f"assets/messageHistory/temp/{ctx.channel}_{ctx.channel.id}_message_history.xlsx")
+                text = ""
+                for i in msgType:
+                    if i == '0':
+                        text += "未修改"
+                    elif i == '1':
+                        text += "編輯"
+                    elif i == '2':
+                        text += "刪除"
+                    if i != msgType[-1]:
+                        text += "、"
+                await ctx.send(f"本頻道之{text}訊息列表" , file=discord.File(f"assets/messageHistory/temp/{ctx.channel}_{ctx.channel.id}_message_history.xlsx"))
+                shutil.rmtree("assets/messageHistory/temp")
+            else:
+                await ctx.reply("查詢代號僅能為 0未編輯、刪除的訊息 1編輯的訊息 2刪除的訊息")
         else:
-            await ctx.reply("查詢代號僅能為 0未編輯、刪除的訊息 1編輯的訊息 2刪除的訊息")
+                await ctx.reply("請輸入查詢代號")
+        
 
     @commands.command()
     async def historyf(self , ctx , *num):
