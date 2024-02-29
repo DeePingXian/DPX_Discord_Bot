@@ -7,18 +7,18 @@ import asyncio , os , shutil , requests , zipfile , json
 
 async def main():
 
-    os.makedirs("assets/musicBot/temp" , exist_ok=True)
     if not os.path.isfile("assets/musicBot/ffmpeg.exe"):
+        os.makedirs("assets/musicBot/temp" , exist_ok=True)
         print("初次啟動，下載必要檔案中...")
         with open("assets/musicBot/temp/ffmpeg-6.0-essentials_build.zip" , "wb") as f:
             f.write(requests.get("https://github.com/GyanD/codexffmpeg/releases/download/6.0/ffmpeg-6.0-essentials_build.zip").content)
         with zipfile.ZipFile("assets/musicBot/temp/ffmpeg-6.0-essentials_build.zip" , "r") as f:
             f.extractall("assets/musicBot/temp")
         shutil.move("assets/musicBot/temp/ffmpeg-6.0-essentials_build/bin/ffmpeg.exe" , "assets/musicBot")
-    shutil.rmtree("assets/musicBot/temp")
+    shutil.rmtree("assets/musicBot/temp" , ignore_errors=True)
 
-    with open("settings.json" , "r" , encoding = "utf8") as json_file:
-        settings = json.load(json_file)
+    with open("settings.json" , "r" , encoding = "utf8") as jsonFile:
+        settings = json.load(jsonFile)
 
     intents = discord.Intents.all()
     bot = Bot(command_prefix=settings["commandPrefix"] , intents=intents)

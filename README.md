@@ -137,12 +137,12 @@ DPX Discord Bot 開源版本
 <table>
 <tr><td>項目</td><td>版本</td><td>授權</td></tr>
 <tr><td>discord.py[voice]</td><td>2.3.2</td><td>MIT License</td></tr>
-<tr><td>fake-useragent</td><td>1.2.1</td><td>Apache License Version 2.0</td></tr>
-<tr><td>gdown</td><td>4.7.1</td><td>MIT License</td></tr>
+<tr><td>fake-useragent</td><td>1.4.0</td><td>Apache License Version 2.0</td></tr>
+<tr><td>gdown</td><td>5.1.0</td><td>MIT License</td></tr>
 <tr><td>openpyxl</td><td>3.1.2</td><td>MIT License</td></tr>
 <tr><td>PyMySQL</td><td>1.0.2</td><td>MIT License</td></tr>
-<tr><td>Requests</td><td>2.28.2</td><td>Apache License Version 2.0</td></tr>
-<tr><td>yt-dlp</td><td>2023.7.6</td><td>The Unlicense</td></tr>
+<tr><td>Requests</td><td>2.31.0</td><td>Apache License Version 2.0</td></tr>
+<tr><td>yt-dlp</td><td>2023.12.30</td><td>The Unlicense</td></tr>
 </table>
 
 ***
