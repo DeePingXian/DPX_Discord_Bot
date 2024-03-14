@@ -70,14 +70,13 @@ class help_message(Cog_Extension):
             elif select.values[0] == "產生連結功能列表":
                 embed = discord.Embed(title="產生連結功能列表", description='\u200b' , color=0xc0c0c0)
                 embed.set_author(name=self.bot.user.name , icon_url=self.bot.user.avatar.url)
-                embed.add_field(name="指令", value=f'{self.pf}nh rand\n{self.pf}nh + (車號)\n{self.pf}pix + (作品號)\n{self.pf}pixu + (作者號)\n{self.pf}twiu + (用戶ID)' , inline=True)
-                embed.add_field(name="功能", value='隨機傳送本子連結\n傳送該本子連結\n傳送該pixiv作品連結\n傳送該pixiv作者連結\n傳送該twitter用戶連結' , inline=True)
+                embed.add_field(name="指令", value=f'{self.pf}nh rand\n{self.pf}nh + (車號)\n{self.pf}jm + (車號)\n{self.pf}wn + (車號)\n{self.pf}pix + (作品號)\n{self.pf}pixu + (作者號)\n{self.pf}twiu + (用戶ID)' , inline=True)
+                embed.add_field(name="功能", value='隨機傳送nh本子連結\n傳送該nh本子連結\n傳送該JM本子連結\n傳送該wnacg本子連結\n傳送該pixiv作品連結\n傳送該pixiv作者連結\n傳送該twitter用戶連結' , inline=True)
             elif select.values[0] == "本 bot 附屬網頁相關":
                 embed = discord.Embed(title="本 bot 附屬網頁相關", description='\u200b' , color=0xc0c0c0)
                 embed.set_author(name=self.bot.user.name , icon_url=self.bot.user.avatar.url)
                 if self.settings['webSettings']['url']:
-                    embed.add_field(name="目前存取網頁之 token", value=f'{self.DB.getToken()}' , inline=False)
-                    embed.add_field(name="本伺服器ID", value=interaction.guild_id , inline=False)
+                    embed.add_field(name="目前存取本 Discord 伺服器之 token", value=f'{self.DB.getToken(interaction.guild_id)}' , inline=False)
                     embed.add_field(name='\u200b', value=f'token 每天 GMT 0:00 更新\n網址：{self.settings["webSettings"]["url"]}' , inline=False)
                 else:
                     embed.add_field(name="未啟用此功能", value='\u200b' , inline=False)

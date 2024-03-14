@@ -34,8 +34,9 @@ class message_history(Cog_Extension):
             self.DB.putMessageLog(message , None , time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime()) , 2)
             os.makedirs(f"assets/messageHistory/{message.guild.id}/{message.channel.id}/files" , exist_ok=True)
             r=requests.get(message.attachments[0].url, stream=True)     #存附件
-            slashpos = message.attachments[0].url.rfind('/')
-            imageName=str(f"assets/messageHistory/{message.guild.id}/{message.channel.id}/files/{message.author}➼{message.author.id}➼{(message.attachments[0].url)[slashpos+1:]}")
+            slashPos = message.attachments[0].url.rfind('/')
+            quesPos = message.attachments[0].url.find('?')
+            imageName=str(f"assets/messageHistory/{message.guild.id}/{message.channel.id}/files/{message.author}➼{message.author.id}➼{(message.attachments[0].url)[slashPos+1:quesPos]}")
             with open(imageName, 'wb') as out_file:
                 shutil.copyfileobj(r.raw, out_file)
 

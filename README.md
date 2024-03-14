@@ -104,18 +104,13 @@ DPX Discord Bot 開源版本
 
 ### **產生連結功能**
 <table>
-<tr><td>!!nh rand</td><td>隨機傳送本子連結</td></tr>
-<tr><td>!!nh + (車號)</td><td>傳送該本子連結</td></tr>
+<tr><td>!!nh rand</td><td>隨機傳送nh本子連結</td></tr>
+<tr><td>!!nh + (車號)</td><td>傳送該nh本子連結</td></tr>
+<tr><td>!!jm + (車號)</td><td>傳送該JM本子連結</td></tr>
+<tr><td>!!wn + (車號)</td><td>傳送該wnacg本子連結</td></tr>
 <tr><td>!!pix + (作品號)</td><td>傳送該pixiv作品連結</td></tr>
 <tr><td>!!pixu + (作者號)</td><td>傳送該pixiv作者連結</td></tr>
 <tr><td>!!twiu + (用戶ID)</td><td>傳送該twitter用戶連結</td></tr>
-</table>
-<br><br>
-
-### **本 bot 附屬網頁相關**
-<table>
-<tr><td>!!getguildid</td><td>取得本 Discord 伺服器（群組）的 ID</td></tr>
-<tr><td>!!getwebtoken</td><td>取得存取網頁用的 token</td></tr>
 </table>
 <br><br>
 

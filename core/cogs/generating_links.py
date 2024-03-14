@@ -15,6 +15,24 @@ class generating_links(Cog_Extension):
                 await ctx.reply('車號僅能為數字')
             else:
                 await ctx.send(f'https://nhentai.net/g/{mes}')
+    
+    @commands.command()
+    async def jm(self , ctx , book):
+        try:
+            mes=int(book)
+        except:
+            await ctx.reply('車號僅能為數字')
+        else:
+            await ctx.send(f'https://18comic.org/album/{mes}')
+
+    @commands.command()
+    async def wn(self , ctx , book):
+        try:
+            mes=int(book)
+        except:
+            await ctx.reply('車號僅能為數字')
+        else:
+            await ctx.send(f'https://www.wnacg.com/photos-index-aid-{mes}')
 
     @commands.command()
     async def pix(self , ctx , art):

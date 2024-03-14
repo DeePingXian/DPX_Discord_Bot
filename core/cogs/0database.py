@@ -51,27 +51,71 @@ class MySQL(Cog_Extension):
             MySQLConnection.close()
         except:
             raise ConnectionError('MySQL connection error')
-
-    def updateToken(self , token):
+        
+    def updateToken(self , guildID):
+        from uuid import uuid4
+        tokens = []
         try:
             MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
             with MySQLConnection.cursor() as cursor:
-                command = f"CREATE TABLE IF NOT EXISTS discord_status.token (token TEXT NOT NULL) ENGINE = InnoDB;"
+                command = f"CREATE TABLE IF NOT EXISTS discord_status.tokens (guild_id TEXT NOT NULL , token TEXT NOT NULL) ENGINE = InnoDB;"
                 cursor.execute(command)
-                command = f"TRUNCATE discord_status.token"
+                command = f"SELECT * FROM discord_status.tokens"
                 cursor.execute(command)
-                command = f"INSERT INTO discord_status.token (token) VALUES ('{token}');"
+                old_tokens = cursor.fetchall()
+                tokens , guilds = [] , []
+                for i in old_tokens:
+                    guilds.append(i[0])
+                    tokens.append(i[1])
+                token = str(uuid4())[:8]
+                while token in old_tokens:
+                    token = str(uuid4())[:8]
+                if str(guildID) in guilds:
+                    command = f"UPDATE discord_status.tokens SET `token` = '{token}' WHERE `guild_id` = '{guildID}';"
+                else:
+                    command = f"INSERT INTO discord_status.tokens (guild_id , token) VALUES ('{guildID}' , '{token}');"
                 cursor.execute(command)
                 MySQLConnection.commit()
             MySQLConnection.close()
         except:
             raise ConnectionError('MySQL connection error')
 
-    def getToken(self):
+    def updateAllToken(self):
+        from uuid import uuid4
+        tokens = []
         try:
             MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
             with MySQLConnection.cursor() as cursor:
-                command = f"SELECT token FROM discord_status.token"
+                command = f"CREATE TABLE IF NOT EXISTS discord_status.tokens (guild_id TEXT NOT NULL , token TEXT NOT NULL) ENGINE = InnoDB;"
+                cursor.execute(command)
+                command = f"SELECT id FROM discord_status.guilds"
+                cursor.execute(command)
+                guildsID = cursor.fetchall()
+                command = f"SELECT token FROM discord_status.tokens"
+                cursor.execute(command)
+                oldTokens = cursor.fetchall()
+                for _ in guildsID:
+                    token = str(uuid4())[:8]
+                    while token in tokens or (token,) in oldTokens:
+                        token = str(uuid4())[:8]
+                    tokens.append(token)
+                command = f"TRUNCATE discord_status.tokens"
+                cursor.execute(command)
+                count = 0
+                for i in guildsID:
+                    command = f"INSERT INTO discord_status.tokens (guild_id , token) VALUES ('{i[0]}' , '{tokens[count]}');"
+                    cursor.execute(command)
+                    MySQLConnection.commit()
+                    count += 1
+            MySQLConnection.close()
+        except:
+            raise ConnectionError('MySQL connection error')
+
+    def getToken(self , guildID):
+        try:
+            MySQLConnection = pymysql.connect(**self.settings["MySQLSettings"])
+            with MySQLConnection.cursor() as cursor:
+                command = f"SELECT token FROM discord_status.tokens WHERE `guild_id` = '{guildID}';"
                 cursor.execute(command)
                 token = cursor.fetchall()
             MySQLConnection.close()
@@ -97,6 +141,7 @@ class MySQL(Cog_Extension):
                         command = f"UPDATE discord_status.guilds SET `name` = '{message.guild}' WHERE `id` = '{message.guild.id}';"
                     else:
                         command = f"INSERT INTO discord_status.guilds (id , name) VALUES ('{message.guild.id}' , '{message.guild}');"
+                        self.updateToken(message.guild.id)       #為沒有token的guild產生token
                     cursor.execute(command)
                     MySQLConnection.commit()
                 command = f"CREATE DATABASE IF NOT EXISTS discord_{message.guild.id}_messagelog"

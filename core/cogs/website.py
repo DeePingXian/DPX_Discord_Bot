@@ -1,6 +1,6 @@
 from core.classes import Cog_Extension
 from discord.ext import commands , tasks
-import time , uuid
+import time
 
 class website(Cog_Extension):
 
@@ -8,6 +8,7 @@ class website(Cog_Extension):
 
     @commands.Cog.listener()
     async def on_ready(self):
+        self.DB.updateAllToken()
         self.waitForUpdateToken.start()
 
     @tasks.loop(seconds=60)
@@ -20,7 +21,7 @@ class website(Cog_Extension):
 
     @tasks.loop(hours=24)
     async def updateToken(self):
-        self.DB.updateToken(str(uuid.uuid4())[:8])
+        self.DB.updateAllToken()
 
 async def setup(bot):
     await bot.add_cog(website(bot))
