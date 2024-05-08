@@ -6,64 +6,85 @@ class answering(Cog_Extension):
 
     def __init__(self , bot):
         super().__init__(bot)
-        self.AnsweringDict = {}
-        self.loadAnsweringContent()
+        self.allAnsweringDict = {}      #guild id: {應答內容}
+        self.loadAllAnsweringMsg()
 
     #載入答錄機訊息
 
-    def loadAnsweringContent(self):
-        self.AnsweringDict.clear()
-        AnsweringSheet = openpyxl.load_workbook('assets\\answeringMachine\\answeringContent.xlsx').worksheets[0]
-        for i in range(2 , AnsweringSheet.max_row+1):
-            value = []
-            for j in range(1 , 6):
-                value.append(AnsweringSheet.cell(row=i, column=j).value)
-            self.AnsweringDict[AnsweringSheet.cell(row=i, column=1).value] = value
+    def loadAllAnsweringMsg(self):
+        self.allAnsweringDict.clear()
+        files = os.listdir("assets/answeringMachine")
+        allansweringBook = []
+        for i in files:
+            try:
+                allansweringBook.append(int(i))        #挑選資料夾
+            except:
+                pass
+        for i in allansweringBook:
+            answeringSheet = openpyxl.load_workbook(f"assets/answeringMachine/{i}/answeringMsg.xlsx").worksheets[0]
+            self.allAnsweringDict[int(i)] = []
+            for j in range(2 , answeringSheet.max_row+1):
+                value = []
+                for k in range(1 , 6):
+                    value.append(answeringSheet.cell(row=j, column=k).value)
+                self.allAnsweringDict[int(i)].append(value)
+
+    def loadAnsweringMsg(self , guildID):
+        guildID = int(guildID)
+        if os.path.isfile(f"assets/answeringMachine/{guildID}/answeringMsg.xlsx"):
+            answeringSheet = openpyxl.load_workbook(f"assets/answeringMachine/{guildID}/answeringMsg.xlsx").worksheets[0]
+            self.allAnsweringDict[guildID] = []
+            for j in range(2 , answeringSheet.max_row+1):
+                value = []
+                for k in range(1 , 6):
+                    value.append(answeringSheet.cell(row=j, column=k).value)
+                self.allAnsweringDict[guildID].append(value)
 
     @commands.command()
-    async def sendansweringcontentlist(self , ctx):
-        await ctx.send(file=discord.File('assets\\answeringMachine\\answeringContent.xlsx'))
+    async def sendansweringmsglist(self , ctx):
+        if not os.path.isfile(f"assets/answeringMachine/{ctx.guild.id}/answeringMsg.xlsx"):
+            os.makedirs(f"assets/answeringMachine/{ctx.guild.id}")
+            book = openpyxl.Workbook()
+            sheet = book.active
+            sheet.append(("訊息內容" , "傳送內容" , "檔案名稱" , "訊息內容是否忽略大小寫" , "訊息是否有包含就觸發 不用完全一樣"))
+            book.save(f"assets/answeringMachine/{ctx.guild.id}/answeringMsg.xlsx")
+        await ctx.send(file=discord.File(f"assets/answeringMachine/{ctx.guild.id}/answeringMsg.xlsx"))
 
     #修改答錄機訊息
 
     @commands.command()
-    async def editansweringcontentlist(self , ctx):
+    async def editansweringmsglist(self , ctx):
         try:
             _ = ctx.message.attachments[0]
         except:
-            await ctx.reply('請附上修改自「!!sendansweringcontentlist」指令提供的檔案')
+            await ctx.reply(f"請附上修改自「{self.settings['commandPrefix']}sendansweringmsglist」指令提供的檔案")
         else:
-            if ctx.message.attachments[0].url[0:26] == "https://cdn.discordapp.com" and ctx.message.attachments[0].url[ctx.message.attachments[0].url.rfind('/')+1:] == 'answeringContent.xlsx':
+            if ctx.message.attachments[0].url[0:26] == "https://cdn.discordapp.com" and ctx.message.attachments[0].url[ctx.message.attachments[0].url.rfind('/')+1:ctx.message.attachments[0].url.find('?')] == "answeringMsg.xlsx":
                 try:
-                    if not os.path.isdir('assets/answeringMachine/temp'):         #先下載再取代，比較安全
-                        os.mkdir('assets/answeringMachine/temp')
+                    os.makedirs(f"assets/answeringMachine/{ctx.guild.id}/temp" , exist_ok=True)        #先下載再取代，比較安全
                     r=requests.get(ctx.message.attachments[0].url , stream=True)
-                    with open('assets\\answeringMachine\\temp\\answeringContent.xlsx', 'wb') as outFile:
+                    with open(f"assets/answeringMachine/{ctx.guild.id}/temp/answeringMsg.xlsx", "wb") as outFile:
                         shutil.copyfileobj(r.raw, outFile)
-                    shutil.copyfile('assets\\answeringMachine\\temp\\answeringContent.xlsx' , 'assets\\answeringMachine\\answeringContent.xlsx')
-                    if os.path.isfile('assets\\answeringMachine\\temp\\answeringContent.xlsx'):
-                        os.remove('assets\\answeringMachine\\temp\\answeringContent.xlsx')
+                    shutil.copyfile(f"assets/answeringMachine/{ctx.guild.id}/temp/answeringMsg.xlsx" , f"assets/answeringMachine/{ctx.guild.id}/answeringMsg.xlsx")
+                    shutil.rmtree(f"assets/answeringMachine/{ctx.guild.id}/temp" , ignore_errors=True)
                 except:
-                    await ctx.reply('寫入檔案時發生錯誤')
+                    await ctx.reply("寫入檔案時發生錯誤")
                 else:
-                    self.loadAnsweringContent()
-                    await ctx.send('應答機更新完成')
+                    self.loadAnsweringMsg(ctx.guild.id)
+                    await ctx.send("應答機更新完成")
             else:
-                await ctx.reply('請附上修改自「!!sendansweringcontentlist」指令提供的檔案')
+                await ctx.reply(f"請附上修改自「{self.settings['commandPrefix']}sendansweringmsglist」指令提供的檔案")
 
     @commands.Cog.listener()
     async def on_message(self , message):
-
-        #應答機
-
-        if message.author != self.bot.user:
-            for i in self.AnsweringDict:
-                if ( message.content.lower() == i.lower() and ( self.AnsweringDict[i][3] == 'Y' or message.content == i ) ) or ( ( i in message.content or (i.lower() in message.content.lower() and self.AnsweringDict[i][3] == 'Y' ) ) and self.AnsweringDict[i][4] == 'Y' ):
-                    if self.AnsweringDict[i][1] != None:
-                        await message.channel.send(self.AnsweringDict[i][1])
-                    if self.AnsweringDict[i][2] != None:
+        if self.allAnsweringDict.get(message.guild.id , None) and message.author != self.bot.user:
+            for i in self.allAnsweringDict[message.guild.id]:
+                if ( message.content.lower() == i[0].lower() and ( i[3] == 'Y' or message.content == i[0] ) ) or ( ( i[0] in message.content or (i[0].lower() in message.content.lower() and i[3] == 'Y' ) ) and i[4] == 'Y' ):
+                    if i[1] != None:
+                        await message.channel.send(i[1])
+                    if i[2] != None:
                         try:
-                            await message.channel.send(file=discord.File(f'assets\\answeringMachine\\{self.AnsweringDict[i][2]}'))
+                            await message.channel.send(file=discord.File(f"assets/answeringMachine/{message.guild.id}/{i[2]}"))
                         except:
                             pass
 

@@ -56,12 +56,18 @@ async def main():
 
     @bot.event
     async def on_command_error(ctx , error):
-        await ctx.reply(f"發生錯誤\n{error}")
+        try:
+            await ctx.reply(f"發生錯誤\n{error}")
+        except:
+            pass
 
     @bot.event
     async def on_error(event , *args , **kwargs):
-        message = args[0]
-        await message.reply("發生錯誤")
+        try:
+            message = args[0]
+            await message.reply("發生錯誤")
+        except:
+            pass
 
     await bot.start(settings["TOKEN"])
 

@@ -30,6 +30,9 @@ class help_message(Cog_Extension):
                     label="應答機功能列表"
                 ),
                 discord.SelectOption(
+                    label="新人加入歡迎訊息功能列表"
+                ),
+                discord.SelectOption(
                     label="產生連結功能列表"
                 ),
                 discord.SelectOption(
@@ -54,8 +57,8 @@ class help_message(Cog_Extension):
                     acceptableMusicContainer += i
                     if i != self.settings["musicBotOpts"]["googleDrive"]["acceptableMusicContainer"][-1]:
                         acceptableMusicContainer += ' '
-                embed.add_field(name='\u200b', value=f"YouTube影片、直播、播放清單、合輯\nGoogle雲端檔案\nbilibili影片、影片列表(beta)\n{self.settings['musicBotOpts']['maxQueueLen']}\n{self.settings['musicBotOpts']['googleDrive']['fileSizeLimitInMB']}MB\n{acceptableMusicContainer}" , inline=True)
-                embed.add_field(name='\u200b', value=f"播放B站影片時受限於機制，bot反應會較慢\n如果播音樂發生問題，請使用{self.pf}stop清除資料，並再重新操作一次，實在不行請重啟bot" , inline=False)
+                embed.add_field(name='\u200b', value=f"YouTube影片、直播、播放清單、合輯\nGoogle雲端檔案\nbilibili影片、影片列表\n{self.settings['musicBotOpts']['maxQueueLen']}\n{self.settings['musicBotOpts']['googleDrive']['fileSizeLimitInMB']}MB\n{acceptableMusicContainer}" , inline=True)
+                embed.add_field(name='\u200b', value=f"如果播音樂發生問題，請使用{self.pf}stop清除資料，並再重新操作一次，實在不行請重啟bot" , inline=False)
             elif select.values[0] == "訊息歷史紀錄功能列表":
                 embed = discord.Embed(title="訊息歷史紀錄功能列表", description='\u200b' , color=0xc0c0c0)
                 embed.set_author(name=self.bot.user.name , icon_url=self.bot.user.avatar.url)
@@ -64,9 +67,14 @@ class help_message(Cog_Extension):
             elif select.values[0] == "應答機功能列表":
                 embed = discord.Embed(title="應答機功能列表", description='\u200b' , color=0xc0c0c0)
                 embed.set_author(name=self.bot.user.name , icon_url=self.bot.user.avatar.url)
-                embed.add_field(name="指令", value=f'{self.pf}sendansweringcontentlist\n{self.pf}editansweringcontentlist' , inline=True)
-                embed.add_field(name="功能", value='傳送應答列表\n修改應答列表（請附上應答列表檔案）' , inline=True)
-                embed.add_field(name='\u200b', value='若訊息符合設定條件，bot會回傳設定的訊息內容\n修改訊息附件檔案須請開bot的管理員操作' , inline=False)
+                embed.add_field(name="指令", value=f'{self.pf}sendansweringmsglist\n{self.pf}editansweringmsglist' , inline=True)
+                embed.add_field(name="功能", value='傳送應答訊息列表\n修改應答訊息列表（請附上應答訊息列表檔案）' , inline=True)
+                embed.add_field(name='\u200b', value='若訊息符合設定條件，bot會回傳設定的訊息內容，若要關閉此功能請將應答列表清空\n修改訊息附件檔案須請開bot的管理員操作' , inline=False)
+            elif select.values[0] == "新人加入歡迎訊息功能列表":
+                embed = discord.Embed(title="新人加入歡迎訊息功能列表", description='\u200b' , color=0xc0c0c0)
+                embed.set_author(name=self.bot.user.name , icon_url=self.bot.user.avatar.url)
+                embed.add_field(name="指令", value=f'{self.pf}sendwelcomemsglist\n{self.pf}editwelcomemsglist' , inline=True)
+                embed.add_field(name="功能", value='傳送歡迎訊息列表\n修改歡迎訊息列表（請附上歡迎訊息列表檔案），若要關閉此功能請將歡迎訊息列表清空' , inline=True)
             elif select.values[0] == "產生連結功能列表":
                 embed = discord.Embed(title="產生連結功能列表", description='\u200b' , color=0xc0c0c0)
                 embed.set_author(name=self.bot.user.name , icon_url=self.bot.user.avatar.url)

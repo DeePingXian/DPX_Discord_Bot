@@ -14,11 +14,11 @@ DPX Discord Bot 開源版本
 - 提供打包編譯版本，擁有比原生CPython更高的執行效率
 - 可播 YouTube、Google雲端、bilibili、電腦本地檔案 來源的音樂
 - 不偵測語音頻道裡是否有人，可常駐播放音樂
-- 自由設定的聊天應答機
+- 自由設定的聊天應答機、新人加入歡迎訊息
 - 訊息歷史紀錄功能，可傳回被刪除、編輯的訊息（資料存於本地，無資安問題）
 - 可即時查詢指令
 - 方便閱讀大量資訊的附屬網頁
-- 其他更多功能...
+- 其他如下更多功能...
 ***
 ## 功能＆使用說明
 簡易教學影片：<a href="https://www.youtube.com/watch?v=3XOrqhkXuA0">https://www.youtube.com/watch?v=3XOrqhkXuA0</a>，實際請以這GitHub頁面為主  
@@ -36,7 +36,7 @@ DPX Discord Bot 開源版本
 <tr><td>☆logChannelID</td><td>設定傳送log的Discord頻道ID，啟動時每隔一小時bot會在該頻道發送狀態訊息，配合訊息歷史紀錄功能可當log用</td></tr>
 <tr><td>☆MySQLSettings</td><td>設定MySQL連線參數</td></tr>
 <tr><td>maxMessagesSaved</td><td>設定每個頻道儲存在MySQL的訊息歷史紀錄數量上限</td></tr>
-<tr><td>webSettings/url</td><td>設定本bot附屬網頁網址，若為空則不啟用本bot相關功能</td></tr>
+<tr><td>webSettings/url</td><td>設定本bot附屬網頁網址，若保留為空則不啟用本bot相關功能</td></tr>
 <tr><td>ffmpegopts</td><td>設定FFMPEG參數</td></tr>
 <tr><th colspan="2">musicBotOpts</th></tr>
 <tr><td>maxQueueLen</td><td>設定音樂隊列項目上限</td></tr>
@@ -70,8 +70,7 @@ DPX Discord Bot 開源版本
 <tr><td>!!download</td><td>下載現正播放的音樂</td></tr>
 <tr><td>!!join</td><td>加入用戶所在語音頻道</td></tr>
 </table>
-支援播放的來源：YouTube影片、直播、播放清單、合輯，Google雲端檔案，bilibili影片、影片列表(beta)，電腦本地檔案<br>
-播放B站影片時受限於機制，bot反應會較慢<br>
+支援播放的來源：YouTube影片、直播、播放清單、合輯，Google雲端檔案，bilibili影片、影片列表，電腦本地檔案<br>
 如果播音樂發生問題，請使用!!stop清除資料，並再重新操作一次，實在不行請重啟bot
 <br><br>
 
@@ -95,11 +94,23 @@ DPX Discord Bot 開源版本
 ### **應答機功能**
 <br>
 <table>
-<tr><td>!!sendansweringcontentlist</td><td>傳送應答列表</td></tr>
-<tr><td>!!editansweringcontentlist</td><td>修改應答列表（請附上應答列表檔案）</td></tr>
+<tr><td>!!sendansweringmsglist</td><td>傳送應答訊息列表</td></tr>
+<tr><td>!!editansweringcontentlist</td><td>修改應答訊息列表（請附上應答訊息列表檔案）</td></tr>
 </table>
-若訊息符合設定條件，bot會回傳設定的訊息內容<br>
-修改訊息附件檔案須手動於\assets\answeringMachine\下修改<br>
+每個Discord群組都是單獨設置，彼此不會互相干擾<br>
+若訊息符合設定條件，bot會回傳設定的訊息內容，若要關閉此功能請將應答列表清空<br>
+\assets\answeringMachine\資料夾裡有設定範例<br>
+新增/刪除訊息附件檔案須手動於\assets\answeringMachine\(該Discord群組ID)\下放置檔案/刪除<br>
+<br><br>
+
+### **新人加入歡迎訊息功能列表**
+<br>
+<table>
+<tr><td>!!sendwelcomemsglist</td><td>傳送歡迎訊息列表</td></tr>
+<tr><td>!!editwelcomemsglist</td><td>修改歡迎訊息列表（請附上歡迎訊息列表檔案），若要關閉此功能請將歡迎訊息列表清空</td></tr>
+</table>
+每個Discord群組都是單獨設置，彼此不會互相干擾<br>
+\assets\welcomeMsg\(該Discord群組ID)\資料夾裡有設定範例<br>
 <br><br>
 
 ### **產生連結功能**
@@ -128,7 +139,7 @@ DPX Discord Bot 開源版本
 <img src="https://i.imgur.com/gyIRSVa.png"><br><br>
 
 ***
-## 直接呼叫了以下非標準 Python package
+## 直接使用了以下非標準 Python package
 <table>
 <tr><td>項目</td><td>版本</td><td>授權</td></tr>
 <tr><td>discord.py[voice]</td><td>2.3.2</td><td>MIT License</td></tr>
@@ -137,11 +148,9 @@ DPX Discord Bot 開源版本
 <tr><td>openpyxl</td><td>3.1.2</td><td>MIT License</td></tr>
 <tr><td>PyMySQL</td><td>1.0.2</td><td>MIT License</td></tr>
 <tr><td>Requests</td><td>2.31.0</td><td>Apache License Version 2.0</td></tr>
-<tr><td>yt-dlp</td><td>2023.12.30</td><td>The Unlicense</td></tr>
+<tr><td>yt-dlp</td><td>2024.4.9</td><td>The Unlicense</td></tr>
 </table>
 
 ***
 ## 已知錯誤
 - 無法播放「<a href="https://www.youtube.com/watch?v=rPJz3syNbtE">https://www.youtube.com/watch?v=rPJz3syNbtE</a>」，且會造成程式錯誤
-- 播放部分B站影片會直接跳掉，如「<a href=https://www.bilibili.com/video/BV1qs411q7PC>https://www.bilibili.com/video/BV1qs411q7PC</a>」
-- 播放B站影片可能會產生一些錯誤，跟bot挑選可用播放源時頻繁請求有關

@@ -41,6 +41,7 @@ class music_bot(Cog_Extension):
             self.settings = settings
             self.ytdlOpts = {"format": "bestaudio/best" , "extract_flat": False , "skip_download": True , "nocheckcertificate": True , "ignoreerrors": True , "logtostderr": False , "quiet": True , "no_warnings": True , "default_search": "auto" , "source_address": "0.0.0.0"}
             self.ytdlOpts2 = {"format": "bestaudio/best" , "extract_flat": "in_playlist" , "skip_download": True , "nocheckcertificate": True , "ignoreerrors": True , "logtostderr": False , "quiet": True , "no_warnings": True , "default_search": "auto" , "source_address": "0.0.0.0"}
+            self.biliOpts = {"format": "bestaudio[abr<=160]" , "extract_flat": False , "skip_download": True , "nocheckcertificate": True , "ignoreerrors": True , "logtostderr": False , "quiet": True , "no_warnings": True , "default_search": "auto" , "source_address": "0.0.0.0"}      #比較穩定
 
         def initTempMusic(self , sum , type):
             for i in range(1 , sum + 1):
@@ -103,7 +104,7 @@ class music_bot(Cog_Extension):
 
         async def getBiliMusicInfo(self , num , url):
             self.tempMusicDict[num].url = url
-            with YoutubeDL(self.ytdlOpts) as ytdl:
+            with YoutubeDL(self.biliOpts) as ytdl:
                 infoDict = await asyncio.to_thread(ytdl.extract_info , url , download=False)
                 self.tempMusicDict[num].title = infoDict.get("title" , "")
                 dur = int(infoDict.get("duration" , 0))
@@ -119,10 +120,9 @@ class music_bot(Cog_Extension):
             return list
 
         async def renewBiliMusicInfo(self):
-            with YoutubeDL(self.ytdlOpts) as ytdl:
+            with YoutubeDL(self.biliOpts) as ytdl:
                 infoDict = await asyncio.to_thread(ytdl.extract_info , self.music.url , download=False)
                 while not infoDict["url"].startswith("https://upos-hz-mirrorakam.akamaized.net/"):     #只有這個來源的能正常播放
-                    await asyncio.sleep(3)      #避免頻繁request被鎖
                     infoDict = await asyncio.to_thread(ytdl.extract_info , self.music.url , download=False)
                 self.music.audio_url = infoDict["url"]
                 self.music.title = infoDict.get("title" , "")
