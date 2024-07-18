@@ -1,5 +1,5 @@
 import discord
-import pymysql , openpyxl , gdown , optparse        #打包用
+import pymysql , openpyxl , gdown , optparse , characterai        #打包用
 from fake_useragent import UserAgent        #打包用
 from discord.ext import commands , tasks        #打包用
 from discord.ext.commands import Bot
@@ -8,8 +8,8 @@ import asyncio , os , shutil , requests , zipfile , json
 async def main():
 
     if not os.path.isfile("assets/musicBot/ffmpeg.exe"):
-        os.makedirs("assets/musicBot/temp" , exist_ok=True)
         print("初次啟動，下載必要檔案中...")
+        os.makedirs("assets/musicBot/temp" , exist_ok=True)
         with open("assets/musicBot/temp/ffmpeg-6.0-essentials_build.zip" , "wb") as f:
             f.write(requests.get("https://github.com/GyanD/codexffmpeg/releases/download/6.0/ffmpeg-6.0-essentials_build.zip").content)
         with zipfile.ZipFile("assets/musicBot/temp/ffmpeg-6.0-essentials_build.zip" , "r") as f:
@@ -37,16 +37,17 @@ async def main():
     DB = bot.get_cog("MySQL")
     DB.init()
     if DB.test():
-        print("MySQL 操作正常")
+        print("SQL資料庫操作正常")
     else:
-        print("MySQL 操作錯誤")
+        print("SQL資料庫操作失敗")
 
     #啟動訊息
 
     @bot.event
     async def on_ready():
+        await bot.tree.sync()
         channel = bot.get_channel(settings["logChannelID"])
-        game = discord.Game(f"輸入{settings['commandPrefix']}help查詢指令")
+        game = discord.Game("輸入/help查詢指令")
         await bot.change_presence(status=discord.Status.online, activity=game)
         ping = round (bot.latency * 1000)
         print(f"啟動完成｜bot身份為「{bot.user}」｜與 Discord 延遲為 {ping} ms")
@@ -58,14 +59,6 @@ async def main():
     async def on_command_error(ctx , error):
         try:
             await ctx.reply(f"發生錯誤\n{error}")
-        except:
-            pass
-
-    @bot.event
-    async def on_error(event , *args , **kwargs):
-        try:
-            message = args[0]
-            await message.reply("發生錯誤")
         except:
             pass
 

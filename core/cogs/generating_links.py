@@ -1,55 +1,41 @@
-from discord.ext import commands
 from core.classes import Cog_Extension
-import random
+import discord , random
 
 class generating_links(Cog_Extension):
     
-    @commands.command()
-    async def nh(self , ctx , book):
-        if book == 'rand':
-            await ctx.send(f'https://nhentai.net/g/{random.randrange(self.settings["newestNhentaiBookNum"])+1}')
-        else:
-            try:
-                mes=int(book)
-            except:
-                await ctx.reply('車號僅能為數字')
-            else:
-                await ctx.send(f'https://nhentai.net/g/{mes}')
-    
-    @commands.command()
-    async def jm(self , ctx , book):
-        try:
-            mes=int(book)
-        except:
-            await ctx.reply('車號僅能為數字')
-        else:
-            await ctx.send(f'https://18comic.org/album/{mes}')
+    @discord.app_commands.command(name="nh" , description="傳送該nh本子連結")
+    @discord.app_commands.describe(num="車號")
+    async def nh(self , interaction:discord.Interaction , num:int):
+        await interaction.response.send_message(f'https://nhentai.net/g/{num}')
 
-    @commands.command()
-    async def wn(self , ctx , book):
-        try:
-            mes=int(book)
-        except:
-            await ctx.reply('車號僅能為數字')
-        else:
-            await ctx.send(f'https://www.wnacg.com/photos-index-aid-{mes}')
+    @discord.app_commands.command(name="nhrand" , description="隨機傳送nh本子連結")
+    async def nhrand(self , interaction:discord.Interaction):
+        await interaction.response.send_message(f'https://nhentai.net/g/{random.randrange(self.settings["newestnhBookNum"])+1}')
 
-    @commands.command()
-    async def pix(self , ctx , art):
-        try:
-            mes=int(art)
-        except:
-            await ctx.reply('作品號僅能為數字')
-        else:
-            await ctx.send(f'https://www.pixiv.net/artworks/{mes}')
+    @discord.app_commands.command(name="jm" , description="傳送該JM本子連結")
+    @discord.app_commands.describe(num="車號")
+    async def jm(self , interaction:discord.Interaction , num:int):
+        await interaction.response.send_message(f'https://18comic.org/album/{num}')
 
-    @commands.command()
-    async def pixu(self , ctx , user):
-        await ctx.send(f'https://www.pixiv.net/users/{user}')
+    @discord.app_commands.command(name="wn" , description="傳送該wnacg本子連結")
+    @discord.app_commands.describe(num="車號")
+    async def wn(self , interaction:discord.Interaction , num:int):
+        await interaction.response.send_message(f'https://www.wnacg.com/photos-index-aid-{num}')
 
-    @commands.command()
-    async def twiu(self , ctx , user):
-        await ctx.send(f'https://twitter.com/{user}')
+    @discord.app_commands.command(name="pix" , description="傳送該pixiv作品連結")
+    @discord.app_commands.describe(id="作品編號")
+    async def pix(self , interaction:discord.Interaction , id:int):
+        await interaction.response.send_message(f'https://www.pixiv.net/artworks/{id}')
+
+    @discord.app_commands.command(name="pixu" , description="傳送該pixiv作者連結")
+    @discord.app_commands.describe(id="作者編號")
+    async def pixu(self , interaction:discord.Interaction , id:int):
+        await interaction.response.send_message(f'https://www.pixiv.net/users/{id}')
+
+    @discord.app_commands.command(name="twiu" , description="傳送該twitter用戶連結")
+    @discord.app_commands.describe(id="用戶ID")
+    async def twiu(self , interaction:discord.Interaction , id:int):
+        await interaction.response.send_message(f'https://x.com/{id}')
 
 async def setup(bot):
     await bot.add_cog(generating_links(bot))

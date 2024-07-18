@@ -39,44 +39,50 @@ class answering(Cog_Extension):
                 for k in range(1 , 6):
                     value.append(answeringSheet.cell(row=j, column=k).value)
                 self.allAnsweringDict[guildID].append(value)
-
-    @commands.command()
-    async def sendansweringmsglist(self , ctx):
-        if not os.path.isfile(f"assets/answeringMachine/{ctx.guild.id}/answeringMsg.xlsx"):
-            os.makedirs(f"assets/answeringMachine/{ctx.guild.id}")
+    
+    @discord.app_commands.command(name="sendansweringmsglist" , description="傳送應答訊息列表檔案")
+    async def sendansweringmsglist(self , interaction:discord.Interaction):
+        await interaction.response.defer()
+        if not os.path.isfile(f"assets/answeringMachine/{interaction.guild.id}/answeringMsg.xlsx"):
+            os.makedirs(f"assets/answeringMachine/{interaction.guild.id}/temp" , exist_ok=True)
             book = openpyxl.Workbook()
             sheet = book.active
             sheet.append(("訊息內容" , "傳送內容" , "檔案名稱" , "訊息內容是否忽略大小寫" , "訊息是否有包含就觸發 不用完全一樣"))
-            book.save(f"assets/answeringMachine/{ctx.guild.id}/answeringMsg.xlsx")
-        await ctx.send(file=discord.File(f"assets/answeringMachine/{ctx.guild.id}/answeringMsg.xlsx"))
+            book.save(f"assets/answeringMachine/{interaction.guild.id}/temp/answeringMsg.xlsx")
+            await interaction.followup.send(file=discord.File(f"assets/answeringMachine/{interaction.guild_id}/temp/answeringMsg.xlsx"))
+            shutil.rmtree(f"assets/welcomeMsg/{interaction.guild.id}/temp" , ignore_errors=True)
+        else:
+            await interaction.followup.send(file=discord.File(f"assets/welcomeMsg/{interaction.guild.id}/welcomeMsg.xlsx"))
 
     #修改答錄機訊息
 
-    @commands.command()
-    async def editansweringmsglist(self , ctx):
-        try:
-            _ = ctx.message.attachments[0]
-        except:
-            await ctx.reply(f"請附上修改自「{self.settings['commandPrefix']}sendansweringmsglist」指令提供的檔案")
-        else:
-            if ctx.message.attachments[0].url[0:26] == "https://cdn.discordapp.com" and ctx.message.attachments[0].url[ctx.message.attachments[0].url.rfind('/')+1:ctx.message.attachments[0].url.find('?')] == "answeringMsg.xlsx":
-                try:
-                    os.makedirs(f"assets/answeringMachine/{ctx.guild.id}/temp" , exist_ok=True)        #先下載再取代，比較安全
-                    r=requests.get(ctx.message.attachments[0].url , stream=True)
-                    with open(f"assets/answeringMachine/{ctx.guild.id}/temp/answeringMsg.xlsx", "wb") as outFile:
-                        shutil.copyfileobj(r.raw, outFile)
-                    shutil.copyfile(f"assets/answeringMachine/{ctx.guild.id}/temp/answeringMsg.xlsx" , f"assets/answeringMachine/{ctx.guild.id}/answeringMsg.xlsx")
-                    shutil.rmtree(f"assets/answeringMachine/{ctx.guild.id}/temp" , ignore_errors=True)
-                except:
-                    await ctx.reply("寫入檔案時發生錯誤")
-                else:
-                    self.loadAnsweringMsg(ctx.guild.id)
-                    await ctx.send("應答機更新完成")
+    @discord.app_commands.command(name="editansweringmsglist" , description="修改應答訊息列表（請附上應答訊息列表檔案）")
+    @discord.app_commands.describe(file="應答訊息列表檔案")
+    async def editansweringmsglist(self , interaction:discord.Interaction , file:discord.Attachment):
+        await interaction.response.defer()
+        if file.filename == "answeringMsg.xlsx":
+            try:
+                os.makedirs(f"assets/answeringMachine/{interaction.guild.id}/temp" , exist_ok=True)        #先下載再取代，比較安全
+                #await file.save(f"assets/answeringMachine/{interaction.guild.id}/temp/answeringMsg.xlsx" , use_cached=True)    無法使用
+                r=requests.get(file.url , stream=True)
+                with open(f"assets/answeringMachine/{interaction.guild.id}/temp/answeringMsg.xlsx", "wb") as outFile:
+                    shutil.copyfileobj(r.raw , outFile)
+                shutil.copyfile(f"assets/answeringMachine/{interaction.guild.id}/temp/answeringMsg.xlsx" , f"assets/answeringMachine/{interaction.guild.id}/answeringMsg.xlsx")
+                shutil.rmtree(f"assets/answeringMachine/{interaction.guild.id}/temp" , ignore_errors=True)
+            except OSError:
+                await interaction.followup.send("寫入檔案時發生錯誤")
+            except:
+                await interaction.followup.send(f"請附上修改自「/sendansweringmsglist」指令提供的檔案")
             else:
-                await ctx.reply(f"請附上修改自「{self.settings['commandPrefix']}sendansweringmsglist」指令提供的檔案")
+                self.loadAnsweringMsg(interaction.guild.id)
+                await interaction.followup.send("應答機更新完成")
+        else:
+            await interaction.followup.send(f"請附上修改自「/sendansweringmsglist」指令提供的檔案")
 
     @commands.Cog.listener()
     async def on_message(self , message):
+
+        #應答機
         if self.allAnsweringDict.get(message.guild.id , None) and message.author != self.bot.user:
             for i in self.allAnsweringDict[message.guild.id]:
                 if ( message.content.lower() == i[0].lower() and ( i[3] == 'Y' or message.content == i[0] ) ) or ( ( i[0] in message.content or (i[0].lower() in message.content.lower() and i[3] == 'Y' ) ) and i[4] == 'Y' ):
