@@ -68,8 +68,7 @@ Discord討論群組：<a href="https://discord.gg/wJnNm8Fg9e">DPX Discord Bot �
 <br>
 
 ## 功能說明
-### **範例圖片均為示意用途，使用時會根據實際情況、程式版本而變化**
-### **圖中之指令前綴「!!」已棄用，現已固定為「/」**
+### 範例圖片均為示意用途，使用時會根據實際情況、程式版本而變化<br>圖中之指令前綴「!!」已棄用，現已固定為「/」
 
 ### **AI聊天功能**
 
@@ -88,7 +87,8 @@ Discord討論群組：<a href="https://discord.gg/wJnNm8Fg9e">DPX Discord Bot �
 <tr><td>/getchattokenemaillink</td><td>取得Character.AI的連線token (步驟1/2)</td></tr>
 <tr><td>/getchattoken</td><td>取得Character.AI的連線token (步驟2/2)</td></tr>
 </table>
-<br><br>
+
+<img src="https://i.imgur.com/EpOv0AT.png"><br><br>
 
 ### **播音樂功能**
 <table>
@@ -121,7 +121,6 @@ Discord討論群組：<a href="https://discord.gg/wJnNm8Fg9e">DPX Discord Bot �
 <tr><td>/historyflist</td><td>回傳已刪除的附件檔案列表</td></tr>
 <tr><td>/historyall + (選項 選項 選項)</td><td>匯出欲查詢的的文字訊息類型總集之Excel檔，只選擇欲查詢的項目即可</td></tr>
 </table>
-<br><br>
 
 <img src="https://i.imgur.com/OjLJWQ1.png"><br>
 <img src="https://i.imgur.com/numxDRL.png"><br>
@@ -165,7 +164,6 @@ Discord討論群組：<a href="https://discord.gg/wJnNm8Fg9e">DPX Discord Bot �
 <tr><td>/majorarcana + (訊息)</td><td>根據訊息內容使用大密儀塔羅牌占卜</td></tr>
 <tr><td>/majorarcana3 + (訊息)</td><td>根據訊息內容使用三張大密儀塔羅牌占卜</td></tr>
 </table>
-<br><br>
 
 <img src="https://i.imgur.com/nD9AF8u.png"><br>
 <img src="https://i.imgur.com/ttdxmLe.png"><br><br>
