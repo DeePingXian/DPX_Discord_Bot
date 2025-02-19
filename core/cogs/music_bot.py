@@ -40,10 +40,10 @@ class music_bot(Cog_Extension):
             self.settings = settings
             self.ytdlOpts = {"format": "bestaudio/best" , "extract_flat": False , "skip_download": True , "nocheckcertificate": True , "ignoreerrors": True , "logtostderr": False , "quiet": True , "no_warnings": True , "default_search": "auto" , "source_address": "0.0.0.0"}
             self.ytdlOpts2 = {"format": "bestaudio/best" , "extract_flat": "in_playlist" , "skip_download": True , "nocheckcertificate": True , "ignoreerrors": True , "logtostderr": False , "quiet": True , "no_warnings": True , "default_search": "auto" , "source_address": "0.0.0.0"}
-            self.biliOpts = {"format": "bestaudio[abr<=160]" , "extract_flat": False , "skip_download": True , "nocheckcertificate": True , "ignoreerrors": True , "logtostderr": False , "quiet": True , "no_warnings": True , "default_search": "auto" , "source_address": "0.0.0.0"}      #比較穩定
+            self.biliOpts = {"format": "bestaudio[abr<=180]" , "extract_flat": False , "skip_download": True , "nocheckcertificate": True , "ignoreerrors": True , "logtostderr": False , "quiet": True , "no_warnings": True , "default_search": "auto" , "source_address": "0.0.0.0"}      #比較穩定
 
         def initTempMusic(self , sum , type):
-            for i in range(1 , sum + 1):
+            for i in range(1 , sum+1):
                 self.tempMusicDict[i] = self.MusicDetail(type)
 
         async def getYTMusicInfo(self , num , url):
@@ -82,7 +82,7 @@ class music_bot(Cog_Extension):
             self.tempMusicDict[num].url = url
             self.tempMusicDict[num].title = (((await asyncio.to_thread(requests.get , url , stream=True , headers={"user-agent": self.userAgent.random})).text.partition("</title>"))[0]).partition("<title>")[2]
             self.tempMusicDict[num].title = self.tempMusicDict[num].title[:self.tempMusicDict[num].title.rfind(" -")]
-            if self.tempMusicDict[num].title[self.tempMusicDict[num].title.rfind(".")+1:] in self.settings["musicBotOpts"]["googleDrive"]["acceptableMusicContainer"]:
+            if self.tempMusicDict[num].title[self.tempMusicDict[num].title.rfind(".")+1:] in self.settings["musicBotOpts"]["acceptableMusicContainer"]:
                 self.tempMusicDict[num].audio_url = (self.tempMusicDict[num].url.lstrip("https://drive.google.com/file/d/")).partition("/")[0]
                 self.tempMusicDict[num].audio_url = (await asyncio.to_thread(requests.get , "https://drive.google.com/uc?export=open&confirm=yTib&id=" + self.tempMusicDict[num].audio_url , stream=True , headers={"user-agent": self.userAgent.random})).url
                 self.tempMusicDict[num].file_size = int((await asyncio.to_thread(requests.get , self.tempMusicDict[num].audio_url , stream=True , headers={"user-agent": self.userAgent.random})).headers["Content-length"])
@@ -101,6 +101,11 @@ class music_bot(Cog_Extension):
             if (self.music.file_name != "") and (not self.music.file_name in os.listdir("assets/musicBot/musicTemp/"+str(self.interaction.guild.id))):
                 await asyncio.to_thread(gdown.download , id=(self.music.url.lstrip("https://drive.google.com/file/d/")).partition("/")[0] , output="assets/musicBot/musicTemp/"+str(self.interaction.guild.id)+"/"+self.music.file_name , quiet=True)
 
+        async def isBiliVideoPlaylist(self , url):      #包含影片選集和列表
+            with YoutubeDL(self.biliOpts) as ytdl:
+                infoDict = await asyncio.to_thread(ytdl.extract_info , url , download=False)
+                return True if infoDict.get("entries" , None) else False
+        
         async def getBiliMusicInfo(self , num , url):
             self.tempMusicDict[num].url = url
             with YoutubeDL(self.biliOpts) as ytdl:
@@ -108,14 +113,28 @@ class music_bot(Cog_Extension):
                 self.tempMusicDict[num].title = infoDict.get("title" , "")
                 dur = int(infoDict.get("duration" , 0))
                 self.tempMusicDict[num].duration = f'{dur//3600}:{"%02d" % ((dur//60)%60)}:{"%02d" % (dur%60)}'
-                self.tempMusicDict[num].thumbnail_url = infoDict.get("thumbnail" , None)
+                self.tempMusicDict[num].thumbnail_url = infoDict.get("thumbnail" , "")
 
-        async def getBiliPlaylistEachUrl(self , url):
+        async def getBiliVideoSelectionInfo(self , url):
+            with YoutubeDL(self.biliOpts) as ytdl:
+                infoDict = await asyncio.to_thread(ytdl.extract_info , url , download=False)
+                sum = self.settings["musicBotOpts"]["maxQueueLen"]+1 - await self.getMusicQueueLen()
+                if len(infoDict["entries"])+1 < sum:
+                    sum = len(infoDict["entries"])+1
+                for i in range(1 , sum):
+                    self.tempMusicDict[i] = self.MusicDetail(3)
+                    self.tempMusicDict[i].url = infoDict["entries"][i-1].get("webpage_url" , "")
+                    self.tempMusicDict[i].title = infoDict["entries"][i-1].get("title" , "")
+                    dur = int(infoDict["entries"][i-1].get("duration" , 0))
+                    self.tempMusicDict[i].duration = f'{dur//3600}:{"%02d" % ((dur//60)%60)}:{"%02d" % (dur%60)}'
+                    self.tempMusicDict[i].thumbnail_url = infoDict["entries"][i-1].get("thumbnail" , "")
+
+        async def getBiliVideolistEachUrl(self , url):
             with YoutubeDL(self.ytdlOpts2) as ytdl:
                 infoDict = await asyncio.to_thread(ytdl.extract_info , url , download=False)
             list = []
             for i in infoDict["entries"]:
-                list.append((i["url"] , True if i.get("id" , None) else None))        #(url , 是否為有效連結)  偵測是否為有效連結的方法是猜的 不確定
+                list.append((i["url"] , True if i.get("id" , None) else False))        #(url , 是否為有效連結)  偵測是否為有效連結的方法是猜的 不確定
             return list
 
         async def renewBiliMusicInfo(self):
@@ -127,11 +146,11 @@ class music_bot(Cog_Extension):
                 self.music.title = infoDict.get("title" , "")
                 dur = int(infoDict.get("duration" , 0))
                 self.music.duration = f'{dur//3600}:{"%02d" % ((dur//60)%60)}:{"%02d" % (dur%60)}'
-                self.music.thumbnail_url = infoDict.get("thumbnail" , None)
+                self.music.thumbnail_url = infoDict.get("thumbnail" , "")
 
         async def putMusic(self):
             def putMusic_(self):
-                for i in range(1 , len(self.tempMusicDict) + 1):
+                for i in range(1 , len(self.tempMusicDict)+1):
                     if self.tempMusicDict.get(i , None):        #單純避免空號
                         self.DB.putMusic(self.interaction.guild.id , self.tempMusicDict.pop(i))
             await asyncio.to_thread(putMusic_ , self)
@@ -187,9 +206,9 @@ class music_bot(Cog_Extension):
                         if self.allMusicPlayingStatus[interaction.guild.id].playing == False:        #找不到此項或=False則進except
                             raise
                     except:
-                        await self.joinChannel(interaction)
                         self.allMusicPlayingStatus[interaction.guild.id] = self.MusicPlayingStatus(interaction , self.settings , self.userAgent , self.bot.get_cog("MySQL"))
                         self.allMusicPlayingStatus[interaction.guild.id].playing = True
+                        oldVoiceChannelId = interaction.user.voice.channel.id       #避免user離開頻道造成錯誤
                         if "playlist?list=" in url:
                             await self.add(interaction , url)
                         elif ("watch?v=" in url) and ("&list=" in url):
@@ -202,8 +221,16 @@ class music_bot(Cog_Extension):
                                 await interaction.followup.send("此YouTube連結無法播放")
                                 return 0
                             else:
-                                await self.allMusicPlayingStatus[interaction.guild.id].putMusic()                        
+                                await self.allMusicPlayingStatus[interaction.guild.id].putMusic()
                         await self.allMusicPlayingStatus[interaction.guild.id].getMusic()
+                        try:        #避免user離開頻道造成錯誤
+                            interaction.user.voice.channel
+                        except:
+                            voiceChannel = interaction.guild.get_channel(oldVoiceChannelId)
+                            await voiceChannel.connect()
+                            await interaction.guild.change_voice_state(channel=voiceChannel, self_mute=False, self_deaf=True)
+                        else:
+                            await self.joinChannel(interaction)
                         self.allMusicPlayingStatus[interaction.guild.id].audioPlayerTask = asyncio.create_task(self.audioPlayerTask(interaction , sendInteractionFollowupForOnce=True))
                     else:
                         await self.joinChannel(interaction)
@@ -213,7 +240,7 @@ class music_bot(Cog_Extension):
                     if self.allMusicPlayingStatus[interaction.guild.id].playing == False:        #找不到此項或=False則進except
                         raise
                 except:
-                    await self.joinChannel()
+                    await self.joinChannel(interaction)
                     self.allMusicPlayingStatus[interaction.guild.id] = self.MusicPlayingStatus(interaction , self.settings , self.userAgent , self.bot.get_cog("MySQL"))
                     self.allMusicPlayingStatus[interaction.guild.id].playing = True
                     self.allMusicPlayingStatus[interaction.guild.id].initTempMusic(1 , 2)
@@ -229,25 +256,35 @@ class music_bot(Cog_Extension):
                     if self.allMusicPlayingStatus[interaction.guild.id].playing == False:        #找不到此項或=False則進except
                         raise
                 except:
-                    if url.startswith("https://www.bilibili.com/video/") or url.startswith("https://b23.tv/") or url.startswith("http://b23.tv/"):
-                        await self.joinChannel(interaction)
-                        self.allMusicPlayingStatus[interaction.guild.id] = self.MusicPlayingStatus(interaction , self.settings , self.userAgent , self.bot.get_cog("MySQL"))
-                        self.allMusicPlayingStatus[interaction.guild.id].playing = True
-                        self.allMusicPlayingStatus[interaction.guild.id].initTempMusic(1 , 3)
-                        try:
-                            await self.allMusicPlayingStatus[interaction.guild.id].getBiliMusicInfo(1 , url)
-                        except:
-                            await interaction.followup.send("此bilibili連結無法播放")
-                            return 0
+                    self.allMusicPlayingStatus[interaction.guild.id] = self.MusicPlayingStatus(interaction , self.settings , self.userAgent , self.bot.get_cog("MySQL"))
+                    self.allMusicPlayingStatus[interaction.guild.id].playing = True
+                    oldVoiceChannelId = interaction.user.voice.channel.id
+                    try:
+                        isBiliVideoPlaylist = await self.allMusicPlayingStatus[interaction.guild.id].isBiliVideoPlaylist(url)
+                    except:
+                        await interaction.followup.send("此bilibili連結無法播放")
+                    else:
+                        if isBiliVideoPlaylist:
+                            await self.add(interaction , url)
                         else:
-                            await self.allMusicPlayingStatus[interaction.guild.id].putMusic()
-                    elif url.startswith("https://space.bilibili.com/"):
-                        await self.joinChannel(interaction)
-                        self.allMusicPlayingStatus[interaction.guild.id] = self.MusicPlayingStatus(interaction , self.settings , self.userAgent , self.bot.get_cog("MySQL"))
-                        self.allMusicPlayingStatus[interaction.guild.id].playing = True
-                        await self.add(interaction , url)
-                    await self.allMusicPlayingStatus[interaction.guild.id].getMusic()
-                    self.allMusicPlayingStatus[interaction.guild.id].audioPlayerTask = asyncio.create_task(self.audioPlayerTask(interaction , sendInteractionFollowupForOnce=True))
+                            self.allMusicPlayingStatus[interaction.guild.id].initTempMusic(1 , 3)
+                            try:
+                                await self.allMusicPlayingStatus[interaction.guild.id].getBiliMusicInfo(1 , url)
+                            except:
+                                await interaction.followup.send("此bilibili連結無法播放")
+                                return 0
+                            else:
+                                await self.allMusicPlayingStatus[interaction.guild.id].putMusic()
+                        await self.allMusicPlayingStatus[interaction.guild.id].getMusic()
+                        try:
+                            interaction.user.voice.channel
+                        except:
+                            voiceChannel = interaction.guild.get_channel(oldVoiceChannelId)
+                            await voiceChannel.connect()
+                            await interaction.guild.change_voice_state(channel=voiceChannel, self_mute=False, self_deaf=True)
+                        else:
+                            await self.joinChannel(interaction)
+                        self.allMusicPlayingStatus[interaction.guild.id].audioPlayerTask = asyncio.create_task(self.audioPlayerTask(interaction , sendInteractionFollowupForOnce=True))
                 else:
                     await self.joinChannel(interaction)
                     await self.add(interaction , url)
@@ -257,34 +294,55 @@ class music_bot(Cog_Extension):
             await interaction.followup.send("請先進入頻道")
 
     @discord.app_commands.command(name="playlocal" , description="播放該本機音樂")
-    @discord.app_commands.describe(path="音樂檔案路徑")
-    async def playlocal(self , interaction:discord.Interaction , path:str):
+    @discord.app_commands.describe(path="音樂檔案路徑" , mode="加入播放模式")
+    @discord.app_commands.choices(mode=[discord.app_commands.Choice(name="單一音訊檔案" , value=0) , discord.app_commands.Choice(name="該資料夾內所有音訊檔案" , value=1)])
+    async def playlocal(self , interaction:discord.Interaction , path:str , mode:discord.app_commands.Choice[int]=0):
         await interaction.response.defer()
+        if mode:
+            mode = mode.value
         if await self.bot.is_owner(interaction.user):
             if interaction.user.voice:        #確認用戶在語音頻道裡
                 try:
                     if self.allMusicPlayingStatus[interaction.guild.id].playing == False:        #找不到此項或=False則進except
                         raise
                 except:
-                    if os.path.isfile(path):
-                        await self.joinChannel(interaction)
-                        self.allMusicPlayingStatus[interaction.guild.id] = self.MusicPlayingStatus(interaction , self.settings , self.userAgent , self.bot.get_cog("MySQL"))
-                        self.allMusicPlayingStatus[interaction.guild.id].playing = True
-                        if await self.allMusicPlayingStatus[interaction.guild.id].getMusicQueueLen() < self.settings["musicBotOpts"]["maxQueueLen"] + 1:
-                            self.allMusicPlayingStatus[interaction.guild.id].initTempMusic(1 , 0)
-                            self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict[1].title = os.path.basename(path)
-                            self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict[1].audio_url = path
-                            self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict[1].thumbnail_url = self.settings["musicBotOpts"]["localMusicIcon"]
-                            await self.allMusicPlayingStatus[interaction.guild.id].putMusic()
+                    if mode == 0:
+                        if os.path.isfile(path):
+                            await self.joinChannel(interaction)
+                            self.allMusicPlayingStatus[interaction.guild.id] = self.MusicPlayingStatus(interaction , self.settings , self.userAgent , self.bot.get_cog("MySQL"))
+                            self.allMusicPlayingStatus[interaction.guild.id].playing = True
+                            if await self.allMusicPlayingStatus[interaction.guild.id].getMusicQueueLen() < self.settings["musicBotOpts"]["maxQueueLen"] + 1:
+                                self.allMusicPlayingStatus[interaction.guild.id].initTempMusic(1 , 0)
+                                self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict[1].title = os.path.basename(path)
+                                self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict[1].audio_url = path
+                                self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict[1].thumbnail_url = self.settings["musicBotOpts"]["localMusicIcon"]
+                                await self.allMusicPlayingStatus[interaction.guild.id].putMusic()
+                            else:
+                                await interaction.followup.send(f'播放隊列數量已達{self.settings["musicBotOpts"]["maxQueueLen"]}上限')
+                            await self.allMusicPlayingStatus[interaction.guild.id].getMusic()
+                            self.allMusicPlayingStatus[interaction.guild.id].audioPlayerTask = asyncio.create_task(self.audioPlayerTask(interaction , sendInteractionFollowupForOnce=True))
                         else:
-                            await interaction.followup.send(f'播放隊列數量已達{self.settings["musicBotOpts"]["maxQueueLen"]}上限')
-                        await self.allMusicPlayingStatus[interaction.guild.id].getMusic()
-                        self.allMusicPlayingStatus[interaction.guild.id].audioPlayerTask = asyncio.create_task(self.audioPlayerTask(interaction , sendInteractionFollowupForOnce=True))
-                    else:
-                        await interaction.followup.send("找不到此檔案")
+                            await interaction.followup.send("找不到此檔案")
+                    elif mode == 1:
+                        if os.path.isdir(path):
+                            musicFiles = []
+                            for files in os.listdir(path):
+                                if files[files.rfind(".")+1:] in self.settings["musicBotOpts"]["acceptableMusicContainer"]:
+                                    musicFiles.append(files)
+                            if musicFiles == []:
+                                await interaction.followup.send("找不到可播放之音訊檔案")
+                            else:                                
+                                await self.joinChannel(interaction)
+                                self.allMusicPlayingStatus[interaction.guild.id] = self.MusicPlayingStatus(interaction , self.settings , self.userAgent , self.bot.get_cog("MySQL"))
+                                self.allMusicPlayingStatus[interaction.guild.id].playing = True
+                                await self.addlocal(interaction , path , mode)
+                                await self.allMusicPlayingStatus[interaction.guild.id].getMusic()
+                                self.allMusicPlayingStatus[interaction.guild.id].audioPlayerTask = asyncio.create_task(self.audioPlayerTask(interaction , sendInteractionFollowupForOnce=True))
+                        else:
+                            await interaction.followup.send("找不到此資料夾")
                 else:
                     await self.joinChannel(interaction)
-                    await self.addlocal(interaction , path)
+                    await self.addlocal(interaction , path , mode)
             else:
                 await interaction.followup.send("請先進入頻道")
         else:
@@ -333,20 +391,20 @@ class music_bot(Cog_Extension):
                     if "playlist?list=" in url:
                         await interaction.followup.send("播放清單處理中 請稍候")
                         videoNames = ""
-                        sum = self.settings["musicBotOpts"]["maxQueueLen"] + 1 - await self.allMusicPlayingStatus[interaction.guild.id].getMusicQueueLen()
+                        max = self.settings["musicBotOpts"]["maxQueueLen"] + 1 - await self.allMusicPlayingStatus[interaction.guild.id].getMusicQueueLen()
                         validVideoSum = 0
                         for i in musicPlaylist:
                             if i[1]:
                                 validVideoSum += 1
-                        if validVideoSum < sum:
-                            sum = validVideoSum
-                        self.allMusicPlayingStatus[interaction.guild.id].initTempMusic(sum , 1)
+                        if validVideoSum < max:
+                            max = validVideoSum
+                        self.allMusicPlayingStatus[interaction.guild.id].initTempMusic(max , 1)
                         errorUrl = []
                         atLimit = False
                         times = 0
                         async with asyncio.TaskGroup() as TG:
                             for i in musicPlaylist:         #i -> (url , 是否為有效連結)
-                                if times >= sum:
+                                if times >= max:
                                     atLimit = True
                                     break
                                 if i[1]:
@@ -395,20 +453,20 @@ class music_bot(Cog_Extension):
                             return 0
                         musicPlaylist = musicPlaylist[videoPosition:]       #移掉沒要播的影片
                         videoNames = ""
-                        sum = self.settings["musicBotOpts"]["maxQueueLen"] + 1 - await self.allMusicPlayingStatus[interaction.guild.id].getMusicQueueLen()
+                        max = self.settings["musicBotOpts"]["maxQueueLen"] + 1 - await self.allMusicPlayingStatus[interaction.guild.id].getMusicQueueLen()
                         validVideoSum = 0
                         for i in musicPlaylist:
                             if i[1]:
                                 validVideoSum += 1
-                        if validVideoSum < sum:
-                            sum = validVideoSum
+                        if validVideoSum < max:
+                            max = validVideoSum
                         errorUrl = []
                         times = 0
                         atLimit = False
-                        self.allMusicPlayingStatus[interaction.guild.id].initTempMusic(sum , 1)
+                        self.allMusicPlayingStatus[interaction.guild.id].initTempMusic(max , 1)
                         async with asyncio.TaskGroup() as TG:
                             for i in musicPlaylist:
-                                if times >= sum:
+                                if times >= max:
                                     atLimit = True
                                     break
                                 if i[1]:
@@ -474,26 +532,56 @@ class music_bot(Cog_Extension):
             else:
                 await interaction.followup.send(f'播放隊列數量已達{self.settings["musicBotOpts"]["maxQueueLen"]}上限')
         elif url.startswith("https://www.bilibili.com/video/") or url.startswith("https://b23.tv/") or url.startswith("http://b23.tv/") or url.startswith("https://space.bilibili.com/"):         #處理 bilibili 影片
-            try:
-                if url.startswith("https://space.bilibili.com/"):
-                    musicPlaylist = await self.allMusicPlayingStatus[interaction.guild.id].getBiliPlaylistEachUrl(url)
-            except:
-                await interaction.followup.send("此bilibili連結無法播放")
-            else:
-                if await self.allMusicPlayingStatus[interaction.guild.id].getMusicQueueLen() < self.settings["musicBotOpts"]["maxQueueLen"] + 1:
-                    if url.startswith("https://www.bilibili.com/video/") or url.startswith("https://b23.tv/") or url.startswith("http://b23.tv/"):
-                        self.allMusicPlayingStatus[interaction.guild.id].initTempMusic(1 , 3)
-                        try:
-                            await self.allMusicPlayingStatus[interaction.guild.id].getBiliMusicInfo(1 , url)
-                        except:
-                            await interaction.followup.send("此bilibili連結無法播放")
+            if await self.allMusicPlayingStatus[interaction.guild.id].getMusicQueueLen() < self.settings["musicBotOpts"]["maxQueueLen"] + 1:
+                if url.startswith("https://www.bilibili.com/video/") or url.startswith("https://b23.tv/") or url.startswith("http://b23.tv/"):
+                    try:
+                        isBiliVideoPlaylist = await self.allMusicPlayingStatus[interaction.guild.id].isBiliVideoPlaylist(url)
+                    except:
+                        await interaction.followup.send("此bilibili連結無法播放")
+                    else:
+                        if isBiliVideoPlaylist:
+                            try:
+                                await self.allMusicPlayingStatus[interaction.guild.id].getBiliVideoSelectionInfo(url)
+                            except Exception as e:
+                                await interaction.followup.send("此bilibili連結無法播放")
+                            else:
+                                await interaction.followup.send("影片選集處理中 請稍候")
+                                videoNames = ""
+                                times = len(self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict)
+                                for i in range(1 , times+1):
+                                    if i > 10:
+                                        videoNames += f'\n...後面還有{times-10}項'
+                                        break
+                                    music = self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict[i]
+                                    if i <= 10:
+                                        videoNames += f'{"%02d" % (i)}. {music.title} {music.duration}\n'
+                                await self.allMusicPlayingStatus[interaction.guild.id].putMusic()
+                                if self.settings["webSettings"]["url"]:
+                                    videoNames += "\n\n更多資訊請至 bot 附屬網頁瀏覽"
+                                if len(self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict) == self.settings["musicBotOpts"]["maxQueueLen"]+1:
+                                    await interaction.followup.send(f'播放隊列數量已達{self.settings["musicBotOpts"]["maxQueueLen"]}上限')
+                                if videoNames != "":
+                                    embed = discord.Embed(title="已加入隊列" , color=0x00ffff)
+                                    embed.add_field(name='\u200b', value=videoNames , inline=False)
+                                    await interaction.followup.send(embed=embed)
                         else:
-                            music = self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict[1]
-                            await self.allMusicPlayingStatus[interaction.guild.id].putMusic()
-                            embed = discord.Embed(title=music.title, description=music.duration , color=0x00ffff)
-                            embed.set_author(name="已加入隊列")
-                            await interaction.followup.send(embed=embed)
-                    elif url.startswith("https://space.bilibili.com/"):
+                            self.allMusicPlayingStatus[interaction.guild.id].initTempMusic(1 , 3)
+                            try:
+                                await self.allMusicPlayingStatus[interaction.guild.id].getBiliMusicInfo(1 , url)
+                            except:
+                                await interaction.followup.send("此bilibili連結無法播放")
+                            else:
+                                music = self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict[1]
+                                await self.allMusicPlayingStatus[interaction.guild.id].putMusic()
+                                embed = discord.Embed(title=music.title, description=music.duration , color=0x00ffff)
+                                embed.set_author(name="已加入隊列")
+                                await interaction.followup.send(embed=embed)
+                elif url.startswith("https://space.bilibili.com/"):
+                    try:
+                        musicPlaylist = await self.allMusicPlayingStatus[interaction.guild.id].getBiliVideolistEachUrl(url)
+                    except:
+                        await interaction.followup.send("此bilibili連結無法播放")
+                    else:
                         await interaction.followup.send("影片列表處理中 請稍候")
                         videoNames = ""
                         sum = self.settings["musicBotOpts"]["maxQueueLen"] + 1 - await self.allMusicPlayingStatus[interaction.guild.id].getMusicQueueLen()
@@ -503,7 +591,7 @@ class music_bot(Cog_Extension):
                                 validVideoSum += 1
                         if validVideoSum < sum:
                             sum = validVideoSum
-                        self.allMusicPlayingStatus[interaction.guild.id].initTempMusic(sum , 1)
+                        self.allMusicPlayingStatus[interaction.guild.id].initTempMusic(sum , 3)
                         errorUrl = []
                         atLimit = False
                         times = 0
@@ -542,14 +630,15 @@ class music_bot(Cog_Extension):
                             embed = discord.Embed(title="已加入隊列" , color=0x00ffff)
                             embed.add_field(name='\u200b', value=videoNames , inline=False)
                             await interaction.followup.send(embed=embed)
-                else:
-                    await interaction.followup.send(f'播放隊列數量已達{self.settings["musicBotOpts"]["maxQueueLen"]}上限')
+            else:
+                await interaction.followup.send(f'播放隊列數量已達{self.settings["musicBotOpts"]["maxQueueLen"]}上限')
         else:
             await interaction.followup.send("此連結無法播放")
 
     @discord.app_commands.command(name="addlocal" , description="增加該本機音樂至播放隊列")
-    @discord.app_commands.describe(path="音樂檔案路徑")
-    async def addlocal_(self , interaction:discord.Interaction , path:str):
+    @discord.app_commands.describe(path="音樂檔案路徑" , mode="加入播放模式")
+    @discord.app_commands.choices(mode=[discord.app_commands.Choice(name="單一音訊檔案" , value=0) , discord.app_commands.Choice(name="該資料夾內所有音訊檔案" , value=1)])
+    async def addlocal_(self , interaction:discord.Interaction , path:str , mode:discord.app_commands.Choice[int]=0):
         await interaction.response.defer()
         if await self.bot.is_owner(interaction.user):
             if interaction.guild.voice_client:        #確認在語音頻道裡
@@ -565,28 +654,68 @@ class music_bot(Cog_Extension):
                     except:
                         await interaction.followup.send("請先播放音樂")
                     else:
-                        await self.addlocal(interaction , path)
+                        if mode:
+                            mode = mode.value
+                        await self.addlocal(interaction , path , mode)
             else:
                 await interaction.followup.send("目前bot未處於任一語音頻道內")
         else:
             await interaction.followup.send("此功能僅限開此bot的管理員使用")
 
-    async def addlocal(self , interaction:discord.Interaction , path):
-        if os.path.isfile(path):
-            if await self.allMusicPlayingStatus[interaction.guild.id].getMusicQueueLen() < self.settings["musicBotOpts"]["maxQueueLen"] + 1:
-                self.allMusicPlayingStatus[interaction.guild.id].initTempMusic(1 , 0)
-                self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict[1].title = os.path.basename(path)
-                self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict[1].audio_url = path
-                self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict[1].thumbnail_url = self.settings["musicBotOpts"]["localMusicIcon"]
-                music = self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict[1]
-                await self.allMusicPlayingStatus[interaction.guild.id].putMusic()
-                embed = discord.Embed(title="本機音樂", description=music.title , color=0x00ffff)
-                embed.set_author(name="已加入隊列")
-                await interaction.followup.send(embed=embed)
+    async def addlocal(self , interaction:discord.Interaction , path , mode):
+        if mode == 0:
+            if os.path.isfile(path):
+                if await self.allMusicPlayingStatus[interaction.guild.id].getMusicQueueLen() < self.settings["musicBotOpts"]["maxQueueLen"] + 1:
+                    self.allMusicPlayingStatus[interaction.guild.id].initTempMusic(1 , 0)
+                    self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict[1].title = os.path.basename(path)
+                    self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict[1].audio_url = path
+                    self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict[1].thumbnail_url = self.settings["musicBotOpts"]["localMusicIcon"]
+                    music = self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict[1]
+                    await self.allMusicPlayingStatus[interaction.guild.id].putMusic()
+                    embed = discord.Embed(title="本機音樂", description=music.title , color=0x00ffff)
+                    embed.set_author(name="已加入隊列")
+                    await interaction.followup.send(embed=embed)
+                else:
+                    await interaction.followup.send(f'播放隊列數量已達{self.settings["musicBotOpts"]["maxQueueLen"]}上限')
             else:
-                await interaction.followup.send(f'播放隊列數量已達{self.settings["musicBotOpts"]["maxQueueLen"]}上限')
-        else:
-            await interaction.followup.send("找不到此檔案")
+                await interaction.followup.send("找不到此檔案")
+        elif mode == 1:
+            if os.path.isdir(path):
+                musicFiles = []
+                for files in os.listdir(path):
+                    if files[files.rfind(".")+1:] in self.settings["musicBotOpts"]["acceptableMusicContainer"]:
+                        musicFiles.append(files)
+                max = self.settings["musicBotOpts"]["maxQueueLen"] + 1 - await self.allMusicPlayingStatus[interaction.guild.id].getMusicQueueLen()
+                atLimit = False
+                if len(musicFiles) >= max:
+                    overNum = len(musicFiles) - max
+                    atLimit = True
+                    for i in range(overNum):
+                        musicFiles.pop()
+                if musicFiles == []:
+                    await interaction.followup.send("找不到可播放之音訊檔案")
+                else:
+                    self.allMusicPlayingStatus[interaction.guild.id].initTempMusic(len(musicFiles) , 0)
+                    fileNames = ""
+                    for i in range(1 , len(musicFiles)+1):
+                        self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict[i].title = musicFiles[i-1]
+                        self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict[i].audio_url = path+"/"+musicFiles[i-1]
+                        self.allMusicPlayingStatus[interaction.guild.id].tempMusicDict[i].thumbnail_url = self.settings["musicBotOpts"]["localMusicIcon"]
+                    for i in range(1 , len(musicFiles)+1):
+                        if i > 10:
+                            fileNames += f'\n...後面還有{len(musicFiles)-10}項'
+                            break
+                        elif i <= 10:
+                            fileNames += f"{'%02d' % (i)}. {musicFiles[i-1]}\n"
+                    if atLimit:
+                        await interaction.followup.send(f'播放隊列數量已達{self.settings["musicBotOpts"]["maxQueueLen"]}上限')
+                    if fileNames != "":
+                        embed = discord.Embed(title="已加入隊列" , color=0x00ffff)
+                        embed.add_field(name='\u200b', value=fileNames , inline=False)
+                        await interaction.followup.send(embed=embed)
+                    await self.allMusicPlayingStatus[interaction.guild.id].putMusic()
+            else:
+                await interaction.followup.send("找不到此資料夾")
 
     @discord.app_commands.command(name="pause" , description="暫停播放音樂")
     async def pause(self , interaction:discord.Interaction):
@@ -863,7 +992,7 @@ class music_bot(Cog_Extension):
         if interaction.user.voice:
             if interaction.guild.voice_client:
                 if interaction.guild.voice_client.channel != interaction.user.voice.channel:
-                    await interaction.guild.change_voice_state(channel=interaction.user.author.voice.channel, self_mute=False, self_deaf=True)
+                    await interaction.guild.change_voice_state(channel=interaction.user.voice.channel, self_mute=False, self_deaf=True)
             else:
                 await interaction.user.voice.channel.connect()
                 await interaction.guild.change_voice_state(channel=interaction.user.voice.channel, self_mute=False, self_deaf=True)

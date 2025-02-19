@@ -8,4 +8,4 @@ class Cog_Extension(commands.Cog):
         self.DB = bot.get_cog('MySQL')
         with open('settings.json' , 'r' , encoding = 'utf-8') as f:
             self.settings = json.load(f)
-        self.userAgent = UserAgent(browsers=['edge', 'chrome'])
+        self.userAgent = UserAgent(browsers=['Edge', 'Chrome'])

@@ -31,14 +31,14 @@
         "maxQueueLen": 100,
         "bitrate": 96,
         "localMusicIcon":"https://upload.wikimedia.org/wikipedia/en/f/f7/RickRoll.png",
+        "acceptableMusicContainer": ["aac" , "flac" , "m4a" , "mp3" , "mp4" , "ogg" , "opus" , "wav" , "weba"],
         "googleDrive":{
             "fileSizeLimitInMB": 100,
-            "acceptableMusicContainer": ["aac" , "flac" , "m4a" , "mp3" , "mp4" , "ogg" , "opus" , "wav" , "weba"],
             "icon": "https://upload.wikimedia.org/wikipedia/en/f/f7/RickRoll.png"
         }
     },
 
-    "newestnhBookNum": 520000,
+    "newestnhBookNum": 556000,
 
     "characteraiSettings": {
         "characterID": "",

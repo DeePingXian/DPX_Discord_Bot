@@ -55,9 +55,9 @@ class help_message(Cog_Extension):
                 embed.add_field(name='\u200b', value='\u200b' , inline=False)
                 embed.add_field(name="支援類型", value="來源\n\n\n\n播放隊列上限\nGoogle雲端單檔大小上限\nGoogle雲端音訊檔案容器" , inline=True)
                 acceptableMusicContainer = ''
-                for i in self.settings["musicBotOpts"]["googleDrive"]["acceptableMusicContainer"]:
+                for i in self.settings["musicBotOpts"]["acceptableMusicContainer"]:
                     acceptableMusicContainer += i
-                    if i != self.settings["musicBotOpts"]["googleDrive"]["acceptableMusicContainer"][-1]:
+                    if i != self.settings["musicBotOpts"]["acceptableMusicContainer"][-1]:
                         acceptableMusicContainer += ' '
                 embed.add_field(name='\u200b', value=f"YouTube影片、直播、播放清單、合輯\nGoogle雲端檔案\nbilibili影片、影片列表\n電腦本地檔案\n{self.settings['musicBotOpts']['maxQueueLen']}\n{self.settings['musicBotOpts']['googleDrive']['fileSizeLimitInMB']}MB\n{acceptableMusicContainer}" , inline=True)
                 embed.add_field(name='\u200b', value=f"如果播音樂發生問題，請使用/stop清除資料，並再重新操作一次，實在不行請重啟bot" , inline=False)

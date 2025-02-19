@@ -93,9 +93,9 @@ Discord討論群組：<a href="https://discord.gg/wJnNm8Fg9e">DPX Discord Bot �
 ### **播音樂功能**
 <table>
 <tr><td>/play + (網址)</td><td>播放該音樂，若為播放清單將從該項的位置依序加入</td></tr>
-<tr><td>/playlocal + (音樂檔案路徑)</td><td>播放該本機音樂(僅限開bot的管理員使用)</td></tr>
+<tr><td>/playlocal + (音樂檔案路徑)</td><td>播放本機音樂檔案(僅限開bot的管理員使用)</td></tr>
 <tr><td>/add + (網址)</td><td>增加該音樂至播放隊列，若為播放清單將從該項的位置依序加入</td></tr>
-<tr><td>/addlocal + (音樂檔案路徑)</td><td>增加該本機音樂至播放隊列(僅限開bot的管理員使用)</td></tr>
+<tr><td>/addlocal + (音樂檔案路徑)</td><td>增加本機音樂檔案至播放隊列(僅限開bot的管理員使用)</td></tr>
 <tr><td>/pause</td><td>暫停播放音樂</td></tr>
 <tr><td>/resume</td><td>恢復播放音樂</td></tr>
 <tr><td>/skip</td><td>跳過目前曲目</td></tr>
@@ -175,12 +175,12 @@ Discord討論群組：<a href="https://discord.gg/wJnNm8Fg9e">DPX Discord Bot �
 <tr><td>項目</td><td>版本</td><td>授權</td></tr>
 <tr><td>discord.py[voice]</td><td>2.4.0</td><td>MIT License</td></tr>
 <tr><td>AioCAI</td><td>1.0.0</td><td>MIT License</td></tr>
-<tr><td>fake-useragent</td><td>1.5.1</td><td>Apache License Version 2.0</td></tr>
+<tr><td>fake-useragent</td><td>2.0.3</td><td>Apache License Version 2.0</td></tr>
 <tr><td>gdown</td><td>5.2.0</td><td>MIT License</td></tr>
 <tr><td>openpyxl</td><td>3.1.2</td><td>MIT License</td></tr>
 <tr><td>PyMySQL</td><td>1.1.1</td><td>MIT License</td></tr>
 <tr><td>Requests</td><td>2.31.0</td><td>Apache License Version 2.0</td></tr>
-<tr><td>yt-dlp</td><td>2024.7.2</td><td>The Unlicense</td></tr>
+<tr><td>yt-dlp</td><td>2025.1.26</td><td>The Unlicense</td></tr>
 </table>
 
 ***

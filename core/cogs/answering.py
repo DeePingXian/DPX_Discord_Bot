@@ -50,9 +50,9 @@ class answering(Cog_Extension):
             sheet.append(("訊息內容" , "傳送內容" , "檔案名稱" , "訊息內容是否忽略大小寫" , "訊息是否有包含就觸發 不用完全一樣"))
             book.save(f"assets/answeringMachine/{interaction.guild.id}/temp/answeringMsg.xlsx")
             await interaction.followup.send(file=discord.File(f"assets/answeringMachine/{interaction.guild_id}/temp/answeringMsg.xlsx"))
-            shutil.rmtree(f"assets/welcomeMsg/{interaction.guild.id}/temp" , ignore_errors=True)
+            shutil.rmtree(f"assets/answeringMachine/{interaction.guild.id}/temp" , ignore_errors=True)
         else:
-            await interaction.followup.send(file=discord.File(f"assets/welcomeMsg/{interaction.guild.id}/welcomeMsg.xlsx"))
+            await interaction.followup.send(file=discord.File(f"assets/answeringMachine/{interaction.guild.id}/answeringMsg.xlsx"))
 
     #修改答錄機訊息
 
