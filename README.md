@@ -83,7 +83,8 @@ Discord討論群組：<a href="https://discord.gg/wJnNm8Fg9e">DPX Discord Bot �
 
 <table>
 <tr><td>直接tag此bot + (訊息內容)</td><td>與本bot聊天</td></tr>
-<tr><td>/resetchat</td><td>重設聊天狀態）</td></tr>
+<tr><td>/resetchat</td><td>重設聊天狀態</td></tr>
+<tr><td>/dellastmsg</td><td>刪除上一則聊天訊息</td></tr>
 <tr><td>/getchattokenemaillink</td><td>取得Character.AI的連線token (步驟1/2)</td></tr>
 <tr><td>/getchattoken</td><td>取得Character.AI的連線token (步驟2/2)</td></tr>
 </table>
@@ -148,7 +149,6 @@ Discord討論群組：<a href="https://discord.gg/wJnNm8Fg9e">DPX Discord Bot �
 ### **產生連結功能**
 <table>
 <tr><td>/nh + (車號)</td><td>傳送該nh本子連結</td></tr>
-<tr><td>/nhrand</td><td>隨機傳送nh本子連結</td></tr>
 <tr><td>/jm + (車號)</td><td>傳送該JM本子連結</td></tr>
 <tr><td>/wn + (車號)</td><td>傳送該wnacg本子連結</td></tr>
 <tr><td>/pix + (作品號)</td><td>傳送該pixiv作品連結</td></tr>
@@ -170,21 +170,22 @@ Discord討論群組：<a href="https://discord.gg/wJnNm8Fg9e">DPX Discord Bot �
 <img src="https://i.imgur.com/gyIRSVa.png"><br><br>
 
 ***
-## 直接使用了以下非標準 Python package
+## 使用了以下非標準 Python package
 <table>
 <tr><td>項目</td><td>版本</td><td>授權</td></tr>
 <tr><td>discord.py[voice]</td><td>2.4.0</td><td>MIT License</td></tr>
-<tr><td>AioCAI</td><td>1.0.0</td><td>MIT License</td></tr>
-<tr><td>fake-useragent</td><td>2.0.3</td><td>Apache License Version 2.0</td></tr>
+<tr><td>AioCAI</td><td>1.0.1</td><td>MIT License</td></tr>
+<tr><td>fake-useragent</td><td>2.2.0</td><td>Apache License Version 2.0</td></tr>
 <tr><td>gdown</td><td>5.2.0</td><td>MIT License</td></tr>
 <tr><td>openpyxl</td><td>3.1.2</td><td>MIT License</td></tr>
+<tr><td>PyCharacterAI</td><td>2.2.47</td><td>MIT License</td></tr>
 <tr><td>PyMySQL</td><td>1.1.1</td><td>MIT License</td></tr>
 <tr><td>Requests</td><td>2.31.0</td><td>Apache License Version 2.0</td></tr>
-<tr><td>yt-dlp</td><td>2025.1.26</td><td>The Unlicense</td></tr>
+<tr><td>yt-dlp</td><td>2025.6.25</td><td>The Unlicense</td></tr>
 </table>
 
 ***
 ## 已知問題
-- 更新版本時，Discord裡的斜線指令無法自動更新，須重邀一遍bot加入群組才行(不須踢出bot)，雖然網路上有許多自動、手動、分群組更新的方法，但我測試全部無效，所以之後更新版本也需一併重邀bot
+- 更新版本時，Discord裡的斜線指令無法自動更新，須重邀一遍bot加入群組才行(不須踢出bot)，雖然網路上有許多自動、手動、分群組更新的方法，但這裡測試後發現全部無法使用，所以更新程式版本也需一併重邀bot
 - 無法播放「<a href="https://www.youtube.com/watch?v=rPJz3syNbtE">https://www.youtube.com/watch?v=rPJz3syNbtE</a>」，且會造成程式錯誤
-- 本專案完全由本人抽空維護，更新較慢，敬請見諒！
+- 本專案完全由本人於閒暇時間維護，更新較慢，敬請見諒！

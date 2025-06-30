@@ -38,8 +38,6 @@
         }
     },
 
-    "newestnhBookNum": 556000,
-
     "characteraiSettings": {
         "characterID": "",
         "clientToken": ""

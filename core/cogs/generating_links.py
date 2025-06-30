@@ -1,5 +1,5 @@
 from core.classes import Cog_Extension
-import discord , random
+import discord
 
 class generating_links(Cog_Extension):
     
@@ -7,10 +7,6 @@ class generating_links(Cog_Extension):
     @discord.app_commands.describe(num="車號")
     async def nh(self , interaction:discord.Interaction , num:int):
         await interaction.response.send_message(f'https://nhentai.net/g/{num}')
-
-    @discord.app_commands.command(name="nhrand" , description="隨機傳送nh本子連結")
-    async def nhrand(self , interaction:discord.Interaction):
-        await interaction.response.send_message(f'https://nhentai.net/g/{random.randrange(self.settings["newestnhBookNum"])+1}')
 
     @discord.app_commands.command(name="jm" , description="傳送該JM本子連結")
     @discord.app_commands.describe(num="車號")
