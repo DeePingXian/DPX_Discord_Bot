@@ -1,27 +1,27 @@
 import discord
-import pymysql , openpyxl , gdown , optparse , characterai        #打包用
+import pymysql, openpyxl, gdown, optparse, characterai, PyCharacterAI        #打包用
 from fake_useragent import UserAgent        #打包用
-from discord.ext import commands , tasks        #打包用
+from discord.ext import commands, tasks        #打包用
 from discord.ext.commands import Bot
-import asyncio , os , shutil , requests , zipfile , json
+import asyncio, os, shutil, requests, zipfile, json
 
 async def main():
 
     if not os.path.isfile("assets/musicBot/ffmpeg.exe"):
-        print("初次啟動，下載必要檔案中...")
-        os.makedirs("assets/musicBot/temp" , exist_ok=True)
-        with open("assets/musicBot/temp/ffmpeg-6.0-essentials_build.zip" , "wb") as f:
+        print("初次啟動，下載此必要檔案中...\nhttps://github.com/GyanD/codexffmpeg/releases/download/6.0/ffmpeg-6.0-essentials_build.zip")
+        os.makedirs("assets/musicBot/temp", exist_ok=True)
+        with open("assets/musicBot/temp/ffmpeg-6.0-essentials_build.zip", "wb") as f:
             f.write(requests.get("https://github.com/GyanD/codexffmpeg/releases/download/6.0/ffmpeg-6.0-essentials_build.zip").content)
-        with zipfile.ZipFile("assets/musicBot/temp/ffmpeg-6.0-essentials_build.zip" , "r") as f:
+        with zipfile.ZipFile("assets/musicBot/temp/ffmpeg-6.0-essentials_build.zip", "r") as f:
             f.extractall("assets/musicBot/temp")
-        shutil.move("assets/musicBot/temp/ffmpeg-6.0-essentials_build/bin/ffmpeg.exe" , "assets/musicBot")
-    shutil.rmtree("assets/musicBot/temp" , ignore_errors=True)
+        shutil.move("assets/musicBot/temp/ffmpeg-6.0-essentials_build/bin/ffmpeg.exe", "assets/musicBot")
+    shutil.rmtree("assets/musicBot/temp", ignore_errors=True)
 
-    with open("settings.json" , "r" , encoding = "utf8") as jsonFile:
+    with open("settings.json", "r", encoding = "utf8") as jsonFile:
         settings = json.load(jsonFile)
 
     intents = discord.Intents.all()
-    bot = Bot(command_prefix=settings["commandPrefix"] , intents=intents)
+    bot = Bot(command_prefix=settings["commandPrefix"], intents=intents)
     bot.remove_command("help")
 
     #載入cogs
@@ -56,7 +56,7 @@ async def main():
     #錯誤訊息
 
     @bot.event
-    async def on_command_error(ctx , error):
+    async def on_command_error(ctx, error):
         try:
             await ctx.reply(f"發生錯誤\n{error}")
         except:

@@ -45,8 +45,8 @@ class help_message(Cog_Extension):
             if select.values[0] == "AI聊天功能列表":
                 embed = discord.Embed(title="AI聊天功能列表", description='\u200b' , color=0xc0c0c0)
                 embed.set_author(name=self.bot.user.name , icon_url=self.bot.user.avatar.url)
-                embed.add_field(name="指令", value=f"直接tag此bot + (訊息內容)\n/resetchat\n/getchattokenemaillink\n/getchattoken" , inline=True)
-                embed.add_field(name="功能", value="與本bot聊天\n重設聊天狀態\n取得Character.AI的連線token (步驟1/2)\n取得Character.AI的連線token (步驟2/2)" , inline=True)
+                embed.add_field(name="指令", value=f"直接tag此bot + (訊息內容)\n/dellastmsg\n/resetchat\n/getchattokenemaillink\n/getchattoken" , inline=True)
+                embed.add_field(name="功能", value="與本bot聊天\n刪除上一則聊天訊息\n重設聊天狀態\n取得Character.AI的連線token (步驟1/2)\n取得Character.AI的連線token (步驟2/2)" , inline=True)
             elif select.values[0] == "播音樂功能列表":
                 embed = discord.Embed(title="播音樂功能列表", description='\u200b' , color=0xc0c0c0)
                 embed.set_author(name=self.bot.user.name , icon_url=self.bot.user.avatar.url)
@@ -80,8 +80,8 @@ class help_message(Cog_Extension):
             elif select.values[0] == "產生連結功能列表":
                 embed = discord.Embed(title="產生連結功能列表", description='\u200b' , color=0xc0c0c0)
                 embed.set_author(name=self.bot.user.name , icon_url=self.bot.user.avatar.url)
-                embed.add_field(name="指令", value=f"/nh + (車號)\n/nhrand\n/jm + (車號)\n/wn + (車號)\n/pix + (作品號)\n/pixu + (作者號)\n/twiu + (用戶ID)" , inline=True)
-                embed.add_field(name="功能", value="傳送該nh本子連結\n隨機傳送nh本子連結\n傳送該JM本子連結\n傳送該wnacg本子連結\n傳送該pixiv作品連結\n傳送該pixiv作者連結\n傳送該X(twitter)用戶連結" , inline=True)
+                embed.add_field(name="指令", value=f"/nh + (車號)\n/jm + (車號)\n/wn + (車號)\n/pix + (作品號)\n/pixu + (作者號)\n/twiu + (用戶ID)" , inline=True)
+                embed.add_field(name="功能", value="傳送該nh本子連結\n傳送該JM本子連結\n傳送該wnacg本子連結\n傳送該pixiv作品連結\n傳送該pixiv作者連結\n傳送該X(twitter)用戶連結" , inline=True)
             elif select.values[0] == "本 bot 附屬網頁相關":
                 embed = discord.Embed(title="本 bot 附屬網頁相關", description='\u200b' , color=0xc0c0c0)
                 embed.set_author(name=self.bot.user.name , icon_url=self.bot.user.avatar.url)
