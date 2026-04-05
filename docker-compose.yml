@@ -1,0 +1,88 @@
+# Docker Compose configuration for DPX Discord Bot Stack
+version: '3.8'
+
+services:
+  # --- Service 1: Discord Bot ---
+  bot:
+    build: 
+      context: .
+      network: host # Use host network during build to solve DNS issues
+    container_name: dpx-discord-bot
+    restart: always
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - LOG_CHANNEL_ID=${LOG_CHANNEL_ID}
+      - DB_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - S3_ENDPOINT=minio:9000
+      - S3_ACCESS_KEY=${MINIO_ROOT_USER}
+      - S3_SECRET_KEY=${MINIO_ROOT_PASSWORD}
+      - S3_BUCKET_NAME=discord-bot-storage
+    volumes:
+      - tunnel_data:/app/tunnel
+    depends_on:
+      - db
+      - redis
+      - minio
+      - tunnel
+
+  # --- Service 2: PostgreSQL (Relational Database) ---
+  db:
+    image: postgres:16-alpine
+    container_name: dpx-db-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # --- Service 3: Redis (In-memory Cache) ---
+  redis:
+    image: redis:7-alpine
+    container_name: dpx-redis-cache
+    restart: always
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+
+  # --- Service 4: MinIO (S3 Object Storage) ---
+  minio:
+    image: minio/minio:latest
+    container_name: dpx-s3-minio
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9001:9001"
+
+  # --- Service 5: Cloudflare Quick Tunnel ---
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: dpx-tunnel
+    user: root
+    restart: always
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    command: tunnel --url http://minio:9000 --logfile /app/tunnel/cloudflared.log
+    volumes:
+      - tunnel_data:/app/tunnel
+
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  tunnel_data:
