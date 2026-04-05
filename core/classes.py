@@ -1,11 +1,19 @@
 from discord.ext import commands
 from fake_useragent import UserAgent
-import json
 
 class Cog_Extension(commands.Cog):
-    def __init__(self , bot):
+    """
+    Base class for all bot cogs.
+    Provides shared access to core services (DB, Redis, S3).
+    """
+    def __init__(self, bot):
         self.bot = bot
-        self.DB = bot.get_cog('MySQL')
-        with open('settings.json' , 'r' , encoding = 'utf-8') as f:
-            self.settings = json.load(f)
+        
+        # Inject core services from bot instance
+        self.settings = getattr(bot, 'settings', {})
+        self.db = getattr(bot, 'db', None)
+        self.redis = getattr(bot, 'redis', None)
+        self.s3 = getattr(bot, 's3', None)
+        
+        # Shared UserAgent for web requests
         self.userAgent = UserAgent(browsers=['Edge', 'Chrome'])

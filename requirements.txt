@@ -1,0 +1,9 @@
+discord.py[voice]
+psycopg2-binary
+redis
+aioboto3
+gdown
+fake-useragent
+yt-dlp
+requests
+python-dotenv

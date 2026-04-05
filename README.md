@@ -1,190 +1,208 @@
-# DPX_Discord_Bot
+# DPX Discord Bot
 
-DPX Discord Bot 開源版本
+[![Docker](https://img.shields.io/badge/Docker-Supported-blue.svg?logo=docker)](https://www.docker.com/)
+[![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-blue.svg?logo=postgresql)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Cache-Redis-red.svg?logo=redis)](https://redis.io/)
+[![Cloudflare](https://img.shields.io/badge/Tunnel-Cloudflare-orange.svg?logo=cloudflare)](https://www.cloudflare.com/)
+
+本專案透過容器化架構整合了 PostgreSQL、Redis 與 MinIO，旨在為您的 Discord 伺服器提供一個功能強大、穩定且易於部署的自動化助手。   
+即使您是 Windows 使用者，也能透過 Docker 輕鬆部署，不需煩惱 Linux / Python 環境與資料庫安裝。
+
 ---
-刪減自閉源的自用版本，需要連接MySQL/MariaDB資料庫才能使用，以儲存動態資料，下方有操作教學  
-如果有安裝XAMPP或其他web server，也可順便裝上本bot附屬網站程式配合使用：<a href="https://github.com/DeePingXian/DPX_Discord_Bot_Website">DPX Discord Bot Website</a>  
-若要使用Python環境運行原程式碼，最低需求是3.11版  
-這程式僅能使用單執行緒執行，將吃重CPU的單核效能  
-程式運行參數於settings.json設定  
-大部分有年齡限制的YouTube影片都可以直接播，不需設置cookie，但不保證全部都能播  
-***
-## 特色重點
-- 提供打包編譯版本，擁有比原生CPython更高的執行效率
-- 連線至<a href="https://character.ai/">Character.AI</a>的AI聊天功能
-- 可播 YouTube、Google雲端、bilibili、電腦本地檔案 來源的音樂
-- 不偵測語音頻道裡是否有人，可常駐播放音樂
-- 自由設定的聊天應答機、新人加入歡迎訊息
-- 訊息歷史紀錄功能，可傳回被刪除、編輯的訊息(資料存於本地，無資安問題)
-- 可即時查詢指令
-- 方便閱讀大量資訊的附屬網頁
-- 其他如下更多功能...
-***
-## 前置設定說明
-簡易教學影片：<a href="https://www.youtube.com/watch?v=3XOrqhkXuA0">https://www.youtube.com/watch?v=3XOrqhkXuA0</a>，實際請以這GitHub頁面為主  
-請至：<a href="https://discord.com/developers/applications">https://discord.com/developers/applications</a> 註冊一bot，並將該bot的token設定到settings.json中，讓此程式套上使用  
-Discord討論群組：<a href="https://discord.gg/wJnNm8Fg9e">DPX Discord Bot 論道堂</a>，歡迎加入交流！
-<br><br>
 
-### **settings.json**
-各項設定的範例都寫在檔案裡，標示☆為必須更改的項目，△為建議更改的項目，其餘隨意
-<br><br>
-<table>
-<tr><td>項目</td><td>說明</td></tr>
-<tr><td>☆TOKEN</td><td>設定bot token</td></tr>
-<tr><td>☆logChannelID</td><td>設定傳送bot狀態的Discord頻道ID，請從您的Discord群組裡挑選一頻道按右鍵，複製頻道ID並貼上來，啟動時每隔一小時bot會在該頻道發送狀態訊息，配合訊息歷史紀錄功能可當log用</td></tr>
-<tr><td>☆MySQLSettings</td><td>設定MySQL/MariaDB連線參數</td></tr>
-<tr><td>maxMessagesSaved</td><td>設定每個頻道儲存在資料庫的訊息歷史紀錄數量上限</td></tr>
-<tr><td>webSettings/url</td><td>設定本bot附屬網頁網址，若保留為空則不啟用相關功能</td></tr>
-<tr><td>ffmpegopts</td><td>設定FFMPEG參數</td></tr>
-<tr><th colspan="2">musicBotOpts</th></tr>
-<tr><td>maxQueueLen</td><td>設定音樂隊列項目上限，請根據實際環境效能設置</td></tr>
-<tr><td>bitrate</td><td>設定播音樂時之位元率（注意編碼是Opus，以及實際效果與該DC語音頻道設定有關）</td></tr>
-<tr><td>△localMusicIcon</td><td>設定本機音樂圖標的網址，播本機音樂功能會用到</td></tr>
-<tr><th colspan="2">googleDrive</th></tr>
-<tr><td>fileSizeLimitInMB</td><td>設定播Google雲端音樂的檔案大小上限(單位為MB)，避免下載太大的檔案造成網路塞車</td></tr>
-<tr><td>acceptableMusicContainer</td><td>設定播Google雲端音樂可接受的檔案副檔名，避免被用來播一些不支援的項目造成錯誤</td></tr>
-<tr><td>△icon</td><td>設定Google雲端圖標的網址，播Google雲端音樂功能會用到</td></tr>
-<tr><th colspan="2">characteraiSettings</th></tr>
-<tr><td>characterID</td><td>設定聊天功能bot所連結的Character.AI角色ID，下方有設定說明，若保留為空則不啟用相關功能</td></tr>
-<tr><td>clientToken</td><td>設定Character.AI的使用者token，下方有設定說明，若保留為空則不啟用相關功能</td></tr>
-<tr><td>commandPrefix</td><td>已棄用，目前僅為discord套件運行的必要參數</td></tr>
-</table>
-<br>
+## ✨ 核心功能特色
 
-### **連接資料庫懶人包**
-上方影片推薦的XAMPP整合包由於過於老舊，且遲遲未修復PHP的<a href="https://nvd.nist.gov/vuln/detail/CVE-2024-4577">CVE-2024-4577</a>漏洞，已不推薦使用  
-這裡介紹Windows下連接本地MariaDB的懶人包：  
-1.下載並安裝<a href="https://mariadb.org/download/?t=mariadb&p=mariadb&r=11.4.2&os=windows&cpu=x86_64&pkg=msi&mirror=ossplanet">MariaDB</a>，<a href="https://officeguide.cc/windows-install-mariadb-database-server-tutorial/">可以參考這篇文章</a>，root帳號的密碼自己記下就行，之後MariaDB會隨著電腦開機自動啟動，不用再手動開啟  
-2.開啟順帶安裝的HeidiSQL，點左下角的新增，在右邊輸入root的密碼並點下面的開啟  
-3.成功開啟後在左上角的工具打開使用者管理，加入一名使用者，用戶名和密碼隨意設置並記下，並在下方的允許存取勾選全域權限，接著按儲存就可以關閉了，之後不用再開  
-4.將剛才的用戶名和密碼設定至settings.json的MySQLSettings項目裡，然後就可以啟動bot了  
-<br>
+### 🎵 萬能音樂播放器
+- **多平台支援**：支援 YouTube、Bilibili 與 Google Drive 連結。
+- **高效隊列**：採用 Redis 記憶體資料庫處理播放隊列。
 
-### **從舊版升級教學**
-在這個頁面右邊的Releases下載新版程式，解壓縮後將舊版程式裡的assets資料夾移至新版，然後設定新版的settings.json即可  
-如果有不相容的地方會在每次更新時說明  
-<br>
+### 📜 訊息日誌系統
+- **文字紀錄**：精確記錄每一則訊息的編輯前後內容與刪除狀態。
+- **附件保存**：整合 MinIO (S3) 儲存，被刪除的圖片或檔案會自動同步至本地，並支援在 Discord 內即時預覽與下載。
+- **全域大表**：使用 PostgreSQL 高效檢索，即使是數萬則歷史紀錄也能高速翻閱（尚未實作介面）。
+- **自動空間管理**：內建30天自動清理機制，過期的附件會自動從雲端移除，無需手動維護硬碟空間。
 
-## 功能說明
-### 範例圖片均為示意用途，使用時會根據實際情況、程式版本而變化<br>圖中之指令前綴「!!」已棄用，現已固定為「/」
+### 🤖 智慧型新人歡迎
+- **隨機多變**：可設定多組標題、訊息、圖片與顏色，Bot 會隨機組合成獨一無二的歡迎卡片。
+- **標記支援**：支援 `<user>` 自動標記新成員，讓歡迎訊息更親切且具備高度自定義空間。
 
-### **AI聊天功能**
+### 🛠️ 自動化維護與穿隧
+- **免設定外網**：內建 Cloudflare Quick Tunnel，附件下載連結自動生成，無需固定 IP 或買網域。
+- **一鍵部署**：不論是 Linux 伺服器還是 Windows 電腦，透過 Docker Compose 即可快速完成搭建。
+- **多平台支援**：提供支援 `AMD64` 與 `ARM64` (如 Apple Silicon, 樹莓派) 的映像檔。
 
-這是讓此bot串接至Character.AI，使其能夠作為AI虛擬角色聊天，目前只能讀取文字訊息，且所有訊息均會視為由同一人發出  
-前置設定方法：  
-1.請至<a href="https://character.ai/">Character.AI</a>申請帳號，並記下該帳號的E-mail，可以順便調整一下使用者名稱方便AI稱呼  
-2.選擇一位要讓bot串接的虛擬角色，並至與該角色聊天的頁面，記下位於網址處的ID（如下圖）  
-<img src="https://i.imgur.com/CksxaQl.png"><br>
-3.使用此bot的/getchattokenemaillink指令輸入Character.AI的帳號，並至E-mail收取信件  
-4.使用此bot的/getchattoken指令輸入E-mail及信件裡的登入連結，即可取得token  
-5.將角色ID和token設定至settings.json的characteraiSettings項目裡，重啟bot後就設定完成了
+---
 
-<table>
-<tr><td>直接tag此bot + (訊息內容)</td><td>與本bot聊天</td></tr>
-<tr><td>/resetchat</td><td>重設聊天狀態</td></tr>
-<tr><td>/dellastmsg</td><td>刪除上一則聊天訊息</td></tr>
-<tr><td>/getchattokenemaillink</td><td>取得Character.AI的連線token (步驟1/2)</td></tr>
-<tr><td>/getchattoken</td><td>取得Character.AI的連線token (步驟2/2)</td></tr>
-</table>
+## 🏗️ 系統架構
 
-<img src="https://i.imgur.com/EpOv0AT.png"><br><br>
+```mermaid
+graph TD
+    Discord[Discord API] <--> Bot[DPX Bot Python]
+    Bot <--> Redis[(Redis Queue)]
+    Bot <--> Postgres[(PostgreSQL Logs)]
+    Bot <--> MinIO[(MinIO S3 Storage)]
+    
+    Tunnel[Cloudflare Tunnel] --> User[User Browser]
+    MinIO --> Tunnel
+```
 
-### **播音樂功能**
-<table>
-<tr><td>/play + (網址)</td><td>播放該音樂，若為播放清單將從該項的位置依序加入</td></tr>
-<tr><td>/playlocal + (音樂檔案路徑)</td><td>播放本機音樂檔案(僅限開bot的管理員使用)</td></tr>
-<tr><td>/add + (網址)</td><td>增加該音樂至播放隊列，若為播放清單將從該項的位置依序加入</td></tr>
-<tr><td>/addlocal + (音樂檔案路徑)</td><td>增加本機音樂檔案至播放隊列(僅限開bot的管理員使用)</td></tr>
-<tr><td>/pause</td><td>暫停播放音樂</td></tr>
-<tr><td>/resume</td><td>恢復播放音樂</td></tr>
-<tr><td>/skip</td><td>跳過目前曲目</td></tr>
-<tr><td>/loop</td><td>切換單曲重複播放</td></tr>
-<tr><td>/stop</td><td>停止播放音樂 並清除音樂資料</td></tr>
-<tr><td>/queue</td><td>查看音樂播放隊列</td></tr>
-<tr><td>/nowplaying</td><td>查看現正播放的音樂</td></tr>
-<tr><td>/download</td><td>下載現正播放的音樂</td></tr>
-<tr><td>/join</td><td>加入用戶所在語音頻道</td></tr>
-</table>
-支援播放的來源：YouTube影片、直播、播放清單、合輯，Google雲端檔案，bilibili影片、影片列表、電腦本地檔案<br>
-如果播音樂發生問題，請使用/stop清除資料，並再重新操作一次，實在不行請重啟bot
-<br><br>
+---
 
-<img src="https://i.imgur.com/wP00thf.png"><br>
-<img src="https://i.imgur.com/Nanq16d.png"><br>
-<img src="https://i.imgur.com/4izMhJm.png"><br><br>
+## 🐧 Linux / 原生環境快速部署
 
-### **訊息歷史紀錄功能**
-<table>
-<tr><td>/history</td><td>查詢最近25則修改的文字訊息</td></tr>
-<tr><td>/historyf + (數字)</td><td>回傳前第n個被刪除的檔案訊息</td></tr>
-<tr><td>/historyflist</td><td>回傳已刪除的附件檔案列表</td></tr>
-<tr><td>/historyall + (選項 選項 選項)</td><td>匯出欲查詢的的文字訊息類型總集之Excel檔，只選擇欲查詢的項目即可</td></tr>
-</table>
+### 1. 取得程式碼
+```bash
+git clone https://github.com/DeePingXian/DPX_Discord_Bot.git
+cd DPX_Discord_Bot
+cp .env.example .env
+```
 
-<img src="https://i.imgur.com/OjLJWQ1.png"><br>
-<img src="https://i.imgur.com/numxDRL.png"><br>
-<img src="https://i.imgur.com/cD4lOMI.png"><br><br>
+### 2. 準備設定
+將設定資訊填入 `.env` (參考 `.env.example`)。
 
-### **應答機功能**
-<table>
-<tr><td>/sendansweringmsglist</td><td>傳送應答訊息列表檔案</td></tr>
-<tr><td>/editansweringmsglist</td><td>修改應答訊息列表（請附上應答訊息列表檔案）</td></tr>
-</table>
-每個Discord群組都是單獨設置，彼此不會互相干擾<br>
-若訊息符合設定條件，bot會回傳設定的訊息內容，若要關閉此功能請將應答列表清空<br>
-\assets\answeringMachine\資料夾裡有設定範例<br>
-新增/刪除訊息附件檔案須手動於\assets\answeringMachine\(該Discord群組ID)\下放置檔案/刪除<br>
-<br><br>
+### 3. 使用 Docker Compose 部署
+您可以選擇從源碼構建，或是直接拉取 GitHub Registery (GHCR) 上的本專案映像檔：
 
-### **新人加入歡迎訊息功能**
-<table>
-<tr><td>/sendwelcomemsglist</td><td>傳送新人加入歡迎訊息列表檔案</td></tr>
-<tr><td>/editwelcomemsglist</td><td>修改新人加入歡迎訊息（請附上歡迎訊息列表檔案）</td></tr>
-</table>
-每個Discord群組都是單獨設置，彼此不會互相干擾<br>
-<br><br>
+#### 方法 A：從源始程式碼構建
+```bash
+sudo docker-compose up -d --build
+```
 
-### **產生連結功能**
-<table>
-<tr><td>/nh + (車號)</td><td>傳送該nh本子連結</td></tr>
-<tr><td>/jm + (車號)</td><td>傳送該JM本子連結</td></tr>
-<tr><td>/wn + (車號)</td><td>傳送該wnacg本子連結</td></tr>
-<tr><td>/pix + (作品號)</td><td>傳送該pixiv作品連結</td></tr>
-<tr><td>/pixu + (作者號)</td><td>傳送該pixiv作者連結</td></tr>
-<tr><td>/twiu + (用戶ID)</td><td>傳送該X(twitter)用戶連結</td></tr>
-</table>
-<br><br>
+#### 方法 B：使用預編譯映像檔 (最快)
+修改 `docker-compose.yml` 中的 `bot` 服務，將 `build:` 區塊替換為：
+```yaml
+image: ghcr.io/deepingxian/dpx_discord_bot:latest
+```
+接著執行：
+```bash
+sudo docker-compose up -d
+```
 
-### **其他功能**
-<table>
-<tr><td>/help</td><td>查詢指令</td></tr>
-<tr><td>/status</td><td>回傳bot狀態</td></tr>
-<tr><td>/majorarcana + (訊息)</td><td>根據訊息內容使用大密儀塔羅牌占卜</td></tr>
-<tr><td>/majorarcana3 + (訊息)</td><td>根據訊息內容使用三張大密儀塔羅牌占卜</td></tr>
-</table>
+---
 
-<img src="https://i.imgur.com/nD9AF8u.png"><br>
-<img src="https://i.imgur.com/ttdxmLe.png"><br><br>
-<img src="https://i.imgur.com/gyIRSVa.png"><br><br>
+## 🪟 Windows 基礎部署教學
 
-***
-## 使用了以下非標準 Python package
-<table>
-<tr><td>項目</td><td>版本</td><td>授權</td></tr>
-<tr><td>discord.py[voice]</td><td>2.4.0</td><td>MIT License</td></tr>
-<tr><td>AioCAI</td><td>1.0.1</td><td>MIT License</td></tr>
-<tr><td>fake-useragent</td><td>2.2.0</td><td>Apache License Version 2.0</td></tr>
-<tr><td>gdown</td><td>5.2.0</td><td>MIT License</td></tr>
-<tr><td>openpyxl</td><td>3.1.2</td><td>MIT License</td></tr>
-<tr><td>PyCharacterAI</td><td>2.2.47</td><td>MIT License</td></tr>
-<tr><td>PyMySQL</td><td>1.1.1</td><td>MIT License</td></tr>
-<tr><td>Requests</td><td>2.31.0</td><td>Apache License Version 2.0</td></tr>
-<tr><td>yt-dlp</td><td>2025.6.25</td><td>The Unlicense</td></tr>
-</table>
+如果您是 Windows 使用者，請按照以下步驟操作：
 
-***
-## 已知問題
-- 更新版本時，Discord裡的斜線指令無法自動更新，須重邀一遍bot加入群組才行(不須踢出bot)，雖然網路上有許多自動、手動、分群組更新的方法，但這裡測試後發現全部無法使用，所以更新程式版本也需一併重邀bot
-- 無法播放「<a href="https://www.youtube.com/watch?v=rPJz3syNbtE">https://www.youtube.com/watch?v=rPJz3syNbtE</a>」，且會造成程式錯誤
-- 本專案完全由本人於閒暇時間維護，更新較慢，敬請見諒！
+### 1. 安裝環境工具 (只需一次)
+- **安裝 WSL (Windows Subsystem for Linux)**：這是運行 Docker 的基礎。
+- **安裝 Docker Desktop**：前往 [Docker 官網](https://www.docker.com/products/docker-desktop/) 下載並安裝。安裝過程中若提示使用 WSL 2 引擎，請確保已勾選。
+- **啟動 Docker**：進行下一步前，請確保 Docker Desktop 是啟動狀態。
+
+### 2. 下載專案與準備設定
+- **下載程式碼**：點擊本頁面右上角的 `Code` -> `Download ZIP`，解壓縮到您偏好的資料夾。
+- **建立設定檔**：
+    1. 在資料夾中找到 `.env.example`。
+    2. 將其重新命名為 `.env`。
+    3. 使用「記事本」開啟 `.env`，填入您的 **DISCORD_TOKEN** 與 **LOG_CHANNEL_ID** (Bot 報告頻道)。
+
+### 3. 啟動機器人
+1. 在專案資料夾的空白處，按滑鼠右鍵，選擇「**在終端中開啟**」。
+2. 輸入以下指令並按 Enter：
+   ```powershell
+   docker-compose up -d --build
+   ```
+3. **完成！** 您可以關閉視窗了，機器人會自動在背景執行。
+
+---
+
+### 如何確認成功？
+回到 Discord，在頻道輸入 `/status`。如果 Bot 回覆了系統狀態，代表大功告成！
+
+![](https://i.imgur.com/DQYX6bW.jpeg)
+
+---
+
+## 🎮 指令概覽
+
+### 範例圖片均為示意用途，使用時會根據實際情況、程式版本而變化
+
+使用 `/help` 呼叫互動式選單查看詳細指令說明：
+
+| 模組 | 主要指令 | 說明 |
+| :--- | :--- | :--- |
+| **音樂** | `/play`, `/skip`, `/queue` | 支援 YouTube/BiliBili/Google雲端 來源音訊。 |
+| **歷史** | `/history` | 查詢已編輯/刪除訊息，整合圖片預覽與本地下載連結。 |
+| **歡迎** | `/welcome_add`, `/welcome_toggle` | 元件化隨機組合歡迎訊息。 |
+| **系統** | `/status` | 即時監控三套資料庫與網路穿隧狀態。 |
+| **工具** | `/pix`, `/twiu` | 快速產生各站連結。 |
+
+![](https://i.imgur.com/eh7VAIh.jpeg)  
+![](https://i.imgur.com/YoqKtJG.jpeg)  
+![](https://i.imgur.com/2a4A0lv.jpeg)  
+![](https://i.imgur.com/OhZIrJK.jpeg)  
+![](https://i.imgur.com/fcEGzRh.jpeg)  
+![](https://i.imgur.com/5wqZCdl.jpeg)  
+![](https://i.imgur.com/CJw0zlp.jpeg)  
+![](https://i.imgur.com/wEmOp9v.jpeg)  
+![](https://i.imgur.com/kwu5WEf.jpeg)  
+![](https://i.imgur.com/yuwys2z.jpeg)  
+
+---
+
+## 📋 維護與監控
+
+### 常用指令
+- **查看 Bot 狀態**：`sudo docker-compose ps`
+- **查看即時日誌**：`sudo docker-compose logs -f bot`
+- **重啟 Bot**：`sudo docker-compose restart bot`
+- **完全重置 (清除所有資料)**：`sudo docker-compose down -v`
+
+### 管理介面
+- **MinIO 檔案管理**：瀏覽器訪問 `http://localhost:9001` (帳密設定於 .env)
+- **PostgreSQL**：運作於 `localhost:5432`
+
+![](https://i.imgur.com/8h0ZX7f.jpeg)
+
+---
+
+## 💾 資料遷移與備份
+
+如果您需要更換主機或備份資料，請參考以下指令：
+
+### 1. 備份 PostgreSQL 文字資料
+```bash
+# 將所有紀錄匯出為 backup.sql
+sudo docker exec -t dpx-db-postgres pg_dumpall -c -U dpx_discord_bot > backup.sql
+```
+
+### 2. 備份 MinIO 附件檔案
+MinIO 的資料存放在 Docker Volume 中，建議直接打包對應的資料夾：
+```bash
+# 停止容器後，備份專案目錄下的所有檔案與 Docker Volume
+sudo tar -czvf dpx_discord_bot_backup.tar.gz .
+```
+
+### 3. 還原資料
+在新機器部署完成後，執行：
+```bash
+# 將備份的 SQL 倒回資料庫
+cat backup.sql | sudo docker exec -i dpx-db-postgres psql -U dpx_discord_bot
+```
+
+---
+
+## 📝 TODO 發展藍圖
+
+- [ ] **vLLM AI 整合**：連接本地或遠端 vLLM 推論伺服器，讓 Bot 具備強大的語言模型對話能力（已基於本地 Qwen3.5 27B 開發完成，待抽空補全文檔並公開）。
+- [ ] **應答機功能回歸**：重構應答機模組，支援直接在 Discord 新增規則並自動同步附件至 S3。
+- [ ] **Web 介面回歸**：開發前端控制台，讓管理員能透過網頁更直觀的查看訊息歷史紀錄、編輯應答規則。
+- [ ] **多語系支援**：支援多種語言切換。
+
+---
+
+## ⚠️ 注意事項
+
+- **資料持久化**：所有數據皆儲存於 Docker Volumes 中，容器更新不會導致資料遺失。
+- **指令同步**：若更新後指令未顯示，請將 Bot 重新邀請入群以強制刷新斜線指令。
+
+---
+
+## 🤝 聯絡與支援
+
+- **開發者**：地平線 DeePingXian
+- **討論群組**：若想體驗尚未公開的最新功能、提供建議或回報 Bug，歡迎加入 [DPX Discord Bot 論道堂](https://discord.gg/wJnNm8Fg9e)！
+- **授權**：MIT License
+
+---
+*本專案由作者於閒暇時間維護，更新緩慢敬請見諒！*
