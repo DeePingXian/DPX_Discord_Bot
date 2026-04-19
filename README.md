@@ -65,17 +65,17 @@ cp .env.example .env
 
 #### 方法 A：從源始程式碼構建
 ```bash
-sudo docker-compose up -d --build
+sudo docker compose up -d --build
 ```
 
 #### 方法 B：使用預編譯映像檔 (最快)
-修改 `docker-compose.yml` 中的 `bot` 服務，將 `build:` 區塊替換為：
+修改 `compose.yml` 中的 `bot` 服務，將 `build:` 區塊替換為：
 ```yaml
 image: ghcr.io/deepingxian/dpx_discord_bot:latest
 ```
 接著執行：
 ```bash
-sudo docker-compose up -d
+sudo docker compose up -d
 ```
 
 ---
@@ -100,7 +100,7 @@ sudo docker-compose up -d
 1. 在專案資料夾的空白處，按滑鼠右鍵，選擇「**在終端中開啟**」。
 2. 輸入以下指令並按 Enter：
    ```powershell
-   docker-compose up -d --build
+   docker compose up -d --build
    ```
 3. **完成！** 您可以關閉視窗了，機器人會自動在背景執行。
 
@@ -143,10 +143,10 @@ sudo docker-compose up -d
 ## 📋 維護與監控
 
 ### 常用指令
-- **查看 Bot 狀態**：`sudo docker-compose ps`
-- **查看即時日誌**：`sudo docker-compose logs -f bot`
-- **重啟 Bot**：`sudo docker-compose restart bot`
-- **完全重置 (清除所有資料)**：`sudo docker-compose down -v`
+- **查看 Bot 狀態**：`sudo docker compose ps`
+- **查看即時日誌**：`sudo docker compose logs -f bot`
+- **重啟 Bot**：`sudo docker compose restart bot`
+- **完全重置 (清除所有資料)**：`sudo docker compose down -v`
 
 ### 管理介面
 - **MinIO 檔案管理**：瀏覽器訪問 `http://localhost:9001` (帳密設定於 .env)
